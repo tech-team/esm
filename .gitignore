@@ -5,6 +5,9 @@ __pycache__/
 # C extensions
 *.so
 
+# IDEA
+expert_system/.idea/workspace.xml
+
 # Distribution / packaging
 .Python
 env/
