@@ -11,6 +11,6 @@ def editor(request):
                 {'useless': 'value'})
 
 
-def main(request):
-    return render(request, 'main.html',
+def client(request):
+    return render(request, 'client.html',
                 {'useless': 'value'})
