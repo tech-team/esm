@@ -1,2 +1,2 @@
-# recommender
-Recommendation system
+# expert-system
+Expert system
