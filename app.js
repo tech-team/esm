@@ -4,6 +4,22 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var flash = require('connect-flash');
+var passport = require('passport');
+var session = require('express-session');
+var requireTree = require('require-tree');
+
+// connect to mongodb
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/express-system', function(err) {
+    if (err) {
+        console.error("Unable to connect to MongoDB server", err);
+        process.exit(-1);
+    }
+});
+
+// initialize models
+var models = requireTree('./routes/models/');
 
 var templates = require('./routes/templates');
 var api = require('./routes/api');
@@ -33,28 +49,28 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
-
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
-});
+//
+//// development error handler
+//// will print stacktrace
+//if (app.get('env') === 'development') {
+//    app.use(function(err, req, res, next) {
+//        res.status(err.status || 500);
+//        res.render('error', {
+//            message: err.message,
+//            error: err
+//        });
+//    });
+//}
+//
+//// production error handler
+//// no stacktraces leaked to user
+//app.use(function(err, req, res, next) {
+//    res.status(err.status || 500);
+//    res.render('error', {
+//        message: err.message,
+//        error: {}
+//    });
+//});
 
 
 module.exports = app;
