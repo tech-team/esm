@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/static/css/style.css" />
 
     <!-- PrototypeJS 1.7.2 fails to work with AMD -->
-    <script src="/static/js/lib/dev/prototype.js"></script>
+    <script src="/static/js/lib/min/prototype.js"></script>
     <script data-main="/static/js/editor" src="/static/js/lib/min/require.js"></script>
 </head>
 <body>
@@ -20,39 +20,112 @@
 <header class="navbar navbar-default">
     <div class="container">
         <h1>ES
-            <small>editor</small>
+            <small>редактор</small>
+            <span class="pull-right btn-group model-buttons">
+                <button id="save-model" class="ui-button" title="Save"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
+                <button id="open-model" class="ui-button" title="Open"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span></button>
+                <button id="create-model" class="ui-button" title="New"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></button>
+            </span>
         </h1>
     </div>
 </header>
 
-<div class="container">
+<script id="combobox-template" language="text/html">
+    <input type="text" list="{list_id}" data-entry-id="{entry_id}" />
+    <datalist id="{list_id}" />
+</script>
 
+<div class="container">
+    <section id="model">
+        <h3>Модель</h3>
+        <label for="model-name">Имя:</label>
+        <input type="text" id="model-name" />
+    </section>
+
+    <section id="parameters">
+        <h3>Параметры</h3>
+        <table id="parameters-table"></table>
+    </section>
+
+    <section id="question-order">
+        <h3>Порядок опроса</h3>
+        <table class="question-order-table">
+            <thead>
+            <tr>
+                <th data-field="from_question">Если был задан</th>
+                <th data-field="from_value">и выбран ответ</th>
+                <th data-field="to_question">то перейти к</th>
+                <th data-field="skip_question">и не задавать</th>
+            </tr>
+            </thead>
+        </table>
+    </section>
+
+    <section id="questions">
+        <h3>Вопросы</h3>
+        <table id="parameters-table">
+            <thead>
+            <tr>
+                <th data-field="id">ID</th>
+                <th data-field="text">Текст</th>
+                <th data-field="parameter_id">ID параметра</th>
+                <th data-field="parameter_name">Название параметра</th>
+            </tr>
+            </thead>
+        </table>
+    </section>
+
+    <section id="attributes">
+        <h3>Аттрибуты</h3>
+        <table id="attributes-table">
+            <thead>
+            <tr>
+                <th data-field="id">ID</th>
+                <th data-field="name">Навание</th>
+                <th data-field="type">Тип</th>
+                <th data-field="values">Значения</th>
+            </tr>
+            </thead>
+        </table>
+    </section>
+
+    <section id="derivation-rules">
+        <h3>Правила вывода</h3>
+        <table id="derivation-rules-table">
+            <thead>
+            <tr>
+                <th data-field="text">Если параметр</th>
+                <th data-field="parameter_id">имеет значение</th>
+                <th data-field="parameter_name">Название параметра</th>
+            </tr>
+            </thead>
+        </table>
+    </section>
 </div>
 
 <!-- jQ-ui dialogs -->
-<div id="simulation-complete-dialog" title="Simulation complete">
-    <p>
-        Simulation completed successfully.
-    </p>
-    <p>
-        Show report?
-    </p>
-</div>
+<div class="ui-dialogs">
+    <div id="model-saved-dialog" title="Model saved">
+        <p>
+            Model saved successfully.
+        </p>
+    </div>
 
-<div id="model-chooser-dialog" title="Choose a model to load">
-    <form>
-        <label for="model-chooser-dialog-select">Choose a model to load</label>
-        <select id="model-chooser-dialog-select"></select>
-    </form>
-</div>
+    <div id="model-chooser-dialog" title="Choose a model to load">
+        <form>
+            <label for="model-chooser-dialog-select">Choose a model to load</label>
+            <select id="model-chooser-dialog-select"></select>
+        </form>
+    </div>
 
-<div id="create-confirm-dialog" title="Create new model">
-    <p>
-        Do you really want to create a new model?
-    </p>
-    <p>
-        All unsaved data will be lost.
-    </p>
+    <div id="create-confirm-dialog" title="Create new model">
+        <p>
+            Do you really want to create a new model?
+        </p>
+        <p>
+            All unsaved data will be lost.
+        </p>
+    </div>
 </div>
 
 </body>
