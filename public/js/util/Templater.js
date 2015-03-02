@@ -1,17 +1,22 @@
-define(['jquery'], function($) {
+define(['jquery', 'mustache'], function($, mustache) {
     /**
      * Load templates as strings.
      * To be able to use mustache on frontend - use singe braces only
      * eg. '{' instead '{{' and '}' instead '}}'
      */
-    function makeTemplate(selector) {
+    function load(selector) {
         var $template = $(selector);
         var str = $template.html();
 
         return str.replace(/{/g, "{{").replace(/}/g, "}}");
     }
 
+    function render(template, params) {
+        return mustache.render(template, params);;
+    }
+
     return {
-        makeTemplate: makeTemplate
+        load: load,
+        render: render
     };
 });
