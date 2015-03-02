@@ -22,7 +22,8 @@ mongoose.connect('mongodb://localhost/express-system', function(err) {
 var models = requireTree('./routes/models/');
 
 var templates = require('./routes/templates');
-var api = require('./routes/api');
+var api_editor = require('./routes/api_editor');
+var api_client = require('./routes/api_client');
 
 var app = express();
 
@@ -39,7 +40,8 @@ app.use(cookieParser());
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
 app.use('/', templates);
-app.use('/api', api);
+app.use('/api/editor', api_editor);
+app.use('/api/client', api_client);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
