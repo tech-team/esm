@@ -2,53 +2,65 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
     function($, Templater, Exceptions, Model) {
         var Editor = Class.create({
             initialize: function (api) {
-                this.model = new Model();
+                this._model = new Model();
     
-                this.templates = this.loadTemplates();
-                
+                this._templates = this._loadTemplates();
+
+                this._valueTypes = [
+                    {
+                        value: "choice",
+                        text: "Выбор"
+                    },
+                    {
+                        value: "number",
+                        text: "Число"
+                    }
+                ];
+
                 var $parametersTable = $('#parameters-table');
-    
-    
                 $parametersTable.bootstrapTable({
                     striped: true,
                     loading: false,
-                    data: this.model.getParameters(),
+                    data: this._model.getParameters(),
     
                     columns: [
                         {
                             field: 'id',
                             title: 'ID',
-                            formatter: this.textFieldFormatter.bind(this)
+                            formatter: this._textFieldFormatter.bind(this)
                         },
                         {
                             field: 'name',
                             title: 'Название',
-                            formatter: this.inputFieldFormatter.bind(this),
+                            formatter: this._inputFieldFormatter.bind(this)
                         },
                         {
                             field: 'type',
                             title: 'Тип',
-                            formatter: this.selectFieldFormatter.bind(this),
+                            formatter: this._selectFieldFormatter.bind(
+                                this,
+                                this._valueTypes)
                         },
                         {
                             field: 'values',
                             title: 'Значения',
-                            formatter: this.inputFieldFormatter.bind(this),
+                            formatter: this._inputFieldFormatter.bind(this)
                         },
                         {
                             field: 'operate',
                             title: "",
-                            formatter: this.operateFieldFormatter.bind(this),
+                            formatter: this._operateFieldFormatter.bind(this),
                             events: {
-                                'click .edit': this.editRow.bind(this),
-                                'click .remove': this.removeRow.bind(this)
+                                'click .edit': this._editRow.bind(this),
+                                'click .remove': this._removeRow.bind(this)
                             }
                         }
                     ]
                 });
+                $parametersTable.bootstrapTable('hideLoading');
             },
     
-            loadTemplates: function () {
+            _loadTemplates: function () {
                 return {
                     input: Templater.load('#input-template'),
                     select: Templater.load('#select-template'),
@@ -57,36 +69,38 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 };
             },
 
-            textFieldFormatter: function (value, row, index) {
+            _textFieldFormatter: function (value, row, index) {
                 return value;
             },
 
-            inputFieldFormatter: function (value, row, index) {
-                return Templater.render(this.templates.input, {
+            _inputFieldFormatter: function (value, row, index) {
+                return Templater.render(this._templates.input, {
                     value: value
                 });
             },
 
-            selectFieldFormatter: function (value, row, index) {
+            _selectFieldFormatter: function (entries, value, row, index) {
                 //TODO: params: list, ids
-                return Templater.render(this.templates.select);
+                return Templater.render(this._templates.select, {
+                    entries: entries
+                });
             },
 
-            comboboxFieldFormatter: function (value, row, index) {
+            _comboboxFieldFormatter: function (entries, value, row, index) {
                 //TODO: params: list, ids
-                return Templater.render(this.templates.combobox);
+                return Templater.render(this._templates.combobox);
             },
 
-            operateFieldFormatter: function (value, row, index) {
-                return Templater.render(this.templates.operate);
+            _operateFieldFormatter: function (value, row, index) {
+                return Templater.render(this._templates.operate);
             },
     
-            editRow: function (e, value, row, index) {
-                alert("editRow: " + row);
+            _editRow: function (e, value, row, index) {
+                alert("_editRow: " + row);
             },
     
-            removeRow: function (e, value, row, index) {
-                alert("removeRow: " + row);
+            _removeRow: function (e, value, row, index) {
+                alert("_removeRow: " + row);
             },
     
             // button click handlers

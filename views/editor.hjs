@@ -42,7 +42,7 @@
 <script id="select-template" language="text/html">
     <select id="{table_name}-{field}-{entry_id}" data-entry-id="{entry_id}">
         {#entries}
-        <option>{ . }</option>
+        <option value="{value}">{text}</option>
         {/entries}
     </select>
 </script>
@@ -51,7 +51,7 @@
     <input type="text" id="{table_name}-{field}-{entry_id}" list="{list_id}" data-entry-id="{entry_id}" />
     <datalist id="{list_id}">
         {#entries}
-            <option>{.}</option>
+        <option value="{value}">{text}</option>
         {/entries}
     </datalist>
 </script>
@@ -70,8 +70,12 @@
 <div class="container">
     <section id="model">
         <h3>Модель</h3>
-        <label for="model-name">Имя:</label>
-        <input type="text" id="model-name" />
+        <label for="model-name">Название:</label>
+        <input
+                type="text"
+                id="model-name"
+                class="form-control"
+                placeholder="Экспертная система выбора..."/>
     </section>
 
     <section id="parameters">
