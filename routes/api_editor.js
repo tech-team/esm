@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var Model = mongoose.model('model');
 
 function validateModel(model, checkForId) {
-    if (!model || model == {}) {
+    if (_.isEmpty(model)) {
         return false;
     }
 
