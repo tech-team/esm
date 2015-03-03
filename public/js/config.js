@@ -2,7 +2,8 @@ requirejs.config({
     baseUrl: '/static/js/lib/min',
     paths: {
         editor: '/static/js/editor',
-        main: '/static/js/main/',
+        client: '/static/js/client/',
+        test: '/static/js/test/',
         api: '/static/js/api/',
         util: '/static/js/util/'
     },

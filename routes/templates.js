@@ -13,4 +13,8 @@ router.get('/client', function(req, res, next) {
     res.render('client', { title: 'Express' });
 });
 
+router.get('/testRunner', function(req, res, next) {
+    res.render('testRunner', { title: 'Express' });
+});
+
 module.exports = router;
