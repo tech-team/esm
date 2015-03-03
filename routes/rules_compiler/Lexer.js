@@ -58,6 +58,13 @@ class Lexer {
             }
         ];
 
+        this.STATE = {
+            NONE: Symbol("NONE"),
+            OPERATION: Symbol("OPERATION"),
+            NUMBER: Symbol("NUMBER"),
+            ALPHA: Symbol("ALPHA")
+        };
+
         this.SYMBOLS = ['>', '<', '=', '!'];
 
         this.stringStream = stringStream;
@@ -70,10 +77,12 @@ class Lexer {
             value: ""
         };
 
+        var state = this.STATE.NONE;
+
         var ch = this.stringStream.poll();
         while (true) {
             if (ch == null) {
-                if (token.value != "") {
+                if (state != this.STATE.NONE) {
                     this.analyzeToken(token);
                     return token;
                 } else {
@@ -83,6 +92,9 @@ class Lexer {
 
             ch = ch.toLowerCase();
             if (Lexer.isAlpha(ch)) {
+                if (state == this.STATE.NONE)
+                    state = this.STATE.ALPHA;
+
                 let op = _.find(this.OPERATORS, {value: token.value});
                 if (op) {
                     token.type = op.type;
@@ -106,7 +118,7 @@ class Lexer {
                 token.value += ch;
                 this.stringStream.next();
             } else if (ch == ' ') {
-                if (token.value != "") {
+                if (state != this.STATE.NONE) {
                     this.analyzeToken(token);
                     this.stringStream.next();
                     return token;
@@ -127,6 +139,7 @@ class Lexer {
                 } else {
                     // begin of operation
                     token.value += ch;
+                    token.type = this.TYPE.OPERATION;
                     this.stringStream.next();
                 }
             } else {

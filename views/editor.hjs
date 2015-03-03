@@ -22,9 +22,9 @@
         <h1>ES
             <small>редактор</small>
             <span class="pull-right btn-group model-buttons">
-                <button id="save-model" class="ui-button" title="Save"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
-                <button id="open-model" class="ui-button" title="Open"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span></button>
-                <button id="create-model" class="ui-button" title="New"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></button>
+                <button class="ui-button save-model" title="Save"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></button>
+                <button class="ui-button save-model" title="Open"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span></button>
+                <button class="ui-button create-model" title="New"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></button>
             </span>
         </h1>
     </div>
@@ -81,6 +81,12 @@
     <section id="parameters">
         <h3>Параметры</h3>
         <table id="parameters-table"></table>
+        <div class="add-button-wrapper">
+            <button id="add-parameter" class="btn text-right add-button pull-right">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Добавить
+            </button>
+        </div>
     </section>
 
     <section id="question-order">
@@ -127,16 +133,13 @@
 
     <section id="derivation-rules">
         <h3>Правила вывода</h3>
-        <table id="derivation-rules-table">
-            <thead>
-            <tr>
-                <th data-field="text">Если параметр</th>
-                <th data-field="parameter_id">имеет значение</th>
-                <th data-field="parameter_name">Название параметра</th>
-            </tr>
-            </thead>
-        </table>
+        <label for="derivation-rules-textarea">(по одному правилу на строку)</label>
+        <textarea id="derivation-rules-textarea" class="form-control" placeholder="если параметр=10 и другой_параметр>30 то атрибут=20"></textarea>
     </section>
+
+    <footer id="buttons" class="pull-right">
+        <button class="btn btn-primary save-model">Сохранить</button>
+    </footer>
 </div>
 
 <!-- jQ-ui dialogs -->

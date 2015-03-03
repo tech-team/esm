@@ -5,3 +5,15 @@
 .ui-dialogs {
     display: none;
 }
+
+footer {
+    padding: 20px;
+}
+
+.add-button {
+    margin-top: -10px;
+}
+
+.add-button-wrapper {
+    height: 20px;
+}
