@@ -10,9 +10,11 @@ var lexer = new Lexer(
 var tokens = [];
 
 var token = null;
-while ((token = lexer.getNextToken()) != null ) {
+while ((token = lexer.getNextToken()).type != lexer.TYPE.EOF ) {
     tokens.push(token);
 }
 
+console.log();
+console.log("--------------------------------");
 console.log(tokens);
 console.assert(tokens.length == 8);

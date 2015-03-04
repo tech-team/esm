@@ -49,7 +49,7 @@ class Lexer {
                 domain: /\d|\./},
             OPERATION: {
                 type: Symbol('OPERATION'),
-                domain: /=><!/},
+                domain: /=|>|<|!/},
             UNARY: {
                 type: Symbol('UNARY'),
                 domain: /-/},
@@ -58,8 +58,9 @@ class Lexer {
                 domain: null},
             SPACE: {
                 type: Symbol('SPACE'),
-                domain: /\S/}
+                domain: /\s/}
         };
+
 
         this.OPERATIONS = [
             {
@@ -104,10 +105,23 @@ class Lexer {
 
         var state = this.STATE.NONE;
 
-        var ch = this.stringStream.poll();
+        var ch = this.stringStream.next();
         while (state != this.STATE.END) {
-            let charClass = this.getCharClass();
+            let charClass = this.getCharClass(ch);
+            if (!charClass) {
+                this.onError("Unknown character: " + ch);
+                return null;
+            }
+
             let nextState = this.getNextState(token, state, charClass);
+
+            console.log("State: ", state.toString());
+            console.log("Char: ", ch);
+            console.log("Char class: ", charClass.type.toString());
+            console.log("Next state: ", nextState.toString());
+            console.log();
+
+            state = nextState;
 
             if (state == this.STATE.ERROR) {
                 this.onError("Unrecognized token:" + token.value);
@@ -119,10 +133,12 @@ class Lexer {
                 ch = this.stringStream.next();
             } else {
                 // do not move stream unless ch is space
-                if (this.CHAR_TYPE.SPACE.test(ch))
+                if (this.CHAR_CLASS.SPACE.domain.test(ch))
                     this.stringStream.next();
 
                 token.type = this.deduceTokenType(token);
+
+                console.log("Token parsed: ", token);
                 return token;
             }
         }
@@ -130,14 +146,14 @@ class Lexer {
 
     getCharClass(ch) {
         if (ch == null)
-            return this.CHAR_CLASS.NULL.type;
+            return this.CHAR_CLASS.NULL;
 
         var charClass = _.find(this.CHAR_CLASS, function (classObject) {
             if (classObject.domain && classObject.domain.test(ch))
                 return true;
         });
 
-        return charClass.type;
+        return charClass;
     }
 
     getNextState(token, currentState, charClass) {
@@ -153,7 +169,7 @@ class Lexer {
                     case this.CHAR_CLASS.UNARY:
                         return this.STATE.NUMBER;
                     case this.CHAR_CLASS.NULL:
-                        return this.STATE.ERROR;
+                        return this.STATE.END;
                     case this.CHAR_CLASS.SPACE:
                         return this.STATE.NONE;
                     default:
