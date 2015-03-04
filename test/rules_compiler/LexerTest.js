@@ -35,7 +35,9 @@ class LexerTest {
 
     static testMultipleAnd() {
         var sourceCode = "if a==b and c==d and e==f then m=n";
-        var tokens = LexerTest._test(sourceCode).tokens;
+        var result = LexerTest._test(sourceCode);
+        var lexer = result.lexer;
+        var tokens = result.tokens;
 
         var ands = _.filter(tokens, _.matches({type: lexer.TYPE.AND}));
         console.assert(ands.length == 2);
@@ -61,6 +63,46 @@ class LexerTest {
         console.assert(numbers.length == 3);
     }
 
+    static testNegativeNumbers() {
+        var sourceCode = "if a==-12 then m=40";
+        var result = LexerTest._test(sourceCode);
+        var lexer = result.lexer;
+        var tokens = result.tokens;
+
+        var found = _.find(tokens, _.matches({
+            type: lexer.TYPE.NUMBER,
+            value: "-12"
+        }));
+        console.assert(found);
+    }
+
+    static testDecimals() {
+        var sourceCode = "if a==1.2 then m=40";
+        var result = LexerTest._test(sourceCode);
+        var lexer = result.lexer;
+        var tokens = result.tokens;
+
+        var found = _.find(tokens, _.matches({
+            type: lexer.TYPE.NUMBER,
+            value: "1.2"
+        }));
+        console.assert(found);
+    }
+
+    //TODO: change in future
+    static testMulipleDots() {
+        var sourceCode = "if a==1.2.3.4..5 then m=40";
+        var result = LexerTest._test(sourceCode);
+        var lexer = result.lexer;
+        var tokens = result.tokens;
+
+        var found = _.find(tokens, _.matches({
+            type: lexer.TYPE.NUMBER,
+            value: "1.2.3.4..5"
+        }));
+        console.assert(found);
+    }
+
     static testOperations() {
         var sourceCode = "if a>10 and c<20 then m=50";
         var result = LexerTest._test(sourceCode);
@@ -83,8 +125,8 @@ class LexerTest {
             tokens.push(token);
         }
 
-        console.log();
-        console.log("--------------------------------");
+        //console.log();
+        //console.log("--------------------------------");
         console.log(tokens);
 
         return {
@@ -101,10 +143,10 @@ _.forOwn(LexerTest, function (method) {
             method();
         } catch(e) {
             console.error("-------[TEST] " + method.name + " failed");
-            console.error(e);
+            console.error(e.stack);
             console.info();
 
-            return true;
+            return false;
         }
         console.info("-------[TEST] " + method.name + " finished");
         console.info();

@@ -124,11 +124,11 @@ class Lexer {
 
             let nextState = this.getNextState(token, state, charClass);
 
-            console.log("State: ", state.toString());
-            console.log("Char: ", ch);
-            console.log("Char class: ", charClass.type.toString());
-            console.log("Next state: ", nextState.toString());
-            console.log();
+            //console.log("State: ", state.toString());
+            //console.log("Char: ", ch);
+            //console.log("Char class: ", charClass.type.toString());
+            //console.log("Next state: ", nextState.toString());
+            //console.log();
 
             state = nextState;
 
@@ -147,7 +147,7 @@ class Lexer {
 
                 token.type = this.deduceTokenType(token);
 
-                console.log("Token parsed: ", token);
+                //console.log("Token parsed: ", token);
                 return token;
             }
         }
@@ -276,7 +276,7 @@ class Lexer {
         if (token.value == "")
             return this.TYPE.EOF;
 
-        if (_.isNumber(token.value)) {
+        if (Lexer.isNumber(token.value)) {
             return this.TYPE.NUMBER;
         }
 
@@ -297,6 +297,10 @@ class Lexer {
         }
 
         return this.TYPE.IDENTIFIER;
+    }
+
+    static isNumber(value) {
+        return /-?\d+(\.\d+)?/.test(value);
     }
 }
 
