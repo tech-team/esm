@@ -7,6 +7,7 @@ class Lexer {
     /**
      * Lexical analyzer / tokenizer
      * @param stringStream {StringStream} data source
+     * @param onError {Function} callback
      */
     constructor(stringStream, onError) {
         this.TYPE = {
@@ -20,6 +21,8 @@ class Lexer {
             MORE: Symbol("MORE"),
             NOT_EQUAL: Symbol("NOT_EQUAL"),
 
+            ASSIGN: Symbol("ASSIGN"),
+
             AND: Symbol("AND"),
 
             EOF: Symbol("EOF")
@@ -27,15 +30,15 @@ class Lexer {
 
         this.KEY_WORDS = [
             {
-                value: "если",
+                values: ["if", "если", "коли", "ежели"],
                 type: this.TYPE.IF
             },
             {
-                value: "то",
+                values: ["then", "то", "следовательно"],
                 type: this.TYPE.THEN
             },
             {
-                value: "и",
+                values: ["and", "и"],
                 type: this.TYPE.AND
             }
         ];
@@ -43,7 +46,7 @@ class Lexer {
         this.CHAR_CLASS = {
             ALPHA: {
                 type: Symbol('ALPHA'),
-                domain: /[a-zа-я]/},
+                domain: /[a-zа-я_]/},
             NUMBER: {
                 type: Symbol('NUMBER'),
                 domain: /\d|\./},
@@ -64,20 +67,24 @@ class Lexer {
 
         this.OPERATIONS = [
             {
-                value: "=",
+                values: ["==", "equals", "equal", "равно", "равен", "является"],
                 type: this.TYPE.EQUAL
             },
             {
-                value: "<",
+                values: ["<", "less", "меньше"],
                 type: this.TYPE.LESS
             },
             {
-                value: ">",
+                values: [">", "more", "больше"],
                 type: this.TYPE.MORE
             },
             {
-                value: "!=",
+                values: ["!=", "not_equal", "не_равно", "не_равен"],
                 type: this.TYPE.NOT_EQUAL
+            },
+            {
+                values: ["=", "set", "assign", "присвоить", "будет"],
+                type: this.TYPE.ASSIGN
             }
         ];
 
@@ -105,8 +112,10 @@ class Lexer {
 
         var state = this.STATE.NONE;
 
-        var ch = this.stringStream.next();
+        var ch = this.stringStream.poll();
         while (state != this.STATE.END) {
+            ch = this.stringStream.poll();
+
             let charClass = this.getCharClass(ch);
             if (!charClass) {
                 this.onError("Unknown character: " + ch);
@@ -147,6 +156,8 @@ class Lexer {
     getCharClass(ch) {
         if (ch == null)
             return this.CHAR_CLASS.NULL;
+
+        ch = ch.toLowerCase();
 
         var charClass = _.find(this.CHAR_CLASS, function (classObject) {
             if (classObject.domain && classObject.domain.test(ch))
@@ -269,12 +280,18 @@ class Lexer {
             return this.TYPE.NUMBER;
         }
 
-        var op = _.find(this.OPERATIONS, {value: token.value});
+        var op = _.find(this.OPERATIONS, function (opObject) {
+            var values = opObject.values;
+            return _.contains(values, token.value);
+        });
         if (op) {
             return op.type;
         }
 
-        var keyWord = _.find(this.KEY_WORDS, {value: token.value});
+        var keyWord = _.find(this.KEY_WORDS, function (kwObject) {
+            var values = kwObject.values;
+            return _.contains(values, token.value);
+        });
         if (keyWord) {
             return keyWord.type;
         }
