@@ -3,7 +3,10 @@ var Lexer = require("../../routes/rules_compiler/Lexer");
 
 var sourceCode = "если это=заработает то будет=круто";
 
-var lexer = new Lexer(new StringStream(sourceCode), console.log);
+var lexer = new Lexer(
+    new StringStream(sourceCode),
+    console.log.bind(console));
+
 var tokens = [];
 
 var token = null;

@@ -7,7 +7,6 @@ class Lexer {
     /**
      * Lexical analyzer / tokenizer
      * @param stringStream {StringStream} data source
-     * @param onError {Function} callback
      */
     constructor(stringStream, onError) {
         this.TYPE = {
@@ -21,10 +20,12 @@ class Lexer {
             MORE: Symbol("MORE"),
             NOT_EQUAL: Symbol("NOT_EQUAL"),
 
-            AND: Symbol("AND")
+            AND: Symbol("AND"),
+
+            EOF: Symbol("EOF")
         };
 
-        this.WORDS = [
+        this.KEY_WORDS = [
             {
                 value: "если",
                 type: this.TYPE.IF
@@ -39,7 +40,28 @@ class Lexer {
             }
         ];
 
-        this.OPERATORS = [
+        this.CHAR_CLASS = {
+            ALPHA: {
+                type: Symbol('ALPHA'),
+                domain: /[a-zа-я]/},
+            NUMBER: {
+                type: Symbol('NUMBER'),
+                domain: /\d|\./},
+            OPERATION: {
+                type: Symbol('OPERATION'),
+                domain: /=><!/},
+            UNARY: {
+                type: Symbol('UNARY'),
+                domain: /-/},
+            NULL: {
+                type: Symbol('NULL'),
+                domain: null},
+            SPACE: {
+                type: Symbol('SPACE'),
+                domain: /\S/}
+        };
+
+        this.OPERATIONS = [
             {
                 value: "=",
                 type: this.TYPE.EQUAL
@@ -62,14 +84,17 @@ class Lexer {
             NONE: Symbol("NONE"),
             OPERATION: Symbol("OPERATION"),
             NUMBER: Symbol("NUMBER"),
-            ALPHA: Symbol("ALPHA")
+            ALPHA: Symbol("ALPHA"),
+            ALPHANUMERIC: Symbol("ALPHANUMERIC"),
+            ERROR: Symbol("ERROR"),
+            END: Symbol("END")
         };
-
-        this.SYMBOLS = ['>', '<', '=', '!'];
 
         this.stringStream = stringStream;
         this.onError = onError;
     }
+
+
 
     getNextToken() {
         var token = {
@@ -80,98 +105,165 @@ class Lexer {
         var state = this.STATE.NONE;
 
         var ch = this.stringStream.poll();
-        while (true) {
-            if (ch == null) {
-                if (state != this.STATE.NONE) {
-                    this.analyzeToken(token);
-                    return token;
-                } else {
-                    return null;
-                }
+        while (state != this.STATE.END) {
+            let charClass = this.getCharClass();
+            let nextState = this.getNextState(token, state, charClass);
+
+            if (state == this.STATE.ERROR) {
+                this.onError("Unrecognized token:" + token.value);
+                return null;
             }
 
-            ch = ch.toLowerCase();
-            if (Lexer.isAlpha(ch)) {
-                if (state == this.STATE.NONE)
-                    state = this.STATE.ALPHA;
-
-                let op = _.find(this.OPERATORS, {value: token.value});
-                if (op) {
-                    token.type = op.type;
-                    return token;
-                }
-
+            if (state != this.STATE.END) {
                 token.value += ch;
-                this.stringStream.next();
-            } else if (Lexer.isNumber(ch)) {
-                let op = _.find(this.OPERATORS, {value: token.value});
-                if (op) {
-                    token.type = op.type;
-                    return token;
-                }
-
-                if (Lexer.isAlpha(token.value))
-                    token.type = this.TYPE.IDENTIFIER;
-                else
-                    token.type = this.TYPE.NUMBER;
-
-                token.value += ch;
-                this.stringStream.next();
-            } else if (ch == ' ') {
-                if (state != this.STATE.NONE) {
-                    this.analyzeToken(token);
-                    this.stringStream.next();
-                    return token;
-                }
-            } else if (_.contains(this.SYMBOLS, ch)) {
-                if (token.value != "") {
-                    // will work for operations of length 1 and 2
-                    if (_.contains(this.SYMBOLS, token.value)) {
-                        token.value += ch;
-                        this.stringStream.next();
-                    }
-
-                    this.analyzeToken(token);
-                    // do not call next here
-                    // we will need that ch as part of next token
-
-                    return token;
-                } else {
-                    // begin of operation
-                    token.value += ch;
-                    token.type = this.TYPE.OPERATION;
-                    this.stringStream.next();
-                }
+                ch = this.stringStream.next();
             } else {
-                this.onError("Unrecognized token: " + token.value);
+                // do not move stream unless ch is space
+                if (this.CHAR_TYPE.SPACE.test(ch))
+                    this.stringStream.next();
+
+                token.type = this.deduceTokenType(token);
+                return token;
             }
-
-            ch = this.stringStream.poll();
-        }
-
-        return null; //EOF
-    }
-
-    analyzeToken(token) {
-        if (token.type)  // if token type already deduced
-            return;
-
-        var word = _.find(this.WORDS, {value: token.value});
-        if (word) {
-            token.type = word.type;
-        } else if (word = _.find(this.OPERATORS, {value: token.value})) {
-            token.type = word.type;
-        } else {
-            token.type = this.TYPE.IDENTIFIER;
         }
     }
 
-    static isAlpha(str) {
-        return /^[a-zа-я]+$/i.test(str);
+    getCharClass(ch) {
+        if (ch == null)
+            return this.CHAR_CLASS.NULL.type;
+
+        var charClass = _.find(this.CHAR_CLASS, function (classObject) {
+            if (classObject.domain && classObject.domain.test(ch))
+                return true;
+        });
+
+        return charClass.type;
     }
 
-    static isNumber(str) {
-        return /^[0-9]+$/.test(str);
+    getNextState(token, currentState, charClass) {
+        switch (currentState) {
+            case this.STATE.NONE:
+                switch (charClass) {
+                    case this.CHAR_CLASS.ALPHA:
+                        return this.STATE.ALPHA;
+                    case this.CHAR_CLASS.NUMBER:
+                        return this.STATE.NUMBER;
+                    case this.CHAR_CLASS.OPERATION:
+                        return this.STATE.OPERATION;
+                    case this.CHAR_CLASS.UNARY:
+                        return this.STATE.NUMBER;
+                    case this.CHAR_CLASS.NULL:
+                        return this.STATE.ERROR;
+                    case this.CHAR_CLASS.SPACE:
+                        return this.STATE.NONE;
+                    default:
+                        return this.STATE.ERROR;
+                }
+                break;
+
+            case this.STATE.ALPHA:
+                switch (charClass) {
+                    case this.CHAR_CLASS.ALPHA:
+                        return this.STATE.ALPHA;
+                    case this.CHAR_CLASS.NUMBER:
+                        return this.STATE.NUMBER;
+                    case this.CHAR_CLASS.OPERATION:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.UNARY:
+                        return this.STATE.ERROR;
+                    case this.CHAR_CLASS.NULL:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.SPACE:
+                        return this.STATE.END;
+                    default:
+                        return this.STATE.ERROR;
+                }
+                break;
+
+            case this.STATE.NUMBER:
+                switch (charClass) {
+                    case this.CHAR_CLASS.ALPHA:
+                        return this.STATE.ERROR;
+                    case this.CHAR_CLASS.NUMBER:
+                        return this.STATE.NUMBER;
+                    case this.CHAR_CLASS.OPERATION:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.UNARY:
+                        return this.STATE.ERROR;
+                    case this.CHAR_CLASS.NULL:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.SPACE:
+                        return this.STATE.END;
+                    default:
+                        return this.STATE.ERROR;
+                }
+                break;
+
+            case this.STATE.ALPHANUMERIC:
+                switch (charClass) {
+                    case this.CHAR_CLASS.ALPHA:
+                        return this.STATE.ALPHANUMERIC;
+                    case this.CHAR_CLASS.NUMBER:
+                        return this.STATE.ALPHANUMERIC;
+                    case this.CHAR_CLASS.OPERATION:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.UNARY:
+                        return this.STATE.ERROR;
+                    case this.CHAR_CLASS.NULL:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.SPACE:
+                        return this.STATE.END;
+                    default:
+                        return this.STATE.ERROR;
+                }
+                break;
+
+            case this.STATE.OPERATION:
+                switch (charClass) {
+                    case this.CHAR_CLASS.ALPHA:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.NUMBER:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.OPERATION:
+                        return this.STATE.OPERATION;
+                    case this.CHAR_CLASS.UNARY:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.NULL:
+                        return this.STATE.END;
+                    case this.CHAR_CLASS.SPACE:
+                        return this.STATE.END;
+                    default:
+                        return this.STATE.ERROR;
+                }
+                break;
+
+            case this.STATE.ERROR:
+                return this.STATE.ERROR;
+
+            case this.STATE.END:
+                return this.STATE.ERROR;
+        }
+    }
+
+    deduceTokenType(token) {
+        if (token.value == "")
+            return this.TYPE.EOF;
+
+        if (_.isNumber(token.value)) {
+            return this.TYPE.NUMBER;
+        }
+
+        var op = _.find(this.OPERATIONS, {value: token.value});
+        if (op) {
+            return op.type;
+        }
+
+        var keyWord = _.find(this.KEY_WORDS, {value: token.value});
+        if (keyWord) {
+            return keyWord.type;
+        }
+
+        return this.TYPE.IDENTIFIER;
     }
 }
 
