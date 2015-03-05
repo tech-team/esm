@@ -4,6 +4,7 @@ var _ = require('lodash');
 var StringStream = require("../../routes/rules_compiler/StringStream");
 var Lexer = require("../../routes/rules_compiler/Lexer");
 var Parser = require("../../routes/rules_compiler/Parser");
+var TestRunner = require('../TestRunner');
 
 class ParserTest {
     static testSimpleMath() {
@@ -42,3 +43,5 @@ _.forOwn(ParserTest, function (method) {
         console.info();
     }
 });
+
+TestRunner.run(ParserTest);
