@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 var Model = mongoose.model('model');
 var Attribute = mongoose.model('attribute');
 var Parameter = mongoose.model('parameter');
+var Question = mongoose.model('question');
 
 function validate_attr_or_param(obj) {
     if (!_.isObject(obj) || !_.isString(obj.name) || !_.isString(obj.type)) {
@@ -47,6 +48,10 @@ function validateModel(model, checkForId) {
     var params = model.data.parameters;
     var questions = model.data.quetsions;
 
+    var params_names = _.map(params, function(p) {
+        return p.name;
+    });
+
     _.forEach([attrs, params], function(arr) {
         if (arr.length === 0) {
             v = false;
@@ -54,6 +59,19 @@ function validateModel(model, checkForId) {
         }
         _.forEach(arr, validate_attr_or_param);
         if (!v) return false;
+    });
+
+    if (!v) return false;
+
+    _.forEach(model_data['questions'], function(q) {
+        if (!_.isObject(q) || !_.isString(q.text) || !_.isString(q.param)) {
+            v = false;
+            return false;
+        }
+        if (!_.includes(params_names, q.param)) {
+            v = false;
+            return false;
+        }
     });
 
     _.forEach(model_data['derivation_rules'], function(rule) {
@@ -76,11 +94,9 @@ function saveObj(params, index, Type, error_cb, next, target_arr) {
     } else {
         Type.create(params[index], function (err, obj) {
             if (err) {
-                console.log("ERROR");
                 error_cb(err, null);
                 return;
             }
-            console.log("index = " + index);
             target_arr.push(obj._id);
             saveObj(params, index + 1, Type, error_cb, next, target_arr);
         });
@@ -95,11 +111,19 @@ function saveModel(model, cb) {
     var derivRules = m_data.derivation_rules;
 
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
+        m_data.attributes = attrs_ids;
         saveObj(params, 0, Parameter, cb, function(params_ids) {
-            m_data.attributes = attrs_ids;
             m_data.parameters = params_ids;
-            Model.create(model, function(err, saved_model) {
-                cb(err, saved_model);
+            var mapped_params = _.zipObject(_.map(params, function(p){return p.name}), params_ids);
+            _.forEach(questions, function(q) {
+                q.param_id = mapped_params[q.param];
+                delete q.param;
+            });
+            saveObj(questions, 0, Question, cb, function(question_ids) {
+                m_data.questions = question_ids;
+                Model.create(model, function(err, saved_model) {
+                    cb(err, saved_model);
+                });
             });
         });
     });
