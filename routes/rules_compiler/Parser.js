@@ -22,6 +22,10 @@ class Parser {
         return token;
     }
 
+    /**
+     * Main Parser's method
+     * @returns {node|null}
+     */
     parse() {
         var token = this.lexer.getNextToken();
         var node = {
