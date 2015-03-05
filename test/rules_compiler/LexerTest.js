@@ -137,19 +137,26 @@ class LexerTest {
     }
 }
 
+var totalTests = 0;
+var succeededTests = 0;
+
 _.forOwn(LexerTest, function (method) {
     if (_.isFunction(method) && /^test/.test(method.name)) {
+        ++totalTests;
         console.info("-------[TEST] " + method.name + " started");
         try {
             method();
+            ++succeededTests;
         } catch(e) {
             console.error("-------[TEST] " + method.name + " failed");
             console.error(e.stack);
             console.info();
 
-            return false;
+            return true;
         }
         console.info("-------[TEST] " + method.name + " finished");
         console.info();
     }
 });
+
+console.info(succeededTests + "/" + totalTests + " tests finished successfully.");

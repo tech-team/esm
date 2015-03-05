@@ -15,9 +15,41 @@ function validateModel(model, checkForId) {
     }
 
     var v = _.isString(model['name'])
-         && _.isObject(model['data']) &&_.isArray(model['data']['attributes'])
+         && _.isObject(model['data']) && _.isArray(model['data']['attributes'])
                                       && _.isArray(model['data']['parameters'])
                                       && _.isArray(model['data']['questions']);
+    if (!v) return false;
+
+    var attrs = model.data.attributes;
+    var params = model.data.parameters;
+    var questions = model.data.quetsions;
+
+    _.forEach([attrs, params], function(arr) {
+        if (arr.length === 0) {
+            v = false;
+            return false;
+        }
+        _.forEach(arr, function(attr) {
+            if (!_.isObject(attr) || !_.isString(attr.name) || !_.isString(attr.type)) {
+                v = false;
+                return false;
+            }
+            if (attr.type == 'choice') {
+                if (!_.isArray(attr.values) || attr.values.length <= 1) {
+                    v = false;
+                    return false;
+                }
+            } else if (attr.type == 'number') {
+
+            } else {
+                v = false;
+                return false;
+            }
+        });
+        if (!v) return false;
+    });
+
+    if (!v) return false;
 
     return v;
 }
