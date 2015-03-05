@@ -3,6 +3,7 @@ var _ = require('lodash');
 
 var StringStream = require("../../routes/rules_compiler/StringStream");
 var Lexer = require("../../routes/rules_compiler/Lexer");
+var TestRunner = require('../TestRunner');
 
 class LexerTest {
     static testSimpleMath() {
@@ -137,26 +138,4 @@ class LexerTest {
     }
 }
 
-var totalTests = 0;
-var succeededTests = 0;
-
-_.forOwn(LexerTest, function (method) {
-    if (_.isFunction(method) && /^test/.test(method.name)) {
-        ++totalTests;
-        console.info("-------[TEST] " + method.name + " started");
-        try {
-            method();
-            ++succeededTests;
-        } catch(e) {
-            console.error("-------[TEST] " + method.name + " failed");
-            console.error(e.stack);
-            console.info();
-
-            return true;
-        }
-        console.info("-------[TEST] " + method.name + " finished");
-        console.info();
-    }
-});
-
-console.info(succeededTests + "/" + totalTests + " tests finished successfully.");
+TestRunner.run(LexerTest);
