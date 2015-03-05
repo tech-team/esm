@@ -13,7 +13,7 @@ class CompilerTest {
             console.error.bind(console));
 
         //TODO: Parser is not fully implemented
-        console.assert(rootNode == null);
+        console.assert(rootNode.token == null);
     }
 }
 

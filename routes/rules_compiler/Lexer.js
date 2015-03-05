@@ -16,7 +16,9 @@ class Lexer {
 
             EQUAL: Symbol("EQUAL"),
             LESS: Symbol("LESS"),
+            LESS_OR_EQUAL: Symbol("LESS_OR_EQUAL"),
             MORE: Symbol("MORE"),
+            MORE_OR_EQUAL: Symbol("MORE_OR_EQUAL"),
             NOT_EQUAL: Symbol("NOT_EQUAL"),
 
             ASSIGN: Symbol("ASSIGN"),
@@ -50,7 +52,7 @@ class Lexer {
                 domain: /\d|\./},
             OPERATION: {
                 type: Symbol('OPERATION'),
-                domain: /=|>|<|!/},
+                domain: /[=><!]/},
             UNARY: {
                 type: Symbol('UNARY'),
                 domain: /-/},
@@ -73,8 +75,16 @@ class Lexer {
                 type: this.TYPE.LESS
             },
             {
+                values: ["<="],
+                type: this.TYPE.LESS_OR_EQUAL
+            },
+            {
                 values: [">", "more", "больше"],
                 type: this.TYPE.MORE
+            },
+            {
+                values: [">="],
+                type: this.TYPE.MORE_OR_EQUAL
             },
             {
                 values: ["!=", "not_equal", "не_равно", "не_равен"],
