@@ -27,21 +27,4 @@ class ParserTest {
     }
 }
 
-_.forOwn(ParserTest, function (method) {
-    if (_.isFunction(method) && /^test/.test(method.name)) {
-        console.info("-------[TEST] " + method.name + " started");
-        try {
-            method();
-        } catch(e) {
-            console.error("-------[TEST] " + method.name + " failed");
-            console.error(e.stack);
-            console.info();
-
-            return false;
-        }
-        console.info("-------[TEST] " + method.name + " finished");
-        console.info();
-    }
-});
-
 TestRunner.run(ParserTest);

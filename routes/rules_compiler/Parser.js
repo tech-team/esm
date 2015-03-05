@@ -35,7 +35,7 @@ class Parser {
 
         if (token.type != this.lexer.TYPE.EOF) {
             this.onError("Invalid statement syntax");
-            return node;
+            return null;
         }
     }
 }
