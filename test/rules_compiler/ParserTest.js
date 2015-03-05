@@ -9,7 +9,7 @@ var TestRunner = require('../TestRunner');
 
 class ParserTest {
     static testSimpleMath() {
-        var sourceCode = "if a==b then c=d";
+        var sourceCode = "if a==b and e==f then c=d";
         var tokens = ParserTest._test(sourceCode);
     }
 

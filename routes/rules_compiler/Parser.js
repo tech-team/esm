@@ -58,24 +58,26 @@ class Parser {
             case this.STATE.ASSIGN:
             case this.STATE.PARAM_AND:
             case this.STATE.ATTR_AND:
-                return {
-                    type: this.state,
-                    token: this.token,
+                var opToken = this.token;
+                var opState = this.state;
+
+                this.token = this.lexer.getNextToken();
+                this.state = this.getNextState(this.state, this.token.type);
+
+                var node = {
+                    type: opState,
+                    token: opToken,
                     op1: {
                         type: oldState,
                         token: oldToken
                     },
                     op2: this.statement()
                 };
+                return node;
+
             case this.STATE.ERROR:
                 this.onError("ERROR_STATE");
                 return null;
-            case this.STATE.ATTR_VALUE:
-            case this.STATE.PARAM_VALUE:
-                return {
-                    type: this.state,
-                    token: this.token
-                };
             default:
                 if (this.state != this.STATE.END && this.state != this.STATE.THEN)
                     return {
