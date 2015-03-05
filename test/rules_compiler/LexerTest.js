@@ -6,7 +6,7 @@ var Lexer = require("../../routes/rules_compiler/Lexer");
 
 class LexerTest {
     static testSimpleMath() {
-        var sourceCode = "если это==заработает то будет=круто";
+        var sourceCode = "if a==b then c=d";
         var tokens = LexerTest._test(sourceCode).tokens;
 
         console.assert(tokens.length == 8);

@@ -1,7 +1,5 @@
 "use strict";
 var _ = require('lodash');
-var S = require('string');
-S.extendPrototype();
 
 class Lexer {
     /**
