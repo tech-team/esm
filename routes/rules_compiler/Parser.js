@@ -32,28 +32,62 @@ class Parser {
         };
     }
 
-    //TODO
-    statement(state, token) {
-        var nextToken = this.lexer.getNextToken();
-        var nextState = this.getNextState(state, token.type);
+    statement() {
+        var oldToken = this.token;        
+        var oldState = this.state;        
+        
+        this.token = this.lexer.getNextToken();
+        this.state = this.getNextState(this.state, this.token.type);
 
-        switch (state) {
+        console.log("State: ", oldState);
+        console.log("Token: ", oldToken);
+        console.log("Next state: ", this.state);
+        console.log("Next token: ", this.token);
+
+        if (oldState == this.STATE.PROGRAM) {
+            return {
+                type: oldState,
+                token: oldToken,
+                op1: this.statement(),
+                op2: this.statement()
+            };
+        }
+
+        switch (this.state) {
             case this.STATE.OPERATION:
             case this.STATE.ASSIGN:
+            case this.STATE.PARAM_AND:
+            case this.STATE.ATTR_AND:
                 return {
-                    type: state,
-                    token: token,
-                    op1: statement(nextState, nextToken),
-                    op2: statement(nextState, nextToken)
+                    type: this.state,
+                    token: this.token,
+                    op1: {
+                        type: oldState,
+                        token: oldToken
+                    },
+                    op2: this.statement()
                 };
             case this.STATE.ERROR:
+                this.onError("ERROR_STATE");
                 return null;
-            default:
+            case this.STATE.ATTR_VALUE:
+            case this.STATE.PARAM_VALUE:
                 return {
-                    type: state,
-                    token: token,
-                    op1: statement(nextState, nextToken)
+                    type: this.state,
+                    token: this.token
                 };
+            default:
+                if (this.state != this.STATE.END && this.state != this.STATE.THEN)
+                    return {
+                        type: oldState,
+                        token: oldToken,
+                        op1: this.statement()
+                    };
+                else
+                    return {
+                        type: oldState,
+                        token: oldToken
+                    };
         }
     }
 
@@ -100,7 +134,7 @@ class Parser {
                 switch (tokenType) {
                     case this.lexer.TYPE.AND:
                         return this.STATE.PARAM_AND;
-                    case this.lexer.THEN:
+                    case this.lexer.TYPE.THEN:
                         return this.STATE.THEN;
                     default:
                         this.onError("AND or THEN expected");
@@ -142,7 +176,7 @@ class Parser {
                 switch (tokenType) {
                     case this.lexer.TYPE.AND:
                         return this.STATE.ATTR_AND;
-                    case this.lexer.EOF:
+                    case this.lexer.TYPE.EOF:
                         return this.STATE.END;
                     default:
                         this.onError("AND or EOF expected");
@@ -167,16 +201,10 @@ class Parser {
      * @returns {node|null}
      */
     parse() {
-        var state = this.STATE.PROGRAM;
-        var nextToken = this.lexer.getNextToken();
+        this.state = this.STATE.PROGRAM;
+        this.token = null;
 
-        var node = {
-            type: state,
-            token: null,
-            op1: this.statement(this.getNextState(state, nextToken), nextToken)
-        };
-
-        return node;
+        return this.statement();
     }
 }
 

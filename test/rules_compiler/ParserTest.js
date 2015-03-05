@@ -1,5 +1,6 @@
 "use strict";
 var _ = require('lodash');
+var util = require('util');
 
 var StringStream = require("../../routes/rules_compiler/StringStream");
 var Lexer = require("../../routes/rules_compiler/Lexer");
@@ -15,13 +16,14 @@ class ParserTest {
     static _test(sourceCode) {
         var lexer = new Lexer(
             new StringStream(sourceCode),
-            console.log.bind(console));
+            console.error.bind(console));
 
-        var parser = new Parser(lexer, console.log.bind(console));
+        var parser = new Parser(lexer, console.error.bind(console));
 
         var rootNode = parser.parse();
 
-        console.log(rootNode);
+        console.log();
+        console.log(util.inspect(rootNode, true, 10));
 
         return rootNode;
     }
