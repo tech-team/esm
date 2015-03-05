@@ -4,6 +4,24 @@ var router = express.Router();
 
 var mongoose = require('mongoose');
 var Model = mongoose.model('model');
+var Attribute = mongoose.model('attribute');
+var Parameter = mongoose.model('parameter');
+
+function validate_attr_or_param(obj) {
+    if (!_.isObject(obj) || !_.isString(obj.name) || !_.isString(obj.type)) {
+        return false;
+    }
+    if (obj.type == 'choice') {
+        if (!_.isArray(obj.values) || obj.values.length <= 1) {
+            return false;
+        }
+    } else if (obj.type == 'number') {
+
+    } else {
+        return false;
+    }
+    return true;
+}
 
 function validateModel(model, checkForId) {
     if (_.isEmpty(model)) {
@@ -15,9 +33,14 @@ function validateModel(model, checkForId) {
     }
 
     var v = _.isString(model['name'])
-         && _.isObject(model['data']) && _.isArray(model['data']['attributes'])
-                                      && _.isArray(model['data']['parameters'])
-                                      && _.isArray(model['data']['questions']);
+         && _.isObject(model['data']);
+    var model_data = model['data'];
+    v = v && _.isArray(model_data['attributes'])
+          && _.isArray(model_data['parameters'])
+          && _.isArray(model_data['questions'])
+          && _.isArray(model_data['derivation_rules'])
+    ;
+
     if (!v) return false;
 
     var attrs = model.data.attributes;
@@ -29,29 +52,57 @@ function validateModel(model, checkForId) {
             v = false;
             return false;
         }
-        _.forEach(arr, function(attr) {
-            if (!_.isObject(attr) || !_.isString(attr.name) || !_.isString(attr.type)) {
-                v = false;
-                return false;
-            }
-            if (attr.type == 'choice') {
-                if (!_.isArray(attr.values) || attr.values.length <= 1) {
-                    v = false;
-                    return false;
-                }
-            } else if (attr.type == 'number') {
-
-            } else {
-                v = false;
-                return false;
-            }
-        });
+        _.forEach(arr, validate_attr_or_param);
         if (!v) return false;
+    });
+
+    _.forEach(model_data['derivation_rules'], function(rule) {
+        if (!_.isString(rule)) {
+            v = false;
+            return false;
+        }
     });
 
     if (!v) return false;
 
     return v;
+}
+
+function saveObj(params, index, Type, error_cb, next, target_arr) {
+    target_arr = target_arr || [];
+    if (index >= params.length) {
+        if (next)
+            next(target_arr);
+    } else {
+        Type.create(params[index], function (err, obj) {
+            if (err) {
+                console.log("ERROR");
+                error_cb(err, null);
+                return;
+            }
+            console.log("index = " + index);
+            target_arr.push(obj._id);
+            saveObj(params, index + 1, Type, error_cb, next, target_arr);
+        });
+    }
+}
+
+function saveModel(model, cb) {
+    var m_data = model.data;
+    var params = m_data.parameters;
+    var attrs = m_data.attributes;
+    var questions = m_data.questions;
+    var derivRules = m_data.derivation_rules;
+
+    saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
+        saveObj(params, 0, Parameter, cb, function(params_ids) {
+            m_data.attributes = attrs_ids;
+            m_data.parameters = params_ids;
+            Model.create(model, function(err, saved_model) {
+                cb(err, saved_model);
+            });
+        });
+    });
 }
 
 function configureResp(responses) {
@@ -105,7 +156,7 @@ var RESP = configureResp({
 router.post('/model', function(req, res, next) {
     var model = req.body;
     if (validateModel(model)) {
-        Model.create(model, function(err, saved_model) {
+        saveModel(model, function(err, saved_model) {
             if (err) {
                 console.error("Error while saving model: ", err);
                 res.status(500).json(RESP.modelSavingError());
@@ -116,8 +167,6 @@ router.post('/model', function(req, res, next) {
                 _id: saved_model._id
             }));
         });
-
-
     } else {
         res.status(400).json(RESP.invalidModel());
     }
