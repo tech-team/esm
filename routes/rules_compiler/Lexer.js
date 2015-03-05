@@ -130,14 +130,12 @@ class Lexer {
             //console.log("Next state: ", nextState.toString());
             //console.log();
 
-            state = nextState;
-
-            if (state == this.STATE.ERROR) {
+            if (nextState == this.STATE.ERROR) {
                 this.onError("Unrecognized token:" + token.value);
                 return null;
             }
 
-            if (state != this.STATE.END) {
+            if (nextState != this.STATE.END) {
                 token.value += ch;
                 ch = this.stringStream.next();
             } else {
@@ -145,11 +143,13 @@ class Lexer {
                 if (this.CHAR_CLASS.SPACE.domain.test(ch))
                     this.stringStream.next();
 
-                token.type = this.deduceTokenType(token);
+                token.type = this.deduceTokenType(state, token);
 
                 //console.log("Token parsed: ", token);
                 return token;
             }
+
+            state = nextState;
         }
     }
 
@@ -272,35 +272,33 @@ class Lexer {
         }
     }
 
-    deduceTokenType(token) {
-        if (token.value == "")
-            return this.TYPE.EOF;
+    deduceTokenType(state, token) {
+        switch (state) {
+            case this.STATE.NONE:
+                return this.TYPE.EOF;
+            case this.STATE.NUMBER:
+                token.value = parseInt(token.value);
+                return this.TYPE.NUMBER;
+            default: {
+                var op = _.find(this.OPERATIONS, function (opObject) {
+                    var values = opObject.values;
+                    return _.contains(values, token.value);
+                });
+                if (op) {
+                    return op.type;
+                }
 
-        if (Lexer.isNumber(token.value)) {
-            return this.TYPE.NUMBER;
-        }
-
-        var op = _.find(this.OPERATIONS, function (opObject) {
-            var values = opObject.values;
-            return _.contains(values, token.value);
-        });
-        if (op) {
-            return op.type;
-        }
-
-        var keyWord = _.find(this.KEY_WORDS, function (kwObject) {
-            var values = kwObject.values;
-            return _.contains(values, token.value);
-        });
-        if (keyWord) {
-            return keyWord.type;
+                var keyWord = _.find(this.KEY_WORDS, function (kwObject) {
+                    var values = kwObject.values;
+                    return _.contains(values, token.value);
+                });
+                if (keyWord) {
+                    return keyWord.type;
+                }
+            }
         }
 
         return this.TYPE.IDENTIFIER;
-    }
-
-    static isNumber(value) {
-        return /-?\d+(\.\d+)?/.test(value);
     }
 }
 

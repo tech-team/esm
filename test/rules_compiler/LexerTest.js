@@ -71,11 +71,12 @@ class LexerTest {
 
         var found = _.find(tokens, _.matches({
             type: lexer.TYPE.NUMBER,
-            value: "-12"
+            value: -12
         }));
         console.assert(found);
     }
 
+    //TODO: change in future
     static testDecimals() {
         var sourceCode = "if a==1.2 then m=40";
         var result = LexerTest._test(sourceCode);
@@ -84,7 +85,7 @@ class LexerTest {
 
         var found = _.find(tokens, _.matches({
             type: lexer.TYPE.NUMBER,
-            value: "1.2"
+            value: 1
         }));
         console.assert(found);
     }
@@ -98,7 +99,7 @@ class LexerTest {
 
         var found = _.find(tokens, _.matches({
             type: lexer.TYPE.NUMBER,
-            value: "1.2.3.4..5"
+            value: 1
         }));
         console.assert(found);
     }
