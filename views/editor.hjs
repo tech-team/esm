@@ -35,6 +35,7 @@
     <input
             type="text"
             id="{table_name}-{field}-{entry_id}"
+            class=".values"
             data-entry-id="{entry_id}"
             value="{value}" />
 </script>
@@ -78,9 +79,9 @@
                 placeholder="Экспертная система выбора..."/>
     </section>
 
-    <section id="parameters">
-        <h3>Параметры</h3>
-        <table id="parameters-table"></table>
+    <section id="questions">
+        <h3>Вопросы</h3>
+        <table id="questions-table"></table>
         <div class="add-button-wrapper">
             <button id="add-parameter" class="btn text-right add-button pull-right">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
@@ -98,20 +99,6 @@
                 <th data-field="from_value">и выбран ответ</th>
                 <th data-field="to_question">то перейти к</th>
                 <th data-field="skip_question">и не задавать</th>
-            </tr>
-            </thead>
-        </table>
-    </section>
-
-    <section id="questions">
-        <h3>Вопросы</h3>
-        <table id="parameters-table">
-            <thead>
-            <tr>
-                <th data-field="id">ID</th>
-                <th data-field="text">Текст</th>
-                <th data-field="parameter_id">ID параметра</th>
-                <th data-field="parameter_name">Название параметра</th>
             </tr>
             </thead>
         </table>

@@ -1,5 +1,5 @@
-define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
-    function($, Templater, Exceptions, Model) {
+define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
+    function($, _, Templater, Exceptions, Model) {
         var Editor = Class.create({
             initialize: function (api) {
                 this._model = new Model();
@@ -17,12 +17,51 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     }
                 ];
 
-                var $parametersTable = $('#parameters-table');
-                $parametersTable.bootstrapTable({
+                var questions = this._model.getQuestions();
+
+                var $questionsTable = $('#questions-table');
+                $questionsTable.bootstrapTable({
                     striped: true,
-                    loading: false,
-                    data: this._model.getParameters(),
-    
+                    data: questions,
+                    onAll: function (name, args) {
+                        console.log('Event: onAll, data: ', args);
+                    },
+                    onClickRow: function (row) {
+                        console.log('Event: onClickRow, data: ' + JSON.stringify(row));
+                    },
+                    onDblClickRow: function (row) {
+                        console.log('Event: onDblClickRow, data: ' + JSON.stringify(row));
+                    },
+                    onSort: function (name, order) {
+                        console.log('Event: onSort, data: ' + name + ', ' + order);
+                    },
+                    onCheck: function (row) {
+                        console.log('Event: onCheck, data: ' + JSON.stringify(row));
+                    },
+                    onUncheck: function (row) {
+                        console.log('Event: onUncheck, data: ' + JSON.stringify(row));
+                    },
+                    onCheckAll: function () {
+                        console.log('Event: onCheckAll');
+                    },
+                    onUncheckAll: function () {
+                        console.log('Event: onUncheckAll');
+                    },
+                    onLoadSuccess: function (data) {
+                        console.log('Event: onLoadSuccess, data: ' + data);
+                    },
+                    onLoadError: function (status) {
+                        console.log('Event: onLoadError, data: ' + status);
+                    },
+                    onColumnSwitch: function (field, checked) {
+                        console.log('Event: onSort, data: ' + field + ', ' + checked);
+                    },
+                    onPageChange: function (number, size) {
+                        console.log('Event: onPageChange, data: ' + number + ', ' + size);
+                    },
+                    onSearch: function (text) {
+                        console.log('Event: onSearch, data: ' + text);
+                    },
                     columns: [
                         {
                             field: 'id',
@@ -30,8 +69,13 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                             formatter: this._textFieldFormatter.bind(this)
                         },
                         {
-                            field: 'name',
-                            title: 'Название',
+                            field: 'text',
+                            title: 'Текст',
+                            formatter: this._inputFieldFormatter.bind(this)
+                        },
+                        {
+                            field: 'parameter',
+                            title: 'Параметр',
                             formatter: this._inputFieldFormatter.bind(this)
                         },
                         {
@@ -44,7 +88,12 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         {
                             field: 'values',
                             title: 'Значения',
-                            formatter: this._inputFieldFormatter.bind(this)
+                            formatter: this._inputFieldFormatter.bind(this),
+                            events: {
+                                'click .values': function () {
+                                    alert("click .values");
+                                }
+                            }
                         },
                         {
                             field: 'operate',
@@ -57,7 +106,15 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         }
                     ]
                 });
-                $parametersTable.bootstrapTable('hideLoading');
+                $questionsTable.bootstrapTable('hideLoading');
+
+                //set types
+                _.each(questions, function (question) {
+                    var $select = $questionsTable
+                        .find("[data-entry-id=" + question.id + "]");
+
+                    $select.val(question.type);
+                });
             },
     
             _loadTemplates: function () {
@@ -75,24 +132,31 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             _inputFieldFormatter: function (value, row, index) {
                 return Templater.render(this._templates.input, {
-                    value: value
+                    value: value,
+                    entry_id: row.id
                 });
             },
 
             _selectFieldFormatter: function (entries, value, row, index) {
                 //TODO: params: list, ids
                 return Templater.render(this._templates.select, {
-                    entries: entries
+                    entries: entries,
+                    entry_id: row.id
                 });
             },
 
             _comboboxFieldFormatter: function (entries, value, row, index) {
                 //TODO: params: list, ids
-                return Templater.render(this._templates.combobox);
+                return Templater.render(this._templates.combobox, {
+                    entries: entries,
+                    entry_id: row.id
+                });
             },
 
             _operateFieldFormatter: function (value, row, index) {
-                return Templater.render(this._templates.operate);
+                return Templater.render(this._templates.operate, {
+                    entry_id: row.id
+                });
             },
     
             _editRow: function (e, value, row, index) {

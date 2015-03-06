@@ -1,7 +1,7 @@
 define([], function() {
     var Model = Class.create({
         initialize: function (data) {
-            this._parameters = null;
+            this._questions = null;
 
             if (data)
                 this.load(data);
@@ -15,30 +15,33 @@ define([], function() {
 
         _create: function () {
             //TODO: stub
-            this._parameters = [
+            this._questions = [
                 {
-                    id: 0,
-                    name: "параметр1",
+                    id: 1,
+                    text: "Быть или не быть?",
+                    parameter: "бытие",
+                    type: "choice",
+                    values: ["быть", "или", "не быть"]
+                },
+                {
+                    id: 2,
+                    text: "вопрос 1",
+                    parameter: "параметр1",
                     type: "choice",
                     values: ["a", "b", "c"]
                 },
                 {
-                    id: 0,
-                    name: "параметр1",
-                    type: "choice",
-                    values: ["a", "b", "c"]
-                },
-                {
-                    id: 0,
-                    name: "параметр1",
-                    type: "choice",
-                    values: ["a", "b", "c"]
+                    id: 3,
+                    text: "вопрос 2",
+                    parameter: "параметр1",
+                    type: "number",
+                    values: null
                 }
             ];
         },
 
-        getParameters: function () {
-            return this._parameters;
+        getQuestions: function () {
+            return this._questions;
         }
     });
 
