@@ -17,11 +17,11 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     }
                 ];
 
-                var $parametersTable = $('#parameters-table');
-                $parametersTable.bootstrapTable({
+                var $questionsTable = $('#questions-table');
+                $questionsTable.bootstrapTable({
                     striped: true,
                     loading: false,
-                    data: this._model.getParameters(),
+                    data: this._model.getQuestions(),
     
                     columns: [
                         {
@@ -30,8 +30,13 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                             formatter: this._textFieldFormatter.bind(this)
                         },
                         {
-                            field: 'name',
-                            title: 'Название',
+                            field: 'text',
+                            title: 'Текст',
+                            formatter: this._inputFieldFormatter.bind(this)
+                        },
+                        {
+                            field: 'parameter',
+                            title: 'Параметр',
                             formatter: this._inputFieldFormatter.bind(this)
                         },
                         {
@@ -57,7 +62,7 @@ define(['jquery', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         }
                     ]
                 });
-                $parametersTable.bootstrapTable('hideLoading');
+                $questionsTable.bootstrapTable('hideLoading');
             },
     
             _loadTemplates: function () {
