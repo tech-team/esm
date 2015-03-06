@@ -17,21 +17,21 @@ define([], function() {
             //TODO: stub
             this._questions = [
                 {
-                    id: 0,
+                    id: 1,
                     text: "Быть или не быть?",
                     parameter: "бытие",
                     type: "choice",
                     values: ["быть", "или", "не быть"]
                 },
                 {
-                    id: 0,
+                    id: 2,
                     text: "вопрос 1",
                     parameter: "параметр1",
                     type: "choice",
                     values: ["a", "b", "c"]
                 },
                 {
-                    id: 0,
+                    id: 3,
                     text: "вопрос 2",
                     parameter: "параметр1",
                     type: "number",
