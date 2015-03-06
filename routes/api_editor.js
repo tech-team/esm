@@ -3,10 +3,10 @@ var _ = require('lodash');
 var router = express.Router();
 
 var mongoose = require('mongoose');
-var Model = mongoose.model('model');
 var Attribute = mongoose.model('attribute');
 var Parameter = mongoose.model('parameter');
 var Question = mongoose.model('question');
+var Model = mongoose.model('model');
 
 function validate_attr_or_param(obj) {
     if (!_.isObject(obj) || !_.isString(obj.name) || !_.isString(obj.type)) {
@@ -34,19 +34,17 @@ function validateModel(model, checkForId) {
     }
 
     var v = _.isString(model['name'])
-         && _.isObject(model['data']);
-    var model_data = model['data'];
-    v = v && _.isArray(model_data['attributes'])
-          && _.isArray(model_data['parameters'])
-          && _.isArray(model_data['questions'])
-          && _.isArray(model_data['derivation_rules'])
+          && _.isArray(model['attributes'])
+          && _.isArray(model['parameters'])
+          && _.isArray(model['questions'])
+          && _.isArray(model['derivation_rules'])
     ;
 
     if (!v) return false;
 
-    var attrs = model.data.attributes;
-    var params = model.data.parameters;
-    var questions = model.data.quetsions;
+    var attrs = model.attributes;
+    var params = model.parameters;
+    var questions = model.quetsions;
 
     var params_names = _.map(params, function(p) {
         return p.name;
@@ -63,7 +61,7 @@ function validateModel(model, checkForId) {
 
     if (!v) return false;
 
-    _.forEach(model_data['questions'], function(q) {
+    _.forEach(model['questions'], function(q) {
         if (!_.isObject(q) || !_.isString(q.text) || !_.isString(q.param)) {
             v = false;
             return false;
@@ -74,7 +72,7 @@ function validateModel(model, checkForId) {
         }
     });
 
-    _.forEach(model_data['derivation_rules'], function(rule) {
+    _.forEach(model['derivation_rules'], function(rule) {
         if (!_.isString(rule)) {
             v = false;
             return false;
@@ -104,23 +102,25 @@ function saveObj(params, index, Type, error_cb, next, target_arr) {
 }
 
 function saveModel(model, cb) {
-    var m_data = model.data;
-    var params = m_data.parameters;
-    var attrs = m_data.attributes;
-    var questions = m_data.questions;
-    var derivRules = m_data.derivation_rules;
+    var params = model.parameters;
+    var attrs = model.attributes;
+    var questions = model.questions;
+    var derivRules = model.derivation_rules;
 
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
-        m_data.attributes = attrs_ids;
+        model.attributes = attrs_ids;
         saveObj(params, 0, Parameter, cb, function(params_ids) {
-            m_data.parameters = params_ids;
+            model.parameters = params_ids;
             var mapped_params = _.zipObject(_.map(params, function(p){return p.name}), params_ids);
             _.forEach(questions, function(q) {
                 q.param_id = mapped_params[q.param];
                 delete q.param;
             });
             saveObj(questions, 0, Question, cb, function(question_ids) {
-                m_data.questions = question_ids;
+                model.questions = question_ids;
+
+                // TODO: save derivation rules
+
                 Model.create(model, function(err, saved_model) {
                     cb(err, saved_model);
                 });
@@ -197,6 +197,7 @@ router.post('/model', function(req, res, next) {
 });
 
 router.put('/model', function(req, res, next) {
+    // TODO
     var model = req.body;
     if (validateModel(model, true)) {
         var id = model._id;
@@ -221,7 +222,9 @@ router.put('/model', function(req, res, next) {
 router.get('/model', function(req, res, next) {
     var model_id = req.query.id;
     if (model_id) {
-        Model.findOne({ _id: model_id }, function(err, model) {
+        Model.findOne({_id: model_id}).populate('attributes')
+                                      .populate('parameters')
+                                      .populate('questions').exec(function(err, model) {
             if (err) {
                 console.error("Error while selecting: ", err);
                 res.status(500).json(RESP.modelsSelectingError());
