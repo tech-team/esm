@@ -33,15 +33,21 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
                 var $addQuestionButton = $('#add-question');
                 $addQuestionButton.click(function () {
-                    var question = {
-                            id: -1,
-                            text: "",
-                            parameter: "",
-                            type: "choice",
-                            values: []
-                    };
-                    questions.push(question);
+                    var question = self._model.createQuestion();
                     self.addQuestionRow(questions, question);
+                });
+
+                //render attributes
+                this.$attrbutesTable = $('#attributes-table');
+                var attributes = this._model.getAttributes();
+                _.each(attributes, function (question) {
+                    this.addAttributeRow(attributes, question);
+                }, this);
+
+                var $addAttributeButton = $('#add-attribute');
+                $addAttributeButton.click(function () {
+                    var attribute = self._model.createAttribute();
+                    self.addAttributeRow(attributes, attribute);
                 });
             },
 
@@ -49,7 +55,28 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 var context = _.extend(this._prepareContext(question), {
                     type: this._prepareSelect(this._questionTypes, question.type)
                 });
-                var questionRow = this._templates.questionRow(context);
+
+                this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
+            },
+
+            addAttributeRow: function (attributes, attribute) {
+                var context = _.extend(this._prepareContext(attribute), {
+                    type: this._prepareSelect(this._questionTypes, attribute.type)
+                });
+
+                this.addRow(this.$attrbutesTable, this._templates.attributeRow, context, attributes, attribute);
+            },
+
+            /**
+             * Adds <tr> in $table
+             * @param $table {jQuery}
+             * @param template {Function}
+             * @param context {Object} template parameters
+             * @param rows {Array} collection, which contains row
+             * @param row {Object}
+             */
+            addRow: function ($table, template, context, rows, row) {
+                var questionRow = template(context);
                 var $questionRow = $(questionRow);
 
                 var $fields = $questionRow.find('input, select');
@@ -58,16 +85,16 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     var key = $field.data('field');
                     var value = $field.val();
 
-                    question[key] = value;
+                    row[key] = value;
                 });
 
                 var $removeButton = $questionRow.find('.remove');
                 $removeButton.click(function () {
-                    questions.remove(question);
+                    rows.remove(row);
                     $questionRow.remove();
                 });
 
-                this.$questionsTable.append($questionRow);
+                $table.append($questionRow);
             },
 
             _prepareContext: function (context) {
@@ -99,7 +126,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 Templater.registerPartials(partials);
 
                 return {
-                    questionRow: Templater.load('#question-row-template')
+                    questionRow: Templater.load('#question-row-template'),
+                    attributeRow: Templater.load('#attribute-row-template')
                 };
             },
 

@@ -119,17 +119,35 @@
     </section>
 
     <section id="attributes">
-        <h3>Аттрибуты</h3>
-        <table id="attributes-table">
+        <h3>Атрибуты</h3>
+        <table id="attributes-table" class="table table-striped">
             <thead>
             <tr>
-                <th data-field="id">ID</th>
-                <th data-field="name">Навание</th>
-                <th data-field="type">Тип</th>
-                <th data-field="values">Значения</th>
+                <th>ID</th>
+                <th>Навание</th>
+                <th>Тип</th>
+                <th>Значения</th>
+                <th></th>
             </tr>
             </thead>
+            <tbody>
+            <script id="attribute-row-template" language="text/html">
+                <tr data-entry-id="{id}">
+                    <td>{ id.value }</td>
+                    <td>{> input name}</td>
+                    <td>{> select type}</td>
+                    <td>{> input values}</td>
+                    <td>{> operate}</td>
+                </tr>
+            </script>
+            </tbody>
         </table>
+        <div class="add-button-wrapper">
+            <button id="add-attribute" class="btn text-right add-button pull-right">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Добавить
+            </button>
+        </div>
     </section>
 
     <section id="derivation-rules">

@@ -2,6 +2,7 @@ define([], function() {
     var Model = Class.create({
         initialize: function (data) {
             this._questions = null;
+            this._attributes = null;
 
             if (data)
                 this.load(data);
@@ -38,10 +39,48 @@ define([], function() {
                     values: null
                 }
             ];
+
+            this._attributes = [];
+            this.createAttribute();
         },
 
         getQuestions: function () {
             return this._questions;
+        },
+
+        getAttributes: function () {
+            return this._attributes;
+        },
+
+        /**
+         * Add new empty question to model
+         */
+        createQuestion: function () {
+            var question = {
+                id: -1,
+                text: "",
+                parameter: "",
+                type: "choice",
+                values: []
+            };
+
+            this._questions.push(question);
+            return question;
+        },
+
+        /**
+         * Adds new empty attribute to model
+         */
+        createAttribute: function () {
+            var attribute = {
+                id: -1,
+                name: "",
+                type: "choice",
+                values: []
+            };
+
+            this._attributes.push(attribute);
+            return attribute;
         }
     });
 
