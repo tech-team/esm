@@ -22,6 +22,9 @@ requirejs.config({
             deps: [
                 'jquery'
             ]
+        },
+        'handlebars': {
+            exports: 'Handlebars'
         }
     }
 });

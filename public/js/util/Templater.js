@@ -1,4 +1,4 @@
-define(['jquery', 'mustache'], function($, mustache) {
+define(['jquery', 'handlebars'], function($, Handlebars) {
     /**
      * Load templates as strings.
      * To be able to use mustache on frontend - use singe braces only
@@ -8,15 +8,15 @@ define(['jquery', 'mustache'], function($, mustache) {
         var $template = $(selector);
         var str = $template.html();
 
-        return str.replace(/{/g, "{{").replace(/}/g, "}}");
+        return Handlebars.compile(str.replace(/{/g, "{{").replace(/}/g, "}}"));
     }
 
-    function render(template, params) {
-        return mustache.render(template, params);;
+    function registerPartials(partials) {
+        Handlebars.registerPartial(partials);
     }
 
     return {
         load: load,
-        render: render
+        registerPartials: registerPartials
     };
 });
