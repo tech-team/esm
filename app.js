@@ -22,8 +22,8 @@ mongoose.connect('mongodb://localhost/express-system', function(err) {
 var models = requireTree('./routes/models/');
 
 var templates = require('./routes/templates');
-var api_editor = require('./routes/api_editor');
-var api_client = require('./routes/api_client');
+var api_editor = require('./routes/api/api_editor');
+var api_client = require('./routes/api/api_client');
 
 var app = express();
 
@@ -37,6 +37,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({
+    secret: 'purr cat',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 60000
+    }
+}));
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
 app.use('/', templates);

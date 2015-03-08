@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var Parameter = new mongoose.Schema({
-    name: {
+    param: {
         type: String,
         required: true
     },
