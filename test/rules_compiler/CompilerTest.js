@@ -5,10 +5,6 @@ var Compiler = require('../../routes/rules_compiler/Compiler');
 var TestRunner = require('../TestRunner');
 
 class CompilerTest {
-    constructor() {
-        this.a = 10040;
-    }
-
     setUp() {
         this.sourceCode = "if a==b and e<10 then c=d";
         this.js = Compiler.compileString(this.sourceCode, console.error.bind(console));
