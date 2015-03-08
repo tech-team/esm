@@ -11,7 +11,7 @@ class Parser {
         this.lexer = lexer;
         this.onError = onError;
 
-        this.STATE = {
+        this.TYPE = {
             PROGRAM: Symbol("PROGRAM"),
 
             IF: Symbol("IF"),
@@ -24,189 +24,173 @@ class Parser {
             ATTR_VALUE: Symbol("ATTR_VALUE"),
             ASSIGN: Symbol("ASSIGN"),
 
-            PARAM_AND: Symbol("PARAM_AND"),
-            ATTR_AND: Symbol("ATTR_AND"),
+            AND: Symbol("AND"),
 
             ERROR: Symbol("ERROR"),
             END: Symbol("END")
         };
     }
 
-    statement() {
-        var oldToken = this.token;        
-        var oldState = this.state;        
-        
-        this.token = this.lexer.getNextToken();
-        this.state = this.getNextState(this.state, this.token.type);
+    condition() {
+        var token = this.nextToken();
 
-        console.log("State: ", oldState);
-        console.log("Token: ", oldToken);
-        console.log("Next state: ", this.state);
-        console.log("Next token: ", this.token);
-
-        if (oldState == this.STATE.PROGRAM) {
-            return {
-                type: oldState,
-                token: oldToken,
-                op1: this.statement(),
-                op2: this.statement()
-            };
+        if (token.type != this.lexer.TYPE.IF) {
+            this.onError("IF expected, got " + token.type.toString());
+            return null;
         }
 
-        switch (this.state) {
-            case this.STATE.OPERATION:
-            case this.STATE.ASSIGN:
-            case this.STATE.PARAM_AND:
-            case this.STATE.ATTR_AND:
-                var opToken = this.token;
-                var opState = this.state;
+        return {
+            type: this.TYPE.IF,
+            token: token,
+            op1: this.params()
+        };
+    }
 
-                this.token = this.lexer.getNextToken();
-                this.state = this.getNextState(this.state, this.token.type);
+    consequence() {
+        var token = this.getToken();
 
-                var node = {
-                    type: opState,
-                    token: opToken,
-                    op1: {
-                        type: oldState,
-                        token: oldToken
-                    },
-                    op2: this.statement()
-                };
-                return node;
+        if (token.type != this.lexer.TYPE.THEN) {
+            this.onError("THEN expected, got " + token.type.toString());
+            return null;
+        }
 
-            case this.STATE.ERROR:
-                this.onError("ERROR_STATE");
+        return {
+            type: this.TYPE.THEN,
+            token: token,
+            op1: this.attributes()
+        };
+    }
+
+    params() {
+        var params = [this.param()];
+
+        while(true) {
+            var andToken = this.nextToken();
+            if (andToken.type != this.lexer.TYPE.AND && andToken.type != this.lexer.TYPE.THEN) {
+                this.onError("AND or THEN expected, got " + andToken.type.toString());
                 return null;
-            default:
-                if (this.state != this.STATE.END && this.state != this.STATE.THEN)
-                    return {
-                        type: oldState,
-                        token: oldToken,
-                        op1: this.statement()
-                    };
-                else
-                    return {
-                        type: oldState,
-                        token: oldToken
-                    };
+            }
+
+            if (andToken.type == this.lexer.TYPE.THEN)
+                return {
+                    type: this.TYPE.AND,
+                    token: {type: this.lexer.TYPE.AND},
+                    params: params
+                };
+
+            params.push(this.param());
         }
     }
 
-    getNextState(state, tokenType) {
-        switch (state) {
-            case this.STATE.PROGRAM:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IF:
-                        return this.STATE.IF;
-                    default:
-                        this.onError("IF expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.IF:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IDENTIFIER:
-                        return this.STATE.PARAM_NAME;
-                    default:
-                        this.onError("PARAM_NAME expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.PARAM_NAME:
-                switch (tokenType) {
-                    case this.lexer.TYPE.EQUAL:
-                    case this.lexer.TYPE.LESS:
-                    case this.lexer.TYPE.LESS_OR_EQUAL:
-                    case this.lexer.TYPE.MORE:
-                    case this.lexer.TYPE.MORE_OR_EQUAL:
-                    case this.lexer.TYPE.NOT_EQUAL:
-                        return this.STATE.OPERATION;
-                    default:
-                        this.onError("OPERATION expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.OPERATION:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IDENTIFIER:
-                        return this.STATE.PARAM_VALUE;
-                    default:
-                        this.onError("PARAM_VALUE expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.PARAM_VALUE:
-                switch (tokenType) {
-                    case this.lexer.TYPE.AND:
-                        return this.STATE.PARAM_AND;
-                    case this.lexer.TYPE.THEN:
-                        return this.STATE.THEN;
-                    default:
-                        this.onError("AND or THEN expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.PARAM_AND:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IDENTIFIER:
-                        return this.STATE.PARAM_NAME;
-                    default:
-                        this.onError("PARAM_NAME expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.THEN:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IDENTIFIER:
-                        return this.STATE.ATTR_NAME;
-                    default:
-                        this.onError("ATTR_NAME expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.ATTR_NAME:
-                switch (tokenType) {
-                    case this.lexer.TYPE.ASSIGN:
-                        return this.STATE.ASSIGN;
-                    default:
-                        this.onError("ASSIGN expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.ASSIGN:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IDENTIFIER:
-                        return this.STATE.ATTR_VALUE;
-                    default:
-                        this.onError("ATTR_VALUE expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.ATTR_VALUE:
-                switch (tokenType) {
-                    case this.lexer.TYPE.AND:
-                        return this.STATE.ATTR_AND;
-                    case this.lexer.TYPE.EOF:
-                        return this.STATE.END;
-                    default:
-                        this.onError("AND or EOF expected");
-                        return this.STATE.ERROR;
-                }
-            case this.STATE.ATTR_AND:
-                switch (tokenType) {
-                    case this.lexer.TYPE.IDENTIFIER:
-                        return this.STATE.ATTR_NAME;
-                    default:
-                        this.onError("ATTR_NAME expected");
-                        return this.STATE.ERROR;
-                }
-            default:
-                this.onError("Unsupported state: ", state);
-                return this.STATE.ERROR;
+    attributes() {
+        var attributes = [this.attribute()];
+
+        while(true) {
+            var andToken = this.nextToken();
+            if (andToken.type != this.lexer.TYPE.AND && andToken.type != this.lexer.TYPE.EOF) {
+                this.onError("AND or EOF expected, got " + andToken.type.toString());
+                return null;
+            }
+
+            if (andToken.type == this.lexer.TYPE.EOF)
+                return {
+                    type: this.TYPE.AND,
+                    token: {type: this.lexer.TYPE.AND},
+                    attributes: attributes
+                };
+
+            attributes.push(this.attribute());
         }
+    }
+
+    param() {
+        var param = this.nextToken();
+        if (param.type != this.lexer.TYPE.IDENTIFIER) {
+            this.onError("PARAM_NAME expected, got " + param.type.toString());
+            return null;
+        }
+
+        var operation = this.nextToken();
+        if (this.lexer.isOperation(param.type)) {
+            this.onError("OPERATION expected, got " + operation.type.toString());
+            return null;
+        }
+
+        var value = this.nextToken();
+        if (value.type != this.lexer.TYPE.IDENTIFIER && value.type != this.lexer.TYPE.NUMBER) {
+            this.onError("PARAM_VALUE expected, got " + value.type.toString());
+            return null;
+        }
+
+        return {
+            type: this.TYPE.OPERATION,
+            token: operation,
+            op1: {
+                type: this.TYPE.PARAM_NAME,
+                token: param
+            },
+            op2: {
+                type: this.TYPE.PARAM_VALUE,
+                token: value
+            }
+        };
+    }
+
+    attribute() {
+        var attr = this.nextToken();
+        if (attr.type != this.lexer.TYPE.IDENTIFIER) {
+            this.onError("ATTR_NAME expected, got " + attr.type.toString());
+            return null;
+        }
+
+        var assign = this.nextToken();
+        if (attr.type == this.lexer.TYPE.ASSIGN) {
+            this.onError("ASSIGN expected, got " + assign.type.toString());
+            return null;
+        }
+
+        var value = this.nextToken();
+        if (value.type != this.lexer.TYPE.IDENTIFIER && value.type != this.lexer.TYPE.NUMBER) {
+            this.onError("ATTR_VALUE expected, got " + value.type.toString());
+            return null;
+        }
+
+        return {
+            type: this.TYPE.ASSIGN,
+            token: assign,
+            op1: {
+                type: this.TYPE.ATTR_NAME,
+                token: attr
+            },
+            op2: {
+                type: this.TYPE.ATTR_VALUE,
+                token: value
+            }
+        };
+    }
+
+    getToken() {
+        return this.token;
+    }
+
+    nextToken() {
+        this.token = this.lexer.getNextToken();
+        return this.token;
     }
 
     /**
      * Main Parser's method
-     * @returns {node|null}
+     * @returns {Object|null}
      */
     parse() {
-        this.state = this.STATE.PROGRAM;
-        this.token = null;
+        var program = {
+            type: this.TYPE.PROGRAM,
+            token: null,
+            op1: this.condition(),
+            op2: this.consequence()
+        };
 
-        return this.statement();
+        return program;
     }
 }
 

@@ -8,8 +8,13 @@ var Parser = require("../../routes/rules_compiler/Parser");
 var TestRunner = require('../TestRunner');
 
 class ParserTest {
-    static testSimpleMath() {
-        var sourceCode = "if a==b and e==f then c=d";
+    static testSimple() {
+        var sourceCode = "if a==b then c=d";
+        var tokens = ParserTest._test(sourceCode);
+    }
+
+    static testMuitipleAnd() {
+        var sourceCode = "if a==b and e>20 and a==3 then c=d";
         var tokens = ParserTest._test(sourceCode);
     }
 

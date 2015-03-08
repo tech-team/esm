@@ -308,6 +308,11 @@ class Lexer {
 
         return this.TYPE.IDENTIFIER;
     }
+
+    isOperation(tokenType) {
+        return _.contains(this.OPERATIONS, {type: tokenType}) &&
+            tokenType != this.OPERATIONS.ASSIGN;
+    }
 }
 
 module.exports = Lexer;
