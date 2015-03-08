@@ -5,6 +5,10 @@
       "name": "myattr1",
       "type": "choice",
       "values": [1, 2]
+    },
+    {
+      "name": "myattr2",
+      "type": "number"
     }
   ],
   "questions": [
@@ -21,12 +25,10 @@
   "objects": [
     {
       "name": "cat",
-      "attributes": [
-        {
-          "name": "myattr1",
-          "value": 2
-        }
-      ]
+      "attributes": {
+        "myattr1": 2,
+        "myattr2": 14.0
+      }
     }
   ]
 }
