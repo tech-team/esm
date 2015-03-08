@@ -10,7 +10,7 @@ class CompilerTest {
         this.js = Compiler.compileString(this.sourceCode, console.error.bind(console));
     }
 
-    test_ok() {
+    testOk() {
         var params = {
             a: 'b',
             e: 5
@@ -23,7 +23,7 @@ class CompilerTest {
         console.assert(attributes.c == 'd');
     }
 
-    test_num_fail() {
+    testNumFail() {
         var params = {
             a: 'b',
             e: 15
@@ -36,7 +36,7 @@ class CompilerTest {
         console.assert(attributes.c != 'd');
     }
 
-    test_choice_fail() {
+    testChoiceFail() {
         var params = {
             a: 'q',
             e: 5
@@ -49,7 +49,7 @@ class CompilerTest {
         console.assert(attributes.c != 'd');
     }
 
-    test_nulls() {
+    testNulls() {
         var params = {
             a: null,
             e: null
@@ -61,8 +61,6 @@ class CompilerTest {
 
         console.assert(attributes.c != 'd');
     }
-
-
 }
 
 TestRunner.run(CompilerTest);

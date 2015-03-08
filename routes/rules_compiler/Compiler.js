@@ -52,7 +52,7 @@ class Compiler {
 
         var code = "if (";
 
-        code += _.reduce(params, function (code, param) {
+        code = _.reduce(params, function (code, param) {
             var name = param.op1.token.value;
             var op = param.token.type;
 
@@ -82,18 +82,18 @@ class Compiler {
             if (!_.isNumber(value))
                 value = "'" + value + "'";
 
-            return "params['" + name + "'] " + op +  " " + value + " && ";
+            return code + "params['" + name + "'] " + op +  " " + value + " && ";
         }, code);
 
         code += "true) {\n";
 
-        code += _.reduce(attributes, function (code, attr) {
+        code = _.reduce(attributes, function (code, attr) {
             var name = attr.op1.token.value;
             var value = attr.op2.token.value;
             if (!_.isNumber(value))
                 value = "'" + value + "'";
 
-            return "attributes['" + name + "'] = " + value + ";\n";
+            return code + "attributes['" + name + "'] = " + value + ";\n";
         }, code);
 
         code += "\n}";
@@ -102,7 +102,7 @@ class Compiler {
             var js = new Function('params', 'attributes', code);
             return js;
         } catch (e) {
-            onError("[Compiler] " + e.trace);
+            onError("[Compiler] " + e.message);
             return null;
         }
     }

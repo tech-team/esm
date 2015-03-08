@@ -2,7 +2,12 @@
 var _ = require('lodash');
 
 class TestRunner {
-    static run(clazz) {
+    /**
+     *
+     * @param clazz
+     * @param [justMethod] {Function}
+     */
+    static run(clazz, justMethod) {
         var clazzInstance = new clazz();
 
         var totalTests = 0;
@@ -15,7 +20,11 @@ class TestRunner {
             setupMethod = function() {};
         }
 
-        _.forOwn(clazz.prototype, function (method) {
+        var methodCollection = clazz.prototype;
+        if (justMethod)
+            methodCollection = [justMethod];
+
+        _.forOwn(methodCollection, function (method) {
             if (_.isFunction(method) && /^test/.test(method.name)) {
                 ++totalTests;
                 console.info("-------[TEST] " + clazz.name + "." + method.name + " started");
