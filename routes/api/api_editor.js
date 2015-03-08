@@ -3,6 +3,7 @@ var _ = require('lodash');
 var router = express.Router();
 var modelsInteractor = require('./ModelsInteractor');
 var configureResp = require('./configure_resp');
+var Compiler = require('../rules_compiler/Compiler');
 
 var mongoose = require('mongoose');
 var Model = mongoose.model('model');
@@ -47,7 +48,8 @@ var RESP = configureResp({
 
 router.post('/model', function(req, res, next) {
     var model = req.body;
-    if (modelsInteractor.validate(model)) {
+    var validated = modelsInteractor.validate(model);
+    if (validated[0]) {
         modelsInteractor.save(model, function(err, saved_model) {
             if (err) {
                 console.error("Error while saving model: ", err);
@@ -60,7 +62,9 @@ router.post('/model', function(req, res, next) {
             }));
         });
     } else {
-        res.status(400).json(RESP.invalidModel());
+        res.status(400).json(RESP.invalidModel({
+            reason: validated[1]
+        }));
     }
 });
 

@@ -1,14 +1,14 @@
 var mongoose = require('mongoose');
 
-var DerivationRule = new mongoose.Schema({
+var SugObject = new mongoose.Schema({
     name: {
         type: String,
         required: true
     },
-    data: {
-        type: JSON,
+    attributes: {
+        type: Object,
         required: true
     }
 });
 
-mongoose.model('derivation_rule', DerivationRule);
+mongoose.model('sugobject', SugObject);
