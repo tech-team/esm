@@ -73,7 +73,8 @@ function executeDerivRules(req) {
     var attrs = req.session.attributes;
 
     _.forEach(req.session.statements, function(stmt) {
-        stmt(params, attrs);
+        var stmtJs = Compiler.createFunction(stmt, console.error.bind(console));
+        stmtJs(params, attrs);
     });
 }
 
@@ -105,7 +106,9 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
         }
     });
 
-    nonNumericSim /= nonNumericAttrsCount;
+    if (nonNumericAttrsCount !== 0) {
+        nonNumericSim /= nonNumericAttrsCount;
+    }
     var sim = (numericSim + nonNumericSim) / attrsCount;
     return sim;
 }
@@ -191,10 +194,13 @@ router.get('/init', function(req, res, next) {
                 req.session.parameters[p.param] = null;
             });
 
+            var stmts = [];
             _.forEach(model.derivation_rules, function(rule) {
-                var stmt = Compiler.compileString(rule, console.error.bind(console));
-                req.session.statements.push(stmt);
+                console.log(rule);
+                var stmt = Compiler.compileStringSerialized(rule, console.error.bind(console));
+                stmts.push(stmt);
             });
+            req.session.statements = stmts;
 
             res.json(RESP.ok({
                 question: constructNextQuestion(req)
