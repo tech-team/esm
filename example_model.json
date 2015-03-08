@@ -1,0 +1,32 @@
+{
+  "name": "testmodel2",
+  "attributes": [
+    {
+      "name": "myattr1",
+      "type": "choice",
+      "values": [1, 2]
+    }
+  ],
+  "questions": [
+    {
+      "text": "Question2",
+      "param": "my_param_2",
+      "type": "choice",
+      "values": [4,5,6]
+    }
+  ],
+  "derivation_rules": [
+    "if  my_param_2==5 then myattr1=2"
+  ],
+  "objects": [
+    {
+      "name": "cat",
+      "attributes": [
+        {
+          "name": "myattr1",
+          "value": 2
+        }
+      ]
+    }
+  ]
+}
