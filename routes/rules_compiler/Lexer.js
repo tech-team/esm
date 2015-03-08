@@ -101,7 +101,7 @@ class Lexer {
                     case Lexer.CHAR_CLASS.ALPHA:
                         return Lexer.STATE.ALPHA;
                     case Lexer.CHAR_CLASS.NUMBER:
-                        return Lexer.STATE.NUMBER;
+                        return Lexer.STATE.ALPHANUMERIC;
                     case Lexer.CHAR_CLASS.OPERATION:
                         return Lexer.STATE.END;
                     case Lexer.CHAR_CLASS.UNARY:

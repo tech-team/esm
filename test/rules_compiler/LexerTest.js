@@ -6,35 +6,35 @@ var Lexer = require("../../routes/rules_compiler/Lexer");
 var TestRunner = require('../TestRunner');
 
 class LexerTest {
-    static testSimpleMath() {
+    testSimpleMath() {
         var sourceCode = "if a==b then c=d";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(tokens.length == 8);
     }
 
-    static testSimpleEnglish() {
+    testSimpleEnglish() {
         var sourceCode = "if a==b then c=d";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(tokens.length == 8);
     }
 
-    static testSimpleRussian() {
+    testSimpleRussian() {
         var sourceCode = "ежели Вася является алкоголиком то беда будет точно";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(tokens.length == 8);
     }
 
-    static testAnd() {
+    testAnd() {
         var sourceCode = "ежели Вася является алкоголиком и Маша не_является акоголиком то беда будет точно";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(tokens.length == 12);
     }
 
-    static testMultipleAnd() {
+    testMultipleAnd() {
         var sourceCode = "if a==b and c==d and e==f then m=n";
         var tokens = LexerTest._test(sourceCode);
 
@@ -42,7 +42,7 @@ class LexerTest {
         console.assert(ands.length == 2);
     }
 
-    static testMultipleAndAfterThen() {
+    testMultipleAndAfterThen() {
         var sourceCode = "if a==b then m=n and e=f and l=20";
         var tokens = LexerTest._test(sourceCode);
 
@@ -50,7 +50,7 @@ class LexerTest {
         console.assert(ands.length == 2);
     }
 
-    static testNumbers() {
+    testNumbers() {
         var sourceCode = "if a==10 and c==20 then m=40";
         var tokens = LexerTest._test(sourceCode);
 
@@ -58,7 +58,7 @@ class LexerTest {
         console.assert(numbers.length == 3);
     }
 
-    static testNegativeNumbers() {
+    testNegativeNumbers() {
         var sourceCode = "if a==-12 then m=40";
         var tokens = LexerTest._test(sourceCode);
 
@@ -70,7 +70,7 @@ class LexerTest {
     }
 
     //TODO: change in future
-    static testDecimals() {
+    testDecimals() {
         var sourceCode = "if a==1.2 then m=40";
         var tokens = LexerTest._test(sourceCode);
 
@@ -82,7 +82,7 @@ class LexerTest {
     }
 
     //TODO: change in future
-    static testMulipleDots() {
+    testMulipleDots() {
         var sourceCode = "if a==1.2.3.4..5 then m=40";
         var tokens = LexerTest._test(sourceCode);
 
@@ -93,12 +93,20 @@ class LexerTest {
         console.assert(found);
     }
 
-    static testOperations() {
+    testOperations() {
         var sourceCode = "if a>10 and c<20 then m=50";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(_.find(tokens, {type: Lexer.TYPE.MORE}));
         console.assert(_.find(tokens, {type: Lexer.TYPE.LESS}));
+    }
+
+    testAlphanumeric() {
+        var sourceCode = "if my_param_1==5 then myattr1=2";
+        var tokens = LexerTest._test(sourceCode);
+
+        console.assert(_.find(tokens, {value: "my_param_1"}));
+        console.assert(_.find(tokens, {value: "myattr1"}));
     }
 
     static _test(sourceCode) {
