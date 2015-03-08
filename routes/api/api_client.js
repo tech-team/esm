@@ -194,13 +194,11 @@ router.get('/init', function(req, res, next) {
                 req.session.parameters[p.param] = null;
             });
 
-            var stmts = [];
             _.forEach(model.derivation_rules, function(rule) {
                 console.log(rule);
                 var stmt = Compiler.compileStringSerialized(rule, console.error.bind(console));
-                stmts.push(stmt);
+                req.session.statements.push(stmt);
             });
-            req.session.statements = stmts;
 
             res.json(RESP.ok({
                 question: constructNextQuestion(req)

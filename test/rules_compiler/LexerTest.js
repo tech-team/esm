@@ -76,7 +76,7 @@ class LexerTest {
 
         var found = _.find(tokens, _.matches({
             type: Lexer.TYPE.NUMBER,
-            value: 1
+            value: 1.2
         }));
         console.assert(found);
     }
@@ -88,7 +88,7 @@ class LexerTest {
 
         var found = _.find(tokens, _.matches({
             type: Lexer.TYPE.NUMBER,
-            value: 1
+            value: 1.2
         }));
         console.assert(found);
     }

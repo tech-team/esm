@@ -188,7 +188,7 @@ class Lexer {
             case Lexer.STATE.NONE:
                 return Lexer.TYPE.EOF;
             case Lexer.STATE.NUMBER:
-                token.value = parseInt(token.value);
+                token.value = parseFloat(token.value);
                 return Lexer.TYPE.NUMBER;
             default: {
                 var op = _.find(Lexer.OPERATIONS, function (opObject) {
