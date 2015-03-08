@@ -61,6 +61,22 @@ class CompilerTest {
 
         console.assert(attributes.c != 'd');
     }
+
+    testSerialzed() {
+        var code = Compiler.compileStringSerialized(this.sourceCode, console.error.bind(console));
+        this.js = Compiler.createFunction(code, console.error.bind(console));
+
+        var params = {
+            a: 'b',
+            e: 5
+        };
+
+        var attributes = {};
+
+        this.js(params, attributes);
+
+        console.assert(attributes.c == 'd');
+    }
 }
 
 TestRunner.run(CompilerTest);

@@ -34,9 +34,37 @@ class Compiler {
      * Compiles ast to JS Function
      * @param ast {Object} result from parse()
      * @param onError {Function} callback
-     * @returns {Function}
+     * @returns {Function|null}
      */
     static compileAST(ast, onError) {
+        var functionBody = Compiler.compileASTSerialized(ast, onError);
+
+        return Compiler.createFunction(functionBody, onError);
+    }
+
+    /**
+     * Creates new Function
+     * @param functionBody {String} javascript code
+     * @param onError {Function} callback
+     * @returns {Function|null}
+     */
+    static createFunction(functionBody, onError) {
+        try {
+            var js = new Function('params', 'attributes', functionBody);
+            return js;
+        } catch (e) {
+            onError("[Compiler] " + e.message);
+            return null;
+        }
+    }
+
+    /**
+     * Compiles AST to string
+     * @param ast {Object} result from parse()
+     * @param onError {Function} callback
+     * @returns {String} body of function
+     */
+    static compileASTSerialized(ast, onError) {
         var params = ast.op1.op1.params;
         var attributes = ast.op2.op1.attributes;
 
@@ -98,13 +126,18 @@ class Compiler {
 
         code += "\n}";
 
-        try {
-            var js = new Function('params', 'attributes', code);
-            return js;
-        } catch (e) {
-            onError("[Compiler] " + e.message);
-            return null;
-        }
+        return code;
+    }
+
+    /**
+     * Compiles AST to string
+     * @param sourceCode {String}
+     * @param onError {Function} callback
+     * @returns {String} body of function
+     */
+    static compileStringSerialized(sourceCode, onError) {
+        var ast = Compiler.parse(sourceCode, onError);
+        return Compiler.compileASTSerialized(ast, onError);
     }
 
     /**
