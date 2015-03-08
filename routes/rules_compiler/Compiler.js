@@ -1,17 +1,17 @@
+var _ = require('lodash');
+
 var Lexer = require('./Lexer');
 var Parser = require('./Parser');
 var StringStream = require('./StringStream');
 
-/**
- * Lexer+Parser facade
- */
+
 class Compiler {
     /**
      * @param sourceCode {String}
      * @param onError {Function} callback
-     * @returns {node|null}
+     * @returns {node|null} AST
      */
-    static compile(sourceCode, onError) {
+    static parse(sourceCode, onError) {
         var lexer = new Lexer(
             new StringStream(sourceCode),
             function (e) {
@@ -27,6 +27,114 @@ class Compiler {
         );
 
         return parser.parse();
+    }
+
+    /**
+     * Compiles ast to JS Function
+     * @param ast {Object} result from parse()
+     * @param onError {Function} callback
+     * @returns {Function}
+     */
+    static compileAST(ast, onError) {
+        var params = ast.op1.op1.params;
+        var attributes = ast.op2.op1.attributes;
+
+        if (_.isEmpty(params)) {
+            onError("[Compiler] Invalid AST: params: " + JSON.stringify(params));
+            return null;
+        }
+
+        if (_.isEmpty(attributes)) {
+            onError("[Compiler] Invalid AST: attributes: " + JSON.stringify(attributes));
+            return null;
+        }
+
+        var code = "if (";
+
+        code += _.reduce(params, function (code, param) {
+            var name = param.op1.token.value;
+            var op = param.token.type;
+
+            switch (op) {
+                case Lexer.TYPE.EQUAL:
+                    op = "==";
+                    break;
+                case Lexer.TYPE.LESS:
+                    op = "<";
+                    break;
+                case Lexer.TYPE.LESS_OR_EQUAL:
+                    op = "<=";
+                    break;
+                case Lexer.TYPE.MORE:
+                    op = ">";
+                    break;
+                case Lexer.TYPE.MORE_OR_EQUAL:
+                    op = ">=";
+                    break;
+                case Lexer.TYPE.NOT_EQUAL:
+                    op = "!=";
+                    break;
+            }
+
+            var value = param.op2.token.value;
+
+            if (!_.isNumber(value))
+                value = "'" + value + "'";
+
+            return "params['" + name + "'] " + op +  " " + value + " && ";
+        }, code);
+
+        code += "true) {\n";
+
+        code += _.reduce(attributes, function (code, attr) {
+            var name = attr.op1.token.value;
+            var value = attr.op2.token.value;
+            if (!_.isNumber(value))
+                value = "'" + value + "'";
+
+            return "attributes['" + name + "'] = " + value + ";\n";
+        }, code);
+
+        code += "\n}";
+
+        try {
+            var js = new Function('params', 'attributes', code);
+            return js;
+        } catch (e) {
+            onError("[Compiler] " + e.trace);
+            return null;
+        }
+    }
+
+    /**
+     * Parse + compileAST
+     * @param sourceCode {String}
+     * @param onError {Function} callback
+     * @returns {Function}
+     */
+    static compileString(sourceCode, onError) {
+        var ast = Compiler.parse(sourceCode, onError);
+        return Compiler.compileAST(ast, onError);
+    }
+
+    /**
+     * @param ast {JSON} AST
+     * @param paramsSet {Array} set of parameters
+     * @param attrsSet {Array} set of attributes
+     * @param onError {Function}
+     * @returns {Boolean}
+     */
+    static validateAST(ast, paramsSet, attrsSet, onError) {
+        var params = ast.op1.op1.params;
+        var attributes = ast.op2.op1.attributes;
+
+        //TODO
+
+        _.each(params, function (param) {
+
+        });
+
+        return true;
     }
 }
 

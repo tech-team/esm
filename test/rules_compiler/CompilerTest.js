@@ -6,14 +6,22 @@ var TestRunner = require('../TestRunner');
 
 class CompilerTest {
     static test() {
-        var sourceCode = "if a==b then c=d";
+        var sourceCode = "if a==b and e<10 then c=d";
 
-        var rootNode = Compiler.compile(
+        var js = Compiler.compileString(
             sourceCode,
             console.error.bind(console));
 
-        //TODO: Parser is not fully implemented
-        console.assert(rootNode.token == null);
+        var params = {
+            a: 'b',
+            e: 5
+        };
+
+        var attributes = {};
+
+        js(params, attributes);
+
+        console.assert(attributes.c == 'd');
     }
 }
 

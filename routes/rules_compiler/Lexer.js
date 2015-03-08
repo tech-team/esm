@@ -8,109 +8,9 @@ class Lexer {
      * @param onError {Function} callback
      */
     constructor(stringStream, onError) {
-        this.TYPE = {
-            NUMBER: Symbol("NUMBER"),
-            IDENTIFIER: Symbol("IDENTIFIER"),
-            IF: Symbol("IF"),
-            THEN: Symbol("THEN"),
-
-            EQUAL: Symbol("EQUAL"),
-            LESS: Symbol("LESS"),
-            LESS_OR_EQUAL: Symbol("LESS_OR_EQUAL"),
-            MORE: Symbol("MORE"),
-            MORE_OR_EQUAL: Symbol("MORE_OR_EQUAL"),
-            NOT_EQUAL: Symbol("NOT_EQUAL"),
-
-            ASSIGN: Symbol("ASSIGN"),
-
-            AND: Symbol("AND"),
-
-            EOF: Symbol("EOF")
-        };
-
-        this.KEY_WORDS = [
-            {
-                values: ["if", "если", "коли", "ежели"],
-                type: this.TYPE.IF
-            },
-            {
-                values: ["then", "то", "следовательно"],
-                type: this.TYPE.THEN
-            },
-            {
-                values: ["and", "и"],
-                type: this.TYPE.AND
-            }
-        ];
-
-        this.CHAR_CLASS = {
-            ALPHA: {
-                type: Symbol('ALPHA'),
-                domain: /[a-zа-я_]/},
-            NUMBER: {
-                type: Symbol('NUMBER'),
-                domain: /\d|\./},
-            OPERATION: {
-                type: Symbol('OPERATION'),
-                domain: /[=><!]/},
-            UNARY: {
-                type: Symbol('UNARY'),
-                domain: /-/},
-            NULL: {
-                type: Symbol('NULL'),
-                domain: null},
-            SPACE: {
-                type: Symbol('SPACE'),
-                domain: /\s/}
-        };
-
-
-        this.OPERATIONS = [
-            {
-                values: ["==", "equals", "equal", "равно", "равен", "является"],
-                type: this.TYPE.EQUAL
-            },
-            {
-                values: ["<", "less", "меньше"],
-                type: this.TYPE.LESS
-            },
-            {
-                values: ["<="],
-                type: this.TYPE.LESS_OR_EQUAL
-            },
-            {
-                values: [">", "more", "больше"],
-                type: this.TYPE.MORE
-            },
-            {
-                values: [">="],
-                type: this.TYPE.MORE_OR_EQUAL
-            },
-            {
-                values: ["!=", "not_equal", "не_равно", "не_равен"],
-                type: this.TYPE.NOT_EQUAL
-            },
-            {
-                values: ["=", "set", "assign", "присвоить", "будет"],
-                type: this.TYPE.ASSIGN
-            }
-        ];
-
-        this.STATE = {
-            NONE: Symbol("NONE"),
-            OPERATION: Symbol("OPERATION"),
-            NUMBER: Symbol("NUMBER"),
-            ALPHA: Symbol("ALPHA"),
-            ALPHANUMERIC: Symbol("ALPHANUMERIC"),
-            ERROR: Symbol("ERROR"),
-            END: Symbol("END")
-        };
-
         this.stringStream = stringStream;
         this.onError = onError;
     }
-
-
 
     getNextToken() {
         var token = {
@@ -118,10 +18,10 @@ class Lexer {
             value: ""
         };
 
-        var state = this.STATE.NONE;
+        var state = Lexer.STATE.NONE;
 
         var ch = this.stringStream.poll();
-        while (state != this.STATE.END) {
+        while (state != Lexer.STATE.END) {
             ch = this.stringStream.poll();
 
             let charClass = this.getCharClass(ch);
@@ -138,17 +38,17 @@ class Lexer {
             //console.log("Next state: ", nextState.toString());
             //console.log();
 
-            if (nextState == this.STATE.ERROR) {
+            if (nextState == Lexer.STATE.ERROR) {
                 this.onError("Unrecognized token:" + token.value);
                 return null;
             }
 
-            if (nextState != this.STATE.END) {
+            if (nextState != Lexer.STATE.END) {
                 token.value += ch;
                 ch = this.stringStream.next();
             } else {
                 // do not move stream unless ch is space
-                if (this.CHAR_CLASS.SPACE.domain.test(ch))
+                if (Lexer.CHAR_CLASS.SPACE.domain.test(ch))
                     this.stringStream.next();
 
                 token.type = this.deduceTokenType(state, token);
@@ -163,11 +63,11 @@ class Lexer {
 
     getCharClass(ch) {
         if (ch == null)
-            return this.CHAR_CLASS.NULL;
+            return Lexer.CHAR_CLASS.NULL;
 
         ch = ch.toLowerCase();
 
-        var charClass = _.find(this.CHAR_CLASS, function (classObject) {
+        var charClass = _.find(Lexer.CHAR_CLASS, function (classObject) {
             if (classObject.domain && classObject.domain.test(ch))
                 return true;
         });
@@ -177,118 +77,118 @@ class Lexer {
 
     getNextState(token, currentState, charClass) {
         switch (currentState) {
-            case this.STATE.NONE:
+            case Lexer.STATE.NONE:
                 switch (charClass) {
-                    case this.CHAR_CLASS.ALPHA:
-                        return this.STATE.ALPHA;
-                    case this.CHAR_CLASS.NUMBER:
-                        return this.STATE.NUMBER;
-                    case this.CHAR_CLASS.OPERATION:
-                        return this.STATE.OPERATION;
-                    case this.CHAR_CLASS.UNARY:
-                        return this.STATE.NUMBER;
-                    case this.CHAR_CLASS.NULL:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.SPACE:
-                        return this.STATE.NONE;
+                    case Lexer.CHAR_CLASS.ALPHA:
+                        return Lexer.STATE.ALPHA;
+                    case Lexer.CHAR_CLASS.NUMBER:
+                        return Lexer.STATE.NUMBER;
+                    case Lexer.CHAR_CLASS.OPERATION:
+                        return Lexer.STATE.OPERATION;
+                    case Lexer.CHAR_CLASS.UNARY:
+                        return Lexer.STATE.NUMBER;
+                    case Lexer.CHAR_CLASS.NULL:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.SPACE:
+                        return Lexer.STATE.NONE;
                     default:
-                        return this.STATE.ERROR;
+                        return Lexer.STATE.ERROR;
                 }
                 break;
 
-            case this.STATE.ALPHA:
+            case Lexer.STATE.ALPHA:
                 switch (charClass) {
-                    case this.CHAR_CLASS.ALPHA:
-                        return this.STATE.ALPHA;
-                    case this.CHAR_CLASS.NUMBER:
-                        return this.STATE.NUMBER;
-                    case this.CHAR_CLASS.OPERATION:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.UNARY:
-                        return this.STATE.ERROR;
-                    case this.CHAR_CLASS.NULL:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.SPACE:
-                        return this.STATE.END;
+                    case Lexer.CHAR_CLASS.ALPHA:
+                        return Lexer.STATE.ALPHA;
+                    case Lexer.CHAR_CLASS.NUMBER:
+                        return Lexer.STATE.NUMBER;
+                    case Lexer.CHAR_CLASS.OPERATION:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.UNARY:
+                        return Lexer.STATE.ERROR;
+                    case Lexer.CHAR_CLASS.NULL:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.SPACE:
+                        return Lexer.STATE.END;
                     default:
-                        return this.STATE.ERROR;
+                        return Lexer.STATE.ERROR;
                 }
                 break;
 
-            case this.STATE.NUMBER:
+            case Lexer.STATE.NUMBER:
                 switch (charClass) {
-                    case this.CHAR_CLASS.ALPHA:
-                        return this.STATE.ERROR;
-                    case this.CHAR_CLASS.NUMBER:
-                        return this.STATE.NUMBER;
-                    case this.CHAR_CLASS.OPERATION:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.UNARY:
-                        return this.STATE.ERROR;
-                    case this.CHAR_CLASS.NULL:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.SPACE:
-                        return this.STATE.END;
+                    case Lexer.CHAR_CLASS.ALPHA:
+                        return Lexer.STATE.ERROR;
+                    case Lexer.CHAR_CLASS.NUMBER:
+                        return Lexer.STATE.NUMBER;
+                    case Lexer.CHAR_CLASS.OPERATION:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.UNARY:
+                        return Lexer.STATE.ERROR;
+                    case Lexer.CHAR_CLASS.NULL:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.SPACE:
+                        return Lexer.STATE.END;
                     default:
-                        return this.STATE.ERROR;
+                        return Lexer.STATE.ERROR;
                 }
                 break;
 
-            case this.STATE.ALPHANUMERIC:
+            case Lexer.STATE.ALPHANUMERIC:
                 switch (charClass) {
-                    case this.CHAR_CLASS.ALPHA:
-                        return this.STATE.ALPHANUMERIC;
-                    case this.CHAR_CLASS.NUMBER:
-                        return this.STATE.ALPHANUMERIC;
-                    case this.CHAR_CLASS.OPERATION:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.UNARY:
-                        return this.STATE.ERROR;
-                    case this.CHAR_CLASS.NULL:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.SPACE:
-                        return this.STATE.END;
+                    case Lexer.CHAR_CLASS.ALPHA:
+                        return Lexer.STATE.ALPHANUMERIC;
+                    case Lexer.CHAR_CLASS.NUMBER:
+                        return Lexer.STATE.ALPHANUMERIC;
+                    case Lexer.CHAR_CLASS.OPERATION:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.UNARY:
+                        return Lexer.STATE.ERROR;
+                    case Lexer.CHAR_CLASS.NULL:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.SPACE:
+                        return Lexer.STATE.END;
                     default:
-                        return this.STATE.ERROR;
+                        return Lexer.STATE.ERROR;
                 }
                 break;
 
-            case this.STATE.OPERATION:
+            case Lexer.STATE.OPERATION:
                 switch (charClass) {
-                    case this.CHAR_CLASS.ALPHA:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.NUMBER:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.OPERATION:
-                        return this.STATE.OPERATION;
-                    case this.CHAR_CLASS.UNARY:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.NULL:
-                        return this.STATE.END;
-                    case this.CHAR_CLASS.SPACE:
-                        return this.STATE.END;
+                    case Lexer.CHAR_CLASS.ALPHA:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.NUMBER:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.OPERATION:
+                        return Lexer.STATE.OPERATION;
+                    case Lexer.CHAR_CLASS.UNARY:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.NULL:
+                        return Lexer.STATE.END;
+                    case Lexer.CHAR_CLASS.SPACE:
+                        return Lexer.STATE.END;
                     default:
-                        return this.STATE.ERROR;
+                        return Lexer.STATE.ERROR;
                 }
                 break;
 
-            case this.STATE.ERROR:
-                return this.STATE.ERROR;
+            case Lexer.STATE.ERROR:
+                return Lexer.STATE.ERROR;
 
-            case this.STATE.END:
-                return this.STATE.ERROR;
+            case Lexer.STATE.END:
+                return Lexer.STATE.ERROR;
         }
     }
 
     deduceTokenType(state, token) {
         switch (state) {
-            case this.STATE.NONE:
-                return this.TYPE.EOF;
-            case this.STATE.NUMBER:
+            case Lexer.STATE.NONE:
+                return Lexer.TYPE.EOF;
+            case Lexer.STATE.NUMBER:
                 token.value = parseInt(token.value);
-                return this.TYPE.NUMBER;
+                return Lexer.TYPE.NUMBER;
             default: {
-                var op = _.find(this.OPERATIONS, function (opObject) {
+                var op = _.find(Lexer.OPERATIONS, function (opObject) {
                     var values = opObject.values;
                     return _.contains(values, token.value);
                 });
@@ -296,7 +196,7 @@ class Lexer {
                     return op.type;
                 }
 
-                var keyWord = _.find(this.KEY_WORDS, function (kwObject) {
+                var keyWord = _.find(Lexer.KEY_WORDS, function (kwObject) {
                     var values = kwObject.values;
                     return _.contains(values, token.value);
                 });
@@ -306,13 +206,114 @@ class Lexer {
             }
         }
 
-        return this.TYPE.IDENTIFIER;
+        return Lexer.TYPE.IDENTIFIER;
     }
 
     isOperation(tokenType) {
-        return _.contains(this.OPERATIONS, {type: tokenType}) &&
-            tokenType != this.OPERATIONS.ASSIGN;
+        return _.contains(Lexer.OPERATIONS, {type: tokenType}) &&
+            tokenType != Lexer.OPERATIONS.ASSIGN;
     }
 }
+
+
+//sych static, very ES6
+Lexer.TYPE = {
+    NUMBER: Symbol("NUMBER"),
+    IDENTIFIER: Symbol("IDENTIFIER"),
+    IF: Symbol("IF"),
+    THEN: Symbol("THEN"),
+
+    EQUAL: Symbol("EQUAL"),
+    LESS: Symbol("LESS"),
+    LESS_OR_EQUAL: Symbol("LESS_OR_EQUAL"),
+    MORE: Symbol("MORE"),
+    MORE_OR_EQUAL: Symbol("MORE_OR_EQUAL"),
+    NOT_EQUAL: Symbol("NOT_EQUAL"),
+
+    ASSIGN: Symbol("ASSIGN"),
+
+    AND: Symbol("AND"),
+
+    EOF: Symbol("EOF")
+};
+
+Lexer.KEY_WORDS = [
+    {
+        values: ["if", "если", "коли", "ежели"],
+        type: Lexer.TYPE.IF
+    },
+    {
+        values: ["then", "то", "следовательно"],
+        type: Lexer.TYPE.THEN
+    },
+    {
+        values: ["and", "и"],
+        type: Lexer.TYPE.AND
+    }
+];
+
+Lexer.CHAR_CLASS = {
+    ALPHA: {
+        type: Symbol('ALPHA'),
+        domain: /[a-zа-я_]/},
+    NUMBER: {
+        type: Symbol('NUMBER'),
+        domain: /\d|\./},
+    OPERATION: {
+        type: Symbol('OPERATION'),
+        domain: /[=><!]/},
+    UNARY: {
+        type: Symbol('UNARY'),
+        domain: /-/},
+    NULL: {
+        type: Symbol('NULL'),
+        domain: null},
+    SPACE: {
+        type: Symbol('SPACE'),
+        domain: /\s/}
+};
+
+
+Lexer.OPERATIONS = [
+    {
+        values: ["==", "equals", "equal", "равно", "равен", "является"],
+        type: Lexer.TYPE.EQUAL
+    },
+    {
+        values: ["<", "less", "меньше"],
+        type: Lexer.TYPE.LESS
+    },
+    {
+        values: ["<="],
+        type: Lexer.TYPE.LESS_OR_EQUAL
+    },
+    {
+        values: [">", "more", "больше"],
+        type: Lexer.TYPE.MORE
+    },
+    {
+        values: [">="],
+        type: Lexer.TYPE.MORE_OR_EQUAL
+    },
+    {
+        values: ["!=", "not_equal", "не_равно", "не_равен"],
+        type: Lexer.TYPE.NOT_EQUAL
+    },
+    {
+        values: ["=", "set", "assign", "присвоить", "будет"],
+        type: Lexer.TYPE.ASSIGN
+    }
+];
+
+Lexer.STATE = {
+    NONE: Symbol("NONE"),
+    OPERATION: Symbol("OPERATION"),
+    NUMBER: Symbol("NUMBER"),
+    ALPHA: Symbol("ALPHA"),
+    ALPHANUMERIC: Symbol("ALPHANUMERIC"),
+    ERROR: Symbol("ERROR"),
+    END: Symbol("END")
+};
+
 
 module.exports = Lexer;
