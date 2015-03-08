@@ -191,10 +191,10 @@ router.get('/init', function(req, res, next) {
                 req.session.parameters[p.param] = null;
             });
 
-            //_.forEach(model.derivation_rules, function(rule) {
-            //    var stmt = Compiler.compileString(rule, console.error.bind(console));
-            //    req.session.statements.push(stmt);
-            //});
+            _.forEach(model.derivation_rules, function(rule) {
+                var stmt = Compiler.compileString(rule, console.error.bind(console));
+                req.session.statements.push(stmt);
+            });
 
             res.json(RESP.ok({
                 question: constructNextQuestion(req)

@@ -8,14 +8,12 @@ class TestRunner {
      * @param [justMethod] {Function}
      */
     static run(clazz, justMethod) {
-        var clazzInstance = new clazz();
-
         var totalTests = 0;
         var succeededTests = 0;
 
         var setupMethod = null;
         if (clazz.prototype.setUp) {
-            setupMethod = clazz.prototype.setUp.bind(clazzInstance);
+            setupMethod = clazz.prototype.setUp;
         } else {
             setupMethod = function() {};
         }
@@ -26,10 +24,11 @@ class TestRunner {
 
         _.forOwn(methodCollection, function (method) {
             if (_.isFunction(method) && /^test/.test(method.name)) {
+                var clazzInstance = new clazz();
                 ++totalTests;
                 console.info("-------[TEST] " + clazz.name + "." + method.name + " started");
                 try {
-                    setupMethod();
+                    setupMethod.apply(clazzInstance);
                     method.apply(clazzInstance);
                     ++succeededTests;
                 } catch(e) {
