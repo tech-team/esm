@@ -13,9 +13,16 @@ class ParserTest {
         var tokens = ParserTest._test(sourceCode);
     }
 
-    static testMuitipleAnd() {
+    static testTime() {
         var sourceCode = "if a==b and e>20 and a==3 then c=d";
-        var tokens = ParserTest._test(sourceCode);
+
+        console.time("testMultipleAnd");
+
+        for (let i = 0; i < 100; ++i) {
+            var tokens = ParserTest._test(sourceCode);
+        }
+
+        console.timeEnd("testMultipleAnd");
     }
 
     static _test(sourceCode) {
