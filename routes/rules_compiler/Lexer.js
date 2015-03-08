@@ -30,7 +30,7 @@ class Lexer {
                 return null;
             }
 
-            let nextState = this.getNextState(token, state, charClass);
+            let nextState = this.getNextState(state, charClass);
 
             //console.log("State: ", state.toString());
             //console.log("Char: ", ch);
@@ -44,7 +44,10 @@ class Lexer {
             }
 
             if (nextState != Lexer.STATE.END) {
-                token.value += ch;
+                // ignore leading space
+                if (!Lexer.CHAR_CLASS.SPACE.domain.test(ch))
+                    token.value += ch;
+
                 ch = this.stringStream.next();
             } else {
                 // do not move stream unless ch is space
@@ -75,7 +78,7 @@ class Lexer {
         return charClass;
     }
 
-    getNextState(token, currentState, charClass) {
+    getNextState(currentState, charClass) {
         switch (currentState) {
             case Lexer.STATE.NONE:
                 switch (charClass) {

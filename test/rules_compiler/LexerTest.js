@@ -102,7 +102,7 @@ class LexerTest {
     }
 
     testAlphanumeric() {
-        var sourceCode = "if my_param_1==5 then myattr1=2";
+        var sourceCode = "if  my_param_1==5 then myattr1=2";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(_.find(tokens, {value: "my_param_1"}));
