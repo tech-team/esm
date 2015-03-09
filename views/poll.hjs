@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ES: poll</title>
+
+    <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
+    <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
+    <link rel="stylesheet" href="/static/css/lib/jquery-ui.theme.css">
+
+    <link rel="stylesheet" href="/static/css/poll.css" />
+
+    <!-- PrototypeJS 1.7.2 fails to work with AMD -->
+    <script src="/static/js/lib/min/prototype.js"></script>
+    <script data-main="/static/js/poll" src="/static/js/lib/min/require.js"></script>
+</head>
+<body>
+<header class="navbar navbar-default">
+    <div class="container">
+        <h1>ES
+            <small>client</small>
+        </h1>
+    </div>
+</header>
+
+<div class="container">
+    <div class="panel panel-default question-container">
+        <div class="panel-heading question">
+            <h3>Быть или не быть?</h3>
+        </div>
+        <div class="panel-body answers">
+            <form>
+                <div class="form-group">
+                    <label>Выберите ответ:</label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="answer" id="быть" value="быть" required="true">
+                            быть
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="answer" id="не_быть" value="не_быть" required="true">
+                            не_быть
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-primary next">
+                        Следующий вопрос
+                        <span class="glyphicon glyphicon-menu-right next-arrow" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="panel panel-default question-container">
+        <div class="panel-heading question">
+            <h3>В чём смысл жизни?</h3>
+        </div>
+        <div class="panel-body answers">
+            <form class="form">
+                <div class="form-group">
+                    <label for="answer">Введите число:</label><br>
+                    <input id="answer" type="number" required="true" />
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary next">
+                        Следующий вопрос
+                        <span class="glyphicon glyphicon-menu-right next-arrow" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

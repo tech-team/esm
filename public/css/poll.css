@@ -1,0 +1,17 @@
+.answers {
+    margin-left: 10px;
+    margin-right: 10px;
+
+    font-size: large;
+}
+
+.next {
+    margin-top: 10px;
+    font-size: large;
+}
+
+.next-arrow {
+    position: relative;
+    top: 4px;
+    left: 3px;
+}

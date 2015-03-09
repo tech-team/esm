@@ -13,6 +13,10 @@ router.get('/client', function(req, res, next) {
     res.render('client', { title: 'Express' });
 });
 
+router.get('/poll', function(req, res, next) {
+    res.render('poll', { title: 'Express' });
+});
+
 router.get('/testRunner', function(req, res, next) {
     res.render('testRunner', { title: 'Express' });
 });
