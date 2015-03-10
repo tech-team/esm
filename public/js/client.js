@@ -3,7 +3,7 @@
 //load libs first to set baseUrl
 require(['config'], function() {
     require(['jquery', 'jquery-ui', 'api/API', 'url/Template'],
-        function(_1, _2, API, Url) {
+        function($, jqUI, API, Url) {
             $(function() {
                 var api = new API();
 
