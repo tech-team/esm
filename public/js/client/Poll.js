@@ -40,11 +40,13 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
              */
             prepareQuestion: function(question) {
                 _.each(question.values, function (value, id) {
+					var v = String(value);
                     question.values[id] = {
-                        identifier: value,
-                        spaced: value.replace('_', ' ')
+                        identifier: v,
+                        spaced: v.replace('_', ' ')
                     };
                 });
+				return question;
             }
         });
 
