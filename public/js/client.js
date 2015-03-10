@@ -2,11 +2,24 @@
 //app entry point
 //load libs first to set baseUrl
 require(['config'], function() {
-    require(['jquery', 'jquery-ui', 'api/API'],
-        function(_1, _2, Client) {
+    require(['jquery', 'jquery-ui', 'api/API', 'url/Template'],
+        function(_1, _2, API, Url) {
             $(function() {
-                var client = new Client();
+                var api = new API();
 
+                api.getModelList({
+                    onComplete: function (list) {
+                        renderModelList(list);
+                    },
+                    onError: function (e) {
+                        alert(JSON.stringify(e));
+                        console.error(e);
+                    }
+                });
+
+                function renderModelList (list) {
+                    console.log(list);
+                }
             });
         }
     );

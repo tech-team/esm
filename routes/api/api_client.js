@@ -143,8 +143,8 @@ function acceptAnswer(req, answer, successCb, errorCb) {
 }
 
 
-router.get('/init', function(req, res, next) {
-    var model_id = req.query.id;
+router.post('/init', function(req, res, next) {
+    var model_id = req.body.id;
     if (model_id) {
         modelsInteractor.get(model_id, function(err, model) {
             if (err) {
