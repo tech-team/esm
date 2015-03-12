@@ -11,7 +11,7 @@ var requireTree = require('require-tree');
 
 // connect to mongodb
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/express-system', function(err) {
+mongoose.connect('mongodb://localhost/expsys', function(err) {
     if (err) {
         console.error("Unable to connect to MongoDB server", err);
         process.exit(-1);

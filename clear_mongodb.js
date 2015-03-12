@@ -1,4 +1,4 @@
 conn = new Mongo();
-db = conn.getDB("express-system");
+db = conn.getDB("expsys");
 
 db.dropDatabase();
