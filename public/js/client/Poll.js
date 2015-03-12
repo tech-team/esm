@@ -6,6 +6,8 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
 
                 this.api  = api;
 
+                this.currentQuestion = null;
+
                 this.$questionContainer = $('#question-container');
                 this.templates = {
                     choice: Templater.load('#choice-template'),
@@ -26,9 +28,62 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                 });
             },
 
+            getNextQuestion: function () {
+                var self = this;
+
+                var $questionForm = this.$questionContainer.find('.ajax')[0];
+                if (!$questionForm.checkValidity())
+                    return false;
+
+                var $answer = null;
+
+                if (this.currentQuestion.type == 'choice')
+                    $answer = this.$questionContainer.find("input[name=answer]:checked");
+                else
+                    $answer = this.$questionContainer.find("input[name=answer]");
+
+                var answer = $answer.val();
+
+                this.api.answer(answer, {
+                    onComplete: function (msg) {
+                        if (msg.question) {
+                            self.renderQuestion(
+                                self.prepareQuestion(msg.question));
+                        } else {
+                            alert("No more answers!\nU R DONE!\nCongrats!");
+                            window.location.href = "/report";
+                        }
+                    },
+                    onError: function (e) {
+                        alert(JSON.stringify(e));
+                        console.error(e);
+                    }
+                });
+            },
+
             renderQuestion: function (question) {
+                var self = this;
+
+                if (!question) {
+                    return;
+                }
+
+                this.currentQuestion = question;
+
                 var questionStr = this.templates[question.type](question);
                 var $question = $(questionStr);
+
+                // prevent the form from doing a submit
+                // but keep validation working
+                $question.on('submit','.ajax',function (e) {
+                    e.preventDefault();
+                    return false;
+                });
+
+                var $nextButton = $question.find(".next");
+                $nextButton.click(function (e) {
+                    self.getNextQuestion();
+                });
 
                 this.$questionContainer.empty();
                 $question.appendTo(this.$questionContainer);
@@ -39,6 +94,11 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
              * @param question
              */
             prepareQuestion: function(question) {
+                if (!question) {
+                    alert("Error: No question retrieved from server!");
+                    return;
+                }
+
                 _.each(question.values, function (value, id) {
 					var v = String(value);
                     question.values[id] = {

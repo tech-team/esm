@@ -17,6 +17,10 @@ router.get('/poll', function(req, res, next) {
     res.render('poll', { title: 'Express' });
 });
 
+router.get('/report', function(req, res, next) {
+    res.render('report', { title: 'Express' });
+});
+
 router.get('/testRunner', function(req, res, next) {
     res.render('testRunner', { title: 'Express' });
 });
