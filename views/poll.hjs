@@ -30,7 +30,7 @@
                 <h3>{text}</h3>
             </div>
             <div class="panel-body answers">
-                <form>
+                <form class="form ajax">
                     <div class="form-group">
                         <label>Выберите ответ:</label>
                         {#values}
@@ -66,7 +66,7 @@
                 <h3>{text}</h3>
             </div>
             <div class="panel-body answers">
-                <form class="form">
+                <form class="form ajax">
                     <div class="form-group">
                         <label for="answer">Введите число:</label><br>
                         <input id="answer" type="number" required="true" />
