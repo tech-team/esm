@@ -115,7 +115,7 @@ router.get('/model', function(req, res, next) {
 });
 
 router.get('/model/list', function(req, res, next) {
-    Model.find({}, { _id: true, name: true }, function(err, models) {
+    modelsInteractor.modelsList(function(err, models) {
         if (err) {
             console.error("Error while selecting: ", err);
             res.status(500).json(RESP.modelsSelectingError());

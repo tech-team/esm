@@ -24,8 +24,9 @@
 </header>
 
 <div class="container">
-    Здесь будет список моделей <br>
-    <a href="/poll?model_id=1">Model 1</a>
+    {{#models}}
+    <a href="/poll?modelId={{_id}}">Model "{{name}}"</a>
+    {{/models}}
 </div>
 
 </body>

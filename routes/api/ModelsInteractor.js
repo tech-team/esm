@@ -212,8 +212,13 @@ function getModel(model_id, cb) {
                                 .populate('objects').exec(cb);
 }
 
+function getModelsList(cb) {
+    Model.find({}, { _id: true, name: true }, cb);
+}
+
 module.exports = {
     validate: validateModel,
     save: saveModel,
-    get: getModel
+    get: getModel,
+    modelsList: getModelsList
 };

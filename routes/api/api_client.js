@@ -231,7 +231,8 @@ router.post('/answer', function(req, res, next) {
             res.json(RESP.ok({
                 objects: req.session.objects,
                 params: req.session.parameters,
-                attrs: req.session.attributes
+                attrs: req.session.attributes,
+                question: constructNextQuestion(req)
             }));
         },
         function() {

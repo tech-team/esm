@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+var modelsInteractor = require('./api/ModelsInteractor');
+
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
@@ -10,7 +12,9 @@ router.get('/editor', function(req, res, next) {
 });
 
 router.get('/client', function(req, res, next) {
-    res.render('client', { title: 'Express' });
+    modelsInteractor.modelsList(function(err, models) {
+        res.render('client', { title: 'Express', models: models });
+    });
 });
 
 router.get('/poll', function(req, res, next) {
