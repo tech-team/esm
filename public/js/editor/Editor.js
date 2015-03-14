@@ -5,8 +5,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 var self = this;
 
                 this._model = new Model();
-    
-                this._templates = this._loadTemplates();
+                this._loadTemplates();
 
                 this._questionTypes = [
                     {
@@ -116,16 +115,16 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             _loadTemplates: function () {
-                var partials = {
+                this._partials = {
                     input: Templater.load('#input-template'),
                     select: Templater.load('#select-template'),
                     combobox: Templater.load('#combobox-template'),
                     operate: Templater.load('#operate-template'),
                 };
 
-                Templater.registerPartials(partials);
+                Templater.registerPartials(this._partials);
 
-                return {
+                this._templates = {
                     questionRow: Templater.load('#question-row-template'),
                     attributeRow: Templater.load('#attribute-row-template')
                 };

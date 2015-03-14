@@ -3,6 +3,7 @@ define([], function() {
         initialize: function (data) {
             this._questions = null;
             this._attributes = null;
+            this._objects = null;
 
             if (data)
                 this.load(data);
@@ -42,6 +43,9 @@ define([], function() {
 
             this._attributes = [];
             this.createAttribute();
+
+            this._objects = [];
+            this.createObject();
         },
 
         getQuestions: function () {
@@ -50,6 +54,10 @@ define([], function() {
 
         getAttributes: function () {
             return this._attributes;
+        },
+
+        getObjects: function () {
+            return this._objects;
         },
 
         /**
@@ -81,6 +89,18 @@ define([], function() {
 
             this._attributes.push(attribute);
             return attribute;
+        },
+
+        /**
+         * Adds new empty object to model
+         */
+        createObject: function () {
+            var object = {
+
+            };
+
+            this._objects.push(object);
+            return object;
         }
     });
 

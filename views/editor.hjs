@@ -29,7 +29,7 @@
     </div>
 </header>
 
-<!-- mustache templates -->
+<!-- mustache partials -->
 <script id="input-template" language="text/html">
     <input type="text" value="{value}" data-field="{field}" />
 </script>
@@ -57,6 +57,7 @@
         </span>
     </button>
 </script>
+<!-- /mustache partials -->
 
 <div class="container">
     <section id="model">
@@ -82,7 +83,7 @@
                 <th></th>
             </tr>
             </thead>
-            <tbody id="questions-table">
+            <tbody>
             <script id="question-row-template" language="text/html">
                 <tr data-entry-id="{id}">
                     <td>{ id.value }</td>
@@ -123,7 +124,7 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Навание</th>
+                <th>Название</th>
                 <th>Тип</th>
                 <th>Значения</th>
                 <th></th>
@@ -155,8 +156,13 @@
         <textarea id="derivation-rules-textarea" class="form-control" placeholder="если параметр=10 и другой_параметр>30 то атрибут=20"></textarea>
     </section>
 
+    <section id="objects">
+        <h3>Рекомендуемые объекты</h3>
+        <a href="/objectsManager">Перейти к списку</a>
+    </section>
+
     <footer id="buttons" class="pull-right">
-        <button class="btn btn-primary save-model">Сохранить</button>
+        <button class="btn btn-primary save-model">Сохранить модель</button>
     </footer>
 </div>
 
@@ -184,6 +190,7 @@
         </p>
     </div>
 </div>
+<!-- /jQ-ui dialogs -->
 
 </body>
 </html>

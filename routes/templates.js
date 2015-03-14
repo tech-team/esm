@@ -21,8 +21,8 @@ router.get('/report', function(req, res, next) {
     res.render('report', { title: 'Express' });
 });
 
-router.get('/testRunner', function(req, res, next) {
-    res.render('testRunner', { title: 'Express' });
+router.get('/objectsManager', function(req, res, next) {
+    res.render('objectsManager', { title: 'Express' });
 });
 
 module.exports = router;
