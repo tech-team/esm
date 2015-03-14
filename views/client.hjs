@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>ES: client</title>
+    <title>ES: {{title}}</title>
 
     <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
@@ -15,13 +15,8 @@
     <script data-main="/static/js/client" src="/static/js/lib/min/require.js"></script>
 </head>
 <body>
-<header class="navbar navbar-default">
-    <div class="container">
-        <h1>ES
-            <small>client</small>
-        </h1>
-    </div>
-</header>
+
+{{> pageTitle}}
 
 <div class="container">
     <div class="panel panel-default">
