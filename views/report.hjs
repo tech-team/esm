@@ -23,65 +23,15 @@
     </div>
 </header>
 
-<div id="question-container" class="container">
-    <script id="choice-template" language="text/html">
-        <div class="panel panel-default question-container">
-            <div class="panel-heading question">
-                <h3>{text}</h3>
-            </div>
-            <div class="panel-body answers">
-                <form class="form ajax">
-                    <div class="form-group">
-                        <label>Выберите ответ:</label>
-                        {#values}
-                        <div class="radio">
-                            <label>
-                                <input
-                                        type="radio"
-                                        name="answer"
-                                        id="{identifier}"
-                                        value="{identifier}"
-                                        required="true">
-                            </label>
-                            {spaced}
-                        </div>
-                        {/values}
-                    </div>
-
-                    <div class="form-group">
-                        <button class="btn btn-primary next">
-                            Следующий вопрос
-                            <span class="glyphicon glyphicon-menu-right next-arrow" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </form>
-
-            </div>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3>Most suitable options:</h3>
         </div>
-    </script>
-
-    <script id="number-template" language="text/html">
-        <div class="panel panel-default question-container">
-            <div class="panel-heading question">
-                <h3>{text}</h3>
-            </div>
-            <div class="panel-body answers">
-                <form class="form ajax">
-                    <div class="form-group">
-                        <label for="answer">Введите число:</label><br>
-                        <input id="answer" type="number" required="true" />
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary next">
-                            Следующий вопрос
-                            <span class="glyphicon glyphicon-menu-right next-arrow" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div>
+            <table id="results-table"></table>
         </div>
-    </script>
+    </div>
 </div>
 
 </body>

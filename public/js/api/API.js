@@ -2,15 +2,12 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
     var API = Class.create({
         /**
          * Gets JSON stats report
-         * @param taskId {String}
          * @param callbacks {Object}
          * @param callbacks.onError {Function}
          * @param callbacks.onComplete {Function}
          */
-        getReport: function(taskId, callbacks) {
-            this._get("/api/report", {
-                taskId: taskId
-            }, callbacks);
+        getReport: function(callbacks) {
+            this._get("/api/client/results", null, callbacks);
         },
 
         init: function(modelId, callbacks) {

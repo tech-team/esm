@@ -40,10 +40,7 @@ app.use(cookieParser());
 app.use(session({
     secret: 'purr cat',
     resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 60000
-    }
+    saveUninitialized: false
 }));
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
