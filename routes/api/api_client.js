@@ -125,7 +125,7 @@ function calculateObjects(req) {
             rank: sim
         });
     });
-    req.session.objects = userObjects;
+    req.session.objects = _.sortBy(userObjects, 'rank');
 }
 
 function acceptAnswer(req, answer, successCb, errorCb) {
