@@ -34,7 +34,7 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
         },
 
         getModelList: function (callbacks) {
-            this._get("/api/modelList", null, callbacks);
+            this._get("/api/editor/model/list", null, callbacks);
         },
 
         saveModel: function(model, callbacks) {

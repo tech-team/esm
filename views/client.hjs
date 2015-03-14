@@ -24,9 +24,13 @@
 </header>
 
 <div class="container">
-    {{#models}}
-    <a href="/poll?modelId={{_id}}">Model "{{name}}"</a>
-    {{/models}}
+    <ul id="model-list">
+        <script id="list-template" language="text/html">
+            {#models}
+            <a href="/poll?modelId={_id}">{name}</a>
+            {/models}
+        </script>
+    </ul>
 </div>
 
 </body>
