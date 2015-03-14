@@ -241,5 +241,18 @@ router.post('/answer', function(req, res, next) {
     );
 });
 
+router.get('/results', function(req, res, next) {
+    if (!req.session.model) {
+        res.status(400).json(RESP.noModel());
+        return;
+    }
+
+    res.json(RESP.ok({
+        objects: req.session.objects,
+        params: req.session.parameters,
+        attrs: req.session.attributes
+    }));
+});
+
 
 module.exports = router;

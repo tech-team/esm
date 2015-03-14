@@ -12,9 +12,7 @@ router.get('/editor', function(req, res, next) {
 });
 
 router.get('/client', function(req, res, next) {
-    modelsInteractor.modelsList(function(err, models) {
-        res.render('client', { title: 'Express', models: models });
-    });
+    res.render('client', { title: 'Express' });
 });
 
 router.get('/poll', function(req, res, next) {
