@@ -2,10 +2,10 @@ requirejs.config({
     baseUrl: '/static/js/lib/min',
     paths: {
         editor: '/static/js/editor',
-        client: '/static/js/client/',
-        test: '/static/js/test/',
-        api: '/static/js/api/',
-        util: '/static/js/util/'
+        client: '/static/js/client',
+        test: '/static/js/test',
+        api: '/static/js/api',
+        util: '/static/js/util'
     },
     shim: {
         'jquery.layout': {

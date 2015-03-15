@@ -21,7 +21,9 @@
 
 <!-- mustache partials -->
 <script id="link-template" language="text/html">
-    <a href="/poll?modelId={modelId}">{modelName}</a>
+    <a href="/poll?modelId={modelId}" class="model-name">
+        {modelName}
+    </a>
 </script>
 
 <script id="operate-template" language="text/html">

@@ -20,7 +20,7 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
 
                 var $createModelButton = $('#create-model');
                 $createModelButton.click(function () {
-                    alert("TODO: redirect to /editor and create empty model");
+                    window.location.href = "/editor";
                 });
             },
 
@@ -30,18 +30,15 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                     columns: [
                         {
                             title: "Name",
-                            formatter: this._modelLinkFormatter.bind(this),
-                            events: {
-                                'click .edit': function () {
-                                    //TODO
-                                    alert("click .edit");
-                                }
-                            }
+                            formatter: this._modelLinkFormatter.bind(this)
                         },
                         {
                             title: "",
                             width: 50,
-                            formatter: this._operateFormatter.bind(this)
+                            formatter: this._operateFormatter.bind(this),
+                            events: {
+                                'click .edit': this._openEditor.bind(this)
+                            }
                         }
                     ],
                     data: models
@@ -60,6 +57,10 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                 return this._partials.operate({
                     modelId: value._id
                 });
+            },
+
+            _openEditor: function (e, value, row, index) {
+                window.location.href = "/editor?modelId=" + row._id;
             },
 
             _loadTemplates: function () {
