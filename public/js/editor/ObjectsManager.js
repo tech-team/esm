@@ -1,8 +1,10 @@
 define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
     function($, _, Templater, Exceptions, Model) {
-        var Editor = Class.create({
+        var ObjectsManager = Class.create({
             initialize: function (api) {
                 var self = this;
+
+                this.api = api;
 
                 this._model = new Model();
                 this._loadTemplates();
@@ -91,6 +93,6 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             }
         });
     
-        return Editor;
+        return ObjectsManager;
     }
 );

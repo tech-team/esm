@@ -6,11 +6,11 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
          * @param callbacks.onError {Function}
          * @param callbacks.onComplete {Function}
          */
-        getReport: function(callbacks) {
+        getReport: function (callbacks) {
             this._get("/api/client/results", null, callbacks);
         },
 
-        init: function(modelId, callbacks) {
+        init: function (modelId, callbacks) {
             this._post("/api/client/init", {
                 id: modelId
             }, callbacks);
@@ -24,7 +24,7 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
          * @param callbacks.onError {Function}
          * @param callbacks.onComplete {Function}
          */
-        answer: function(answer, callbacks) {
+        answer: function (answer, callbacks) {
             this._post("/api/client/answer", {
                 answer: answer
             }, callbacks);
@@ -34,15 +34,17 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
             this._get("/api/editor/model/list", null, callbacks);
         },
 
-        saveModel: function(model, callbacks) {
-            this._post("/api/saveModel", model, callbacks);
+        loadModel: function (modelId, callbacks) {
+            this._get("/api/editor/model", {
+                id: modelId
+            }, callbacks);
         },
 
-        createModel: function(data, callbacks) {
-            this._post("/api/createModel", data, callbacks);
+        saveModel: function (model, callbacks) {
+            this._post("/api/editor/model", model, callbacks);
         },
 
-        _get: function(url, data, callbacks) {
+        _get: function (url, data, callbacks) {
             $.ajax({
                 type: "GET",
                 contentType: "application/json",
