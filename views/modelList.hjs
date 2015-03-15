@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ES: {{title}}</title>
+
+    <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
+    <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
+    <link rel="stylesheet" href="/static/css/lib/jquery-ui.theme.css">
+
+    <link rel="stylesheet" href="/static/css/modelList.css" />
+
+    <!-- PrototypeJS 1.7.2 fails to work with AMD -->
+    <script src="/static/js/lib/min/prototype.js"></script>
+    <script data-main="/static/js/modelList" src="/static/js/lib/min/require.js"></script>
+</head>
+<body>
+
+{{> pageTitle}}
+
+
+<!-- mustache partials -->
+<script id="link-template" language="text/html">
+    <a href="/poll?modelId={modelId}">{modelName}</a>
+</script>
+
+<script id="operate-template" language="text/html">
+    <button class="ui-button form-control edit" title="Edit model">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true">
+        </span>
+    </button>
+</script>
+<!-- /mustache partials -->
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading model-list-header">
+            <h3>Выберите модель</h3>
+        </div>
+        <div class="panel-body">
+            <table id="models-table"></table>
+            <div class="add-button-wrapper">
+                <button id="create-model" class="btn text-right add-button pull-right">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    Создать модель
+                </button>
+            </div>
+        </div>
+</div>
+
+</body>
+</html>

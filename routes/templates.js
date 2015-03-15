@@ -8,9 +8,9 @@ var partials = {
 };
 
 router.get('/', function(req, res, next) {
-    res.render('index', {
+    res.render('modelList', {
         partials: partials,
-        title: 'index'
+        title: 'model list'
     });
 });
 
@@ -18,13 +18,6 @@ router.get('/editor', function(req, res, next) {
     res.render('editor', {
         partials: partials,
         title: 'editor'
-    });
-});
-
-router.get('/client', function(req, res, next) {
-    res.render('client', {
-        partials: partials,
-        title: 'client'
     });
 });
 
