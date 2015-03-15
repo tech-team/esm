@@ -68,6 +68,41 @@ router.post('/model', function(req, res, next) {
     }
 });
 
+router.post('/model/objects', function(req, res, next) {
+    var data = req.body;
+    modelsInteractor.validateObjects(data.modelId, data.objects, function(err, model, validated) {
+        if (err) {
+            console.error("Error while getting model: ", err);
+            res.status(500).json(RESP.modelSavingError());
+            return;
+        }
+
+        if (!model) {
+            res.status(404).json(RESP.modelNotFound());
+        } else {
+
+            if (validated[0]) {
+                modelsInteractor.saveObjects(model, data.objects, function(err) {
+                    if (err) {
+                        console.error("Error while saving model: ", err);
+                        res.status(500).json(RESP.modelSavingError());
+                        return;
+                    }
+
+                    res.json(RESP.ok({
+                        _id: model._id
+                    }));
+                });
+            } else {
+                res.status(400).json(RESP.invalidModel({
+                    reason: validated[1]
+                }));
+            }
+
+        }
+    });
+});
+
 router.put('/model', function(req, res, next) {
     // TODO
     var model = req.body;
