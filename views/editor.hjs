@@ -76,7 +76,7 @@
             <script id="question-row-template" language="text/html">
                 <tr data-entry-id="{id}">
                     <td>{> input text}</td>
-                    <td>{> input parameter}</td>
+                    <td>{> input param}</td>
                     <td>{> select type}</td>
                     <td>{> input values}</td>
                     <td>{> operate}</td>

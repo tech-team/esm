@@ -37,9 +37,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 this._model = new Model(modelData);
 
                 var $saveButton = $(".save-model");
-                $saveButton.click(function () {
-                    console.log(self._model.getQuestions());
-                });
+                $saveButton.click(this._onSaveModelClick.bind(this));
 
                 // render questions
                 this.$questionsTable = $('#questions-table');
@@ -110,7 +108,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             _onSaveModelClick: function () {
-                this.api.saveModel(this._model.getData(), {
+                var method = this.api.createModel;
+                if (this._model.getId() != null)
+                    method = this.api.saveModel;
+
+                method(this._model.getData(), {
                     onComplete: function (msg) {
                         var modelId = msg.modelId;
 
@@ -166,6 +168,9 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     var $field = $(this);
                     var key = $field.data('field');
                     var value = $field.val();
+
+                    if (key == "values")
+                        value = value.split(',');
 
                     row[key] = value;
                 });

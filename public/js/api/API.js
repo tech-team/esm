@@ -40,8 +40,12 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
             }, callbacks);
         },
 
-        saveModel: function (model, callbacks) {
+        createModel: function (model, callbacks) {
             this._post("/api/editor/model", model, callbacks);
+        },
+
+        saveModel: function (model, callbacks) {
+            this._put("/api/editor/model", model, callbacks);
         },
 
         _get: function (url, data, callbacks) {
@@ -62,6 +66,22 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
         _post: function (url, data, callbacks) {
             $.ajax({
                 type: "POST",
+                contentType: "application/json",
+                url: url,
+                dataType: "json",
+                data: JSON.stringify(data)
+            })
+                .done(function (msg) {
+                    callbacks.onComplete(msg);
+                })
+                .fail(function (error) {
+                    callbacks.onError(error.responseJSON);
+                });
+        },
+
+        _put: function (url, data, callbacks) {
+            $.ajax({
+                type: "PUT",
                 contentType: "application/json",
                 url: url,
                 dataType: "json",

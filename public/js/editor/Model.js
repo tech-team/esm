@@ -81,7 +81,7 @@ define([], function() {
             var question = {
                 id: -1,
                 text: "",
-                parameter: "",
+                param: "",
                 type: "choice",
                 values: []
             };
