@@ -1,10 +1,10 @@
 define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
     function($, _, Templater, Exceptions, Model) {
         var Editor = Class.create({
-            initialize: function (api) {
+            initialize: function (api, modelId) {
                 var self = this;
+                this.api = api;
 
-                this._model = new Model();
                 this._loadTemplates();
 
                 this._questionTypes = [
@@ -18,12 +18,30 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     }
                 ];
 
+                if (!modelId) {
+                    this._initialize();
+                } else {
+                    this.api.loadModel(modelId, {
+                        onComplete: function (msg) {
+                            self._initialize(msg.model)
+                        },
+                        onError: function (msg) {
+                            alert(JSON.stringify(msg));
+                        }
+                    })
+                }
+            },
+
+            _initialize: function (modelData) {
+                var self = this;
+                this._model = new Model(modelData);
+
                 var $saveButton = $(".save-model");
                 $saveButton.click(function () {
                     console.log(self._model.getQuestions());
                 });
 
-                //render question
+                // render questions
                 this.$questionsTable = $('#questions-table');
                 var questions = this._model.getQuestions();
                 _.each(questions, function (question) {
@@ -36,7 +54,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     self.addQuestionRow(questions, question);
                 });
 
-                //render attributes
+                // render attributes
                 this.$attrbutesTable = $('#attributes-table');
                 var attributes = this._model.getAttributes();
                 _.each(attributes, function (question) {
@@ -47,6 +65,61 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 $addAttributeButton.click(function () {
                     var attribute = self._model.createAttribute();
                     self.addAttributeRow(attributes, attribute);
+                });
+
+                // render derivation rules
+                this.$rulesTable = $('#rules-table');
+                var rules = this._model.getRules();
+                _.each(rules, function (rule) {
+                    this.addRuleRow(rules, rule);
+                }, this);
+
+                var $addRuleButton = $('#add-rule');
+                $addRuleButton.click(function () {
+                    var rule = self._model.createRule();
+                    self.addRuleRow(rules, rule);
+                });
+
+                // model name
+                var $modelName = $('#model-name');
+                $modelName.val(this._model.getName());
+
+                $modelName.on('input', function () {
+                    var name = $modelName.val();
+                    self._model.setName(name);
+                });
+
+                // manage objects
+                var $manageObjects = $('#manage-objects');
+                $manageObjects.click(this._onManageObjectsClick.bind(this));
+            },
+
+            _onManageObjectsClick: function () {
+                this.api.saveModel(this._model.getData(), {
+                    onComplete: function (msg) {
+                        var modelId = msg.modelId;
+
+                        history.replaceState(null, "", "/editor?modelId=" + modelId);
+                        alert("Model saved successfully: " + modelId);
+                        document.location.href = "/objectsManager?modelId=" + modelId;
+                    },
+                    onError: function (msg) {
+                        alert(JSON.stringify(msg));
+                    }
+                });
+            },
+
+            _onSaveModelClick: function () {
+                this.api.saveModel(this._model.getData(), {
+                    onComplete: function (msg) {
+                        var modelId = msg.modelId;
+
+                        history.replaceState(null, "", "/editor?modelId=" + modelId);
+                        alert("Model saved successfully: " + modelId);
+                    },
+                    onError: function (msg) {
+                        alert(JSON.stringify(msg));
+                    }
                 });
             },
 
@@ -66,6 +139,14 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 this.addRow(this.$attrbutesTable, this._templates.attributeRow, context, attributes, attribute);
             },
 
+            addRuleRow: function (rules, rule) {
+                var context = this._prepareContext({
+                    rule: rule
+                });
+
+                this.addRow(this.$rulesTable, this._templates.ruleRow, context, rules, rule);
+            },
+
             /**
              * Adds <tr> in $table
              * @param $table {jQuery}
@@ -75,6 +156,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
              * @param row {Object}
              */
             addRow: function ($table, template, context, rows, row) {
+                var self = this;
+
                 var questionRow = template(context);
                 var $questionRow = $(questionRow);
 
@@ -126,22 +209,9 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
                 this._templates = {
                     questionRow: Templater.load('#question-row-template'),
-                    attributeRow: Templater.load('#attribute-row-template')
+                    attributeRow: Templater.load('#attribute-row-template'),
+                    ruleRow: Templater.load('#rule-row-template')
                 };
-            },
-
-    
-            // button click handlers
-            onLoadModelClick: function () {
-    
-            },
-    
-            onCreateModelClick: function () {
-    
-            },
-    
-            onSaveModelClick: function () {
-    
             }
         });
     

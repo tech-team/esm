@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.theme.css">
 
+    <link rel="stylesheet" href="/static/css/common.css" />
     <link rel="stylesheet" href="/static/css/style.css" />
 
     <!-- PrototypeJS 1.7.2 fails to work with AMD -->
@@ -20,7 +21,7 @@
 
 <!-- mustache partials -->
 <script id="input-template" language="text/html">
-    <input class="form-control" type="text" value="{value}" data-field="{field}" />
+    <input class="form-control" type="text" value="{value}" data-field="{field}" placeholder="{ph}"/>
 </script>
 
 <script id="select-template" language="text/html">
@@ -135,15 +136,38 @@
         </div>
     </section>
 
-    <section id="derivation-rules">
-        <h3>Правила вывода</h3>
-        <label for="derivation-rules-textarea">(по одному правилу на строку)</label>
-        <textarea id="derivation-rules-textarea" class="form-control" placeholder="если параметр=10 и другой_параметр>30 то атрибут=20"></textarea>
+    <section id="rules">
+        <h3>Атрибуты</h3>
+        <table id="rules-table" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Правило</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <script id="rule-row-template" language="text/html">
+                <tr data-entry-id="{id}">
+                    <td>{> input rule ph='если параметр=10 и другой_параметр>30 то атрибут=20'}</td>
+                    <td>{> operate}</td>
+                </tr>
+            </script>
+            </tbody>
+        </table>
+        <div class="add-button-wrapper">
+            <button id="add-rule" class="btn text-right add-button pull-right">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Добавить
+            </button>
+        </div>
     </section>
 
     <section id="objects">
         <h3>Рекомендуемые объекты</h3>
-        <a href="/objectsManager"><b>Перейти к списку</b></a>
+        <button id="manage-objects" class="btn">
+            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+            Перейти к списку
+        </button>
     </section>
 
     <footer id="buttons" class="pull-right">

@@ -1,23 +1,28 @@
 define([], function() {
     var Model = Class.create({
         initialize: function (data) {
-            this._questions = null;
-            this._attributes = null;
-            this._objects = null;
-
             if (data)
-                this.load(data);
+                this._load(data);
             else
                 this._create();
         },
 
         _load: function (data) {
-
+            this._data = data;
         },
 
         _create: function () {
+            this._data = {
+                _id: -1,
+                name: "",
+                questions: [],
+                attributes: [],
+                objects: [],
+                derivation_rules: []
+            };
+
             //TODO: stub
-            this._questions = [
+            this._data.questions = [
                 {
                     id: 1,
                     text: "Быть или не быть?",
@@ -41,23 +46,32 @@ define([], function() {
                 }
             ];
 
-            this._attributes = [];
             this.createAttribute();
-
-            this._objects = [];
             this.createObject();
         },
 
+        getName: function () {
+            return this._data.name;
+        },
+
+        setName: function (name) {
+            this._data.name = name;
+        },
+
         getQuestions: function () {
-            return this._questions;
+            return this._data.questions;
         },
 
         getAttributes: function () {
-            return this._attributes;
+            return this._data.attributes;
+        },
+
+        getRules: function () {
+            return this._data.derivation_rules;
         },
 
         getObjects: function () {
-            return this._objects;
+            return this._data.objects;
         },
 
         /**
@@ -72,7 +86,7 @@ define([], function() {
                 values: []
             };
 
-            this._questions.push(question);
+            this._data.questions.push(question);
             return question;
         },
 
@@ -87,8 +101,24 @@ define([], function() {
                 values: []
             };
 
-            this._attributes.push(attribute);
+            this._data.attributes.push(attribute);
             return attribute;
+        },
+
+        /**
+         * Add new empty derivation rule to model
+         */
+        createRule: function () {
+            var rule = {
+                id: -1,
+                text: "",
+                parameter: "",
+                type: "choice",
+                values: []
+            };
+
+            this._data.derivation_rules.push(rule);
+            return rule;
         },
 
         /**
@@ -99,8 +129,16 @@ define([], function() {
 
             };
 
-            this._objects.push(object);
+            this._data.objects.push(object);
             return object;
+        },
+
+        getId: function () {
+            return this._data._id;
+        },
+
+        getData: function () {
+            return this._data;
         }
     });
 

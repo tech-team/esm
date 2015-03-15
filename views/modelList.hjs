@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.theme.css">
 
+    <link rel="stylesheet" href="/static/css/common.css" />
     <link rel="stylesheet" href="/static/css/modelList.css" />
 
     <!-- PrototypeJS 1.7.2 fails to work with AMD -->
