@@ -45,7 +45,6 @@ function validateModel(model, checkForId) {
                 //&& _.isArray(model['parameters'])
             && _.isArray(model['questions'])
             && _.isArray(model['derivation_rules'])
-            && _.isArray(model['objects']) && model['objects'].length > 0
         ;
     var res = [v , "Base nodes (name, attributes, questions, derivation_rules, objects) are not valid"];
 
@@ -65,14 +64,7 @@ function validateModel(model, checkForId) {
 
     if (!res[0]) return res;
 
-    var mappedAttrs = {};
-    _.forEach(attrs, function(a) {
-        mappedAttrs[a.name] = a;
-    });
 
-    var hasAttr = function(attrName) {
-        return !_.isUndefined(mappedAttrs[attrName]);
-    };
 
     model.parameters = [];
 
@@ -103,13 +95,34 @@ function validateModel(model, checkForId) {
 
     if (!res[0]) return res;
 
-    _.forEach(model['objects'], function(obj) {
-        if (!_.isObject(obj) || !_.isString(obj.name) || !_.isObject(obj.attributes) || Object.keys(obj.attributes).length != attrs.length) {
+    if (_.isArray(model['objects']) && model['objects'].length > 0) {
+        res = _validateObjectsInModel(model);
+    }
+
+    if (!res[0]) return res;
+
+    return res;
+}
+
+function _validateObjectsInModel(model, objects) {
+    var res = [true, ""];
+
+    var mappedAttrs = {};
+    _.forEach(model.attributes, function(a) {
+        mappedAttrs[a.name] = a;
+    });
+
+    var hasAttr = function(attrName) {
+        return !_.isUndefined(mappedAttrs[attrName]);
+    };
+
+    _.forEach(objects, function (obj) {
+        if (!_.isObject(obj) || !_.isString(obj.name) || !_.isObject(obj.attributes) || Object.keys(obj.attributes).length != model.attributes.length) {
             res = [false, "Object has invalid structure"];
             return false;
         }
 
-        _.forEach(obj.attributes, function(a, attrName) {
+        _.forEach(obj.attributes, function (a, attrName) {
             if (!(mappedAttrs[attrName].type == 'choice' && _.includes(mappedAttrs[attrName].values, a)
                 || mappedAttrs[attrName].type == 'number' && _.isNumber(a))) {
                 res = [false, "Object's attribute value is not valid"];
@@ -120,26 +133,23 @@ function validateModel(model, checkForId) {
         return res[0];
     });
 
-    if (!res[0]) return res;
-
     return res;
 }
 
-function saveObj(params, index, Type, error_cb, next, target_arr) {
-    target_arr = target_arr || [];
-    if (index >= params.length) {
-        if (next)
-            next(target_arr);
-    } else {
-        Type.create(params[index], function (err, obj) {
-            if (err) {
-                error_cb(err, null);
-                return;
-            }
-            target_arr.push(obj._id);
-            saveObj(params, index + 1, Type, error_cb, next, target_arr);
-        });
-    }
+function validateObjectsInModel(modelId, objects, cb) {
+    getModel(modelId, function(err, model) {
+        if (err) {
+            cb(err);
+            return;
+        }
+        if (!model) {
+            cb(null, null, null);
+            return;
+        }
+
+        var res = _validateObjectsInModel(model, objects);
+        cb(err, model, res);
+    });
 }
 
 function countObjectsStats(model) {
@@ -174,13 +184,32 @@ function countObjectsStats(model) {
     model.stats = stats;
 }
 
+function saveObj(params, index, Type, error_cb, next, target_arr) {
+    target_arr = target_arr || [];
+    if (index >= params.length) {
+        if (next)
+            next(target_arr);
+    } else {
+        Type.create(params[index], function (err, obj) {
+            if (err) {
+                error_cb(err, null);
+                return;
+            }
+            target_arr.push(obj._id);
+            saveObj(params, index + 1, Type, error_cb, next, target_arr);
+        });
+    }
+}
+
 function saveModel(model, cb) {
     var params = model.parameters;
     var attrs = model.attributes;
     var questions = model.questions;
     var derivRules = model.derivation_rules;
     var sugObjects = model.objects;
-    countObjectsStats(model);
+    model.stats = {};
+
+    delete model._id;
 
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
         model.attributes = attrs_ids;
@@ -194,15 +223,20 @@ function saveModel(model, cb) {
             saveObj(questions, 0, Question, cb, function(question_ids) {
                 model.questions = question_ids;
 
-                saveObj(sugObjects, 0, SugObject, cb, function(sugObjectsIds) {
-                    model.objects = sugObjectsIds;
-                    Model.create(model, function(err, saved_model) {
-                        cb(err, saved_model);
-                    });
+                Model.create(model, function(err, saved_model) {
+                    cb(err, saved_model);
                 });
             });
         });
     });
+}
+
+function deleteObj(idToDelete, Type, cb) {
+    Type.remove({_id: idToDelete}, cb);
+}
+
+function deleteArrOfObjs(ids, Type, cb) {
+    Type.remove({_id: {$in: ids}}, cb);
 }
 
 function getModel(model_id, cb) {
@@ -216,9 +250,25 @@ function getModelsList(cb) {
     Model.find({}, { _id: true, name: true }, cb);
 }
 
+function saveObjects(model, objects, cb) {
+    deleteArrOfObjs(model.objects, SugObject, function(err) {
+        if (err) {
+            cb(err);
+        } else {
+            saveObj(objects, 0, SugObject, cb, function(sugObjectsIds) {
+                model.objects = sugObjectsIds;
+                countObjectsStats(model);
+                model.save(cb);
+            });
+        }
+    });
+}
+
 module.exports = {
     validate: validateModel,
+    validateObjects: validateObjectsInModel,
     save: saveModel,
     get: getModel,
-    modelsList: getModelsList
+    modelsList: getModelsList,
+    saveObjects: saveObjects
 };
