@@ -84,8 +84,8 @@ function validateModel(model, checkForId, noReconstruct) {
             var p = {};
             copyFields(q, p, ['param', 'type', 'values']);
             model.parameters.push(p);
-            delete q.type;
-            delete q.values;
+            //delete q.type;
+            //delete q.values;
         }
     });
 
@@ -223,7 +223,7 @@ function saveModel(model, cb) {
             var mapped_params = _.zipObject(_.map(params, function(p){return p.param}), params_ids);
             _.forEach(questions, function(q) {
                 q.param_id = mapped_params[q.param];
-                delete q.param;
+                //delete q.param;
             });
             saveObj(questions, 0, Question, cb, function(question_ids) {
                 model.questions = question_ids;
@@ -292,7 +292,20 @@ function getModel(model_id, cb) {
     Model.findOne({_id: model_id}).populate('attributes')
                                 .populate('parameters')
                                 .populate('questions')
-                                .populate('objects').exec(cb);
+                                .populate('objects').exec(function(err, model) {
+            if (err) {
+                cb(err, model);
+                return;
+            }
+
+            if (!model) {
+                cb(err, model);
+                return;
+            }
+            Model.deepPopulate(model, 'questions.param_id', cb);
+    });
+
+    //Model.findOne({_id: model_id}).deepPopulate('attributes parameters questions objects ').exec(cb);
 }
 
 function getModelsList(cb) {
