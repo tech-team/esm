@@ -46,8 +46,8 @@ var RESP = configureResp({
     }
 });
 
-router.post('/model', function(req, res, next) {
-    var model = req.body;
+
+function saveModel(model, res) {
     var validated = modelsInteractor.validate(model);
     if (validated[0]) {
         modelsInteractor.save(model, function(err, saved_model) {
@@ -66,6 +66,12 @@ router.post('/model', function(req, res, next) {
             reason: validated[1]
         }));
     }
+}
+
+
+router.post('/model', function(req, res, next) {
+    var model = req.body;
+    saveModel(model, res);
 });
 
 router.post('/model/objects', function(req, res, next) {
@@ -79,50 +85,54 @@ router.post('/model/objects', function(req, res, next) {
 
         if (!model) {
             res.status(404).json(RESP.modelNotFound());
-        } else {
-
-            if (validated[0]) {
-                modelsInteractor.saveObjects(model, data.objects, function(err) {
-                    if (err) {
-                        console.error("Error while saving model: ", err);
-                        res.status(500).json(RESP.modelSavingError());
-                        return;
-                    }
-
-                    res.json(RESP.ok({
-                        _id: model._id
-                    }));
-                });
-            } else {
-                res.status(400).json(RESP.invalidModel({
-                    reason: validated[1]
-                }));
-            }
-
+            return;
         }
+
+        if (validated[0]) {
+            modelsInteractor.saveObjects(model, data.objects, function(err) {
+                if (err) {
+                    console.error("Error while saving model: ", err);
+                    res.status(500).json(RESP.modelSavingError());
+                    return;
+                }
+
+                res.json(RESP.ok({
+                    _id: model._id
+                }));
+            });
+        } else {
+            res.status(400).json(RESP.invalidModel({
+                reason: validated[1]
+            }));
+        }
+
     });
 });
 
 router.put('/model', function(req, res, next) {
-    // TODO
     var model = req.body;
-    if (modelsInteractor.validate(model, true)) {
-        var id = model._id;
-        delete model._id;  // or mongo will try to save id as String
+    var validated = modelsInteractor.validate(model, true, true);
 
-        Model.update(id, model, { upsert: false }, function(err) {
+    if (validated[0]) {
+        var id = model._id;
+        modelsInteractor.removeModel(id, function(err, m) {
             if (err) {
-                console.error("Error while updating model: ", err);
+                console.error("Error while removing model: ", err);
                 res.status(500).json(RESP.modelUpdatingError());
                 return;
             }
 
-            res.json(RESP.ok());
+            if (!m) {
+                res.status(404).json(RESP.modelNotFound());
+                return;
+            }
+
+            saveModel(model, res);
         });
-
-
     } else {
-        res.status(400).json(RESP.invalidModel());
+        res.status(400).json(RESP.invalidModel({
+            reason: validated[1]
+        }));
     }
 });
 

@@ -31,7 +31,7 @@ function validate_attr_or_param(obj) {
     return [true, ""];
 }
 
-function validateModel(model, checkForId) {
+function validateModel(model, checkForId, noReconstruct) {
     if (_.isEmpty(model)) {
         return [false, "Model is empty"];
     }
@@ -66,22 +66,27 @@ function validateModel(model, checkForId) {
 
 
 
-    model.parameters = [];
+    if (!noReconstruct) {
+        model.parameters = [];
+    }
 
     _.forEach(model['questions'], function(q) {
         if (!_.isObject(q) || !_.isString(q.text)) {
             res = [false, "question has invalid structure"];
             return false;
         }
+        if (!res[0]) return false;
 
         res = validate_attr_or_param(q);
         if (!res[0]) return false;
 
-        var p = {};
-        copyFields(q, p, ['param', 'type', 'values']);
-        model.parameters.push(p);
-        delete q.type;
-        delete q.values;
+        if (!noReconstruct) {
+            var p = {};
+            copyFields(q, p, ['param', 'type', 'values']);
+            model.parameters.push(p);
+            delete q.type;
+            delete q.values;
+        }
     });
 
     if (!res[0]) return res;
@@ -239,6 +244,50 @@ function deleteArrOfObjs(ids, Type, cb) {
     Type.remove({_id: {$in: ids}}, cb);
 }
 
+function removeModel(modelId, cb) {
+    Model.findOne({_id: modelId}, function(err, model) {
+        if (err) {
+            cb(err);
+            return;
+        }
+
+        if (!model) {
+            cb(null, 0);
+            return;
+        }
+
+        deleteArrOfObjs(model.attributes, Attribute, function(err) {
+            if (err) {
+                cb(err);
+                return;
+            }
+
+            deleteArrOfObjs(model.parameters, Parameter, function(err) {
+                if (err) {
+                    cb(err);
+                    return;
+                }
+
+                deleteArrOfObjs(model.questions, Question, function(err) {
+                    if (err) {
+                        cb(err);
+                        return;
+                    }
+
+                    deleteArrOfObjs(model.objects, SugObject, function(err) {
+                        if (err) {
+                            cb(err);
+                            return;
+                        }
+
+                        model.remove(cb);
+                    });
+                });
+            });
+        });
+    });
+}
+
 function getModel(model_id, cb) {
     Model.findOne({_id: model_id}).populate('attributes')
                                 .populate('parameters')
@@ -270,5 +319,6 @@ module.exports = {
     save: saveModel,
     get: getModel,
     modelsList: getModelsList,
-    saveObjects: saveObjects
+    saveObjects: saveObjects,
+    removeModel: removeModel
 };
