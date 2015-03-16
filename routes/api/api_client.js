@@ -72,6 +72,10 @@ function nn(orderRules, currentQuestion, user_ans, questions) {
     return nextQuestion;
 }
 
+function buildOrderRulesTree(orderRules, questions) {
+
+}
+
 function constructNextQuestion(req, user_ans) {
     var model = req.session.model;
 
