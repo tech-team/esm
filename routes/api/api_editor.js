@@ -76,7 +76,7 @@ router.post('/model', function(req, res, next) {
 
 router.post('/model/objects', function(req, res, next) {
     var data = req.body;
-    modelsInteractor.validateObjects(data.modelId, data.objects, function(err, model, validated) {
+    modelsInteractor.validateModelObjects(data.modelId, data.objects, function(err, model, validated) {
         if (err) {
             console.error("Error while getting model: ", err);
             res.status(500).json(RESP.modelSavingError());
