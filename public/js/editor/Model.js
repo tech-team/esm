@@ -48,7 +48,7 @@ define([], function() {
             ];
 
             this.createQuestion();
-            thi.createOrder();
+            this.createOrder();
             this.createAttribute();
             this.createObject();
         },
