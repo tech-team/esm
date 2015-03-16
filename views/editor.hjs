@@ -92,18 +92,36 @@
         </div>
     </section>
 
-    <section id="question-order">
+    <section id="orders">
         <h3>Порядок опроса</h3>
-        <table class="question-order-table">
+        <table id="orders-table" class="table table-striped">
             <thead>
             <tr>
-                <th data-field="from_question">Если был задан</th>
-                <th data-field="from_value">и выбран ответ</th>
-                <th data-field="to_question">то перейти к</th>
-                <th data-field="skip_question">и не задавать</th>
+                <th>Если задан</th>
+                <th>и</th>
+                <th>отвечено</th>
+                <th>то задать</th>
+                <th></th>
             </tr>
             </thead>
+            <tbody>
+            <script id="order-row-template" language="text/html">
+                <tr data-entry-id="{id}">
+                    <td>{> select from}</td>
+                    <td>{> select op}</td>
+                    <td>{> combobox value}</td>
+                    <td>{> select to}</td>
+                    <td>{> operate}</td>
+                </tr>
+            </script>
+            </tbody>
         </table>
+        <div class="add-button-wrapper">
+            <button id="add-order" class="btn text-right add-button pull-right">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Добавить
+            </button>
+        </div>
     </section>
 
     <section id="attributes">

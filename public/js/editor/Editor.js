@@ -17,6 +17,15 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         text: "Число"
                     }
                 ];
+                
+                this._orderOps = [
+                    {value: "==", text: "=="},
+                    {value: ">", text: ">"},
+                    {value: "<", text: "<"},
+                    {value: ">=", text: ">="},
+                    {value: "<=", text: "<="},
+                    {value: "!=", text: "!="}
+                ];
 
                 if (!modelId) {
                     this._initialize();
@@ -52,6 +61,19 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     self.addQuestionRow(questions, question);
                 });
 
+                // render orders
+                this.$ordersTable = $('#orders-table');
+                var orders = this._model.getOrders();
+                _.each(orders, function (order) {
+                    this.addOrderRow(orders, order);
+                }, this);
+
+                var $addOrderButton = $('#add-order');
+                $addOrderButton.click(function () {
+                    var order = self._model.createOrder();
+                    self.addOrderRow(orders, order);
+                });
+                
                 // render attributes
                 this.$attrbutesTable = $('#attributes-table');
                 var attributes = this._model.getAttributes();
@@ -131,6 +153,14 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 });
 
                 this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
+            },
+
+            addOrderRow: function (orders, order) {
+                var context = _.extend(this._prepareContext(order), {
+                    type: this._prepareSelect(this._orderOps, order.op)
+                });
+
+                this.addRow(this.$ordersTable, this._templates.orderRow, context, orders, order);
             },
 
             addAttributeRow: function (attributes, attribute) {
@@ -215,7 +245,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 this._templates = {
                     questionRow: Templater.load('#question-row-template'),
                     attributeRow: Templater.load('#attribute-row-template'),
-                    ruleRow: Templater.load('#rule-row-template')
+                    ruleRow: Templater.load('#rule-row-template'),
+                    orderRow: Templater.load('#order-row-template')
                 };
             }
         });
