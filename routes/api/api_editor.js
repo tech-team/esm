@@ -113,7 +113,7 @@ router.post('/model/objects', function(req, res, next) {
 
 router.put('/model', function(req, res, next) {
     var model = req.body;
-    modelsInteractor.validate(model, true, true, function(err) {
+    modelsInteractor.validate(model, true, false, function(err) {
         if (err) {
             res.status(400).json(RESP.invalidModel({
                 reason: err

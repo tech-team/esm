@@ -1,4 +1,3 @@
-
 "use strict";
 
 class Node {
@@ -10,6 +9,10 @@ class Node {
 
 class OrderRulesTree {
     constructor() {
+        this.root = new Node(null);
+    }
+
+    addChild(fromQ, toQ) {
 
     }
 }
