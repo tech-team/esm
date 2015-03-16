@@ -117,7 +117,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             _onManageObjectsClick: function () {
                 this.api.saveModel(this._model.getData(), {
                     onComplete: function (msg) {
-                        var modelId = msg.modelId;
+                        var modelId = msg._id;
 
                         history.replaceState(null, "", "/editor?modelId=" + modelId);
                         alert("Model saved successfully: " + modelId);
@@ -155,9 +155,13 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
             },
 
+            //TODO
             addOrderRow: function (orders, order) {
                 var context = _.extend(this._prepareContext(order), {
-                    type: this._prepareSelect(this._orderOps, order.op)
+                    from: this._prepareSelect(this._orderOps, order.from),
+                    op: this._prepareSelect(this._orderOps, order.op),
+                    value: this._prepareSelect(this._orderOps, order.value),
+                    to: this._prepareSelect(this._orderOps, order.to)
                 });
 
                 this.addRow(this.$ordersTable, this._templates.orderRow, context, orders, order);

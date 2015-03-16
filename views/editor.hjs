@@ -155,7 +155,7 @@
     </section>
 
     <section id="rules">
-        <h3>Атрибуты</h3>
+        <h3>Правила вывода</h3>
         <table id="rules-table" class="table table-striped">
             <thead>
             <tr>
