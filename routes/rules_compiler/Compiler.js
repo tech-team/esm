@@ -170,6 +170,33 @@ class Compiler {
 
         return true;
     }
+
+    static validateString(sourceCode, paramsSet, attrsSet, cb) {
+        cb("", sourceCode); // TEMPORARY
+        return; // TEMPORARY
+
+        var ast = Compiler.parse(sourceCode, function(err) {
+            if (err) {
+                cb(err);
+                return;
+            }
+
+            validateAST(ast, paramsSet, attrsSet, function(err) {
+                if (err) {
+                    cb(err);
+                    return;
+                }
+
+                // TODO: THIS IS UNACCEPTABLE
+                var serialized = compileASTSerialized(ast, function(err /*,TODO: PARAM_HAS_TO_BE_RIGHT_HERE*/) {
+                    if (err) {
+                        cb(err);
+                        return;
+                    }
+                });
+            });
+        });
+    }
 }
 
 module.exports = Compiler;

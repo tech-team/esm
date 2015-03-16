@@ -6,6 +6,7 @@ var Parameter = mongoose.model('parameter');
 var Question = mongoose.model('question');
 var SugObject = mongoose.model('sugobject');
 var Model = mongoose.model('model');
+var Compiler = require('../rules_compiler/Compiler');
 
 function copyFields(fromObj, toObj, fields) {
     _.forEach(fields, function(f) {
@@ -31,42 +32,51 @@ function validate_attr_or_param(obj) {
     return [true, ""];
 }
 
-function validateModel(model, checkForId, noReconstruct) {
+function validateModel(model, checkForId, noReconstruct, cb) {
+    if (_.isUndefined(noReconstruct) && _.isUndefined(cb) && _.isFunction(checkForId)) {
+        cb = checkForId;
+        checkForId = false;
+        noReconstruct = false;
+    } else if (_.isUndefined(cb) && _.isFunction(noReconstruct)) {
+        cb = noReconstruct;
+        noReconstruct = false;
+    }
+    cb = cb || function(err) {};
 
     var validOperations = ['==', '<', '>', '<=', '>='];
 
 
     if (_.isEmpty(model)) {
-        return [false, "Model is empty"];
+        return cb("Model is empty");
     }
 
     if (checkForId && !_.isString(model['_id'])) {
-        return [false, "_id is not valid"];
+        return cb("_id is not valid");
     }
 
+    var res = [];
     var v = _.isString(model['name'])
             && _.isArray(model['attributes'])
-                //&& _.isArray(model['parameters'])
             && _.isArray(model['questions'])
             && _.isArray(model['derivation_rules'])
         ;
-    var res = [v , "Base nodes (name, attributes, questions, derivation_rules, objects) are not valid"];
-
-    if (!res[0]) return res;
+    if (!v) {
+        return cb("Base nodes (name, attributes, questions, derivation_rules, objects) are not valid");
+    }
 
     var attrs = model.attributes;
     var params = {};
     var questions = model.quetsions;
 
     if (attrs.length === 0) {
-        return [false, "Attributes length should not be zero"];
+        return cb("Attributes length should not be zero");
     }
     _.forEach(attrs, function(attr) {
         res = validate_attr_or_param(attr);
         return res[0];
     });
 
-    if (!res[0]) return res;
+    if (!res[0]) return cb(res[1]);
 
 
 
@@ -92,25 +102,16 @@ function validateModel(model, checkForId, noReconstruct) {
         }
     });
 
-    if (!res[0]) return res;
-
-    _.forEach(model['derivation_rules'], function(rule) {
-        if (!_.isString(rule)) {
-            res = [false, "Derivation rule must be a string"];
-            return false;
-        }
-    });
-
-    if (!res[0]) return res;
+    if (!res[0]) return cb(res[1]);
 
     if (_.isArray(model['objects']) && model['objects'].length > 0) {
-        return _validateObjectsInModel(model);
+        return cb(_validateObjectsInModel(model)[1]);
     }
 
 
 
     if (!_.isArray(model['orderRules'])) {
-        return [false, "'orderRules' array is not in model"];
+        return cb("'orderRules' array is not in model");
     }
 
     _.forEach(model['orderRules'], function(orderRule) {
@@ -150,9 +151,45 @@ function validateModel(model, checkForId, noReconstruct) {
         }
     });
 
-    if (!res[0]) return res;
+    if (!res[0]) return cb(res[1]);
 
-    return res;
+    if (!noReconstruct) {
+        model['compiled_rules'] = [];
+    }
+    _.forEach(model['derivation_rules'], function(rule) {
+        if (!_.isString(rule)) {
+            res = [false, "Derivation rule must be a string"];
+            return false;
+        }
+
+        if (!res[0]) return false;
+    });
+
+    if (!res[0]) return cb(res[1]);
+
+    validateDerivRules(model['derivation_rules'], 0, model, noReconstruct, cb);
+}
+
+
+function validateDerivRules(rules, index, model, noReconstruct, cb) {
+    if (index >= rules.length) {
+        cb("");
+        return;
+    }
+
+    Compiler.validateString(rules[index], model.parameters, model.attributes, function(err, serializedFunc) {
+        if (err) {
+            cb("Rule '" + rules[index] + "' is not correct. Error: '" + err + "'");
+            return;
+        }
+
+        if (serializedFunc) {
+            if (!noReconstruct) {
+                model['compiled_rules'].push(serializedFunc);
+            }
+            return validateDerivRules(rules, index + 1, model, noReconstruct, cb);
+        }
+    });
 }
 
 function _validateObjectsInModel(model, objects) {

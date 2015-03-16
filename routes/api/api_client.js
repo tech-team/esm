@@ -45,13 +45,41 @@ var RESP = configureResp({
 
 });
 
-function constructNextQuestion(req) {
+function nn(orderRules, currentQuestion, user_ans, questions) {
+    var orderRule = _.find(orderRules, function(orderRule) {
+        if (currentQuestion.type == 'choice' && orderRule.value == user_ans) {
+            return true;
+        } else if (currentQuestion.type == 'number') {
+            switch (orderRule.op) {
+                case '==':
+                    return user_ans == orderRule.value;
+                case '<':
+                    return user_ans < orderRule.value;
+                case '>':
+                    return user_ans > orderRule.value;
+                case '<=':
+                    return user_ans <= orderRule.value;
+                case '>=':
+                    return user_ans >= orderRule.value;
+            }
+        }
+    });
+
+    var nextQuestion = _.find(questions, function(q) {
+        return q.param == orderRule.to;
+    });
+
+    return nextQuestion;
+}
+
+function constructNextQuestion(req, user_ans) {
     var model = req.session.model;
 
     var q = null;
     if (!req.session.currentQuestion) {
         q = model.questions[0];
     } else {
+        console.log(model.orderRules);
         q = model.questions[0]; // TODO: pick a question according to some logic
     }
 
@@ -72,9 +100,13 @@ function executeDerivRules(req) {
     var params = req.session.parameters;
     var attrs = req.session.attributes;
 
-    _.forEach(req.session.statements, function(stmt) {
+    _.forEach(req.session.model.compiled_rules, function(stmt) {
         var stmtJs = Compiler.createFunction(stmt, console.error.bind(console));
-        stmtJs(params, attrs);
+        if (stmtJs != null) {
+            stmtJs(params, attrs);
+        } else {
+            console.warn("derivation rule compiled statement is null");
+        }
     });
 }
 
@@ -183,7 +215,6 @@ router.post('/init', function(req, res, next) {
 
             req.session.attributes = {};
             req.session.parameters = {};
-            req.session.statements = [];
             req.session.objects = [];
 
             _.forEach(model.attributes, function(a) {
@@ -192,12 +223,6 @@ router.post('/init', function(req, res, next) {
 
             _.forEach(model.parameters, function(p) {
                 req.session.parameters[p.param] = null;
-            });
-
-            _.forEach(model.derivation_rules, function(rule) {
-                console.log(rule);
-                var stmt = Compiler.compileStringSerialized(rule, console.error.bind(console));
-                req.session.statements.push(stmt);
             });
 
             res.json(RESP.ok({
@@ -232,7 +257,7 @@ router.post('/answer', function(req, res, next) {
                 objects: req.session.objects,
                 params: req.session.parameters,
                 attrs: req.session.attributes,
-                question: constructNextQuestion(req)
+                question: constructNextQuestion(req, user_ans)
             }));
         },
         function() {

@@ -48,8 +48,14 @@ var RESP = configureResp({
 
 
 function saveModel(model, res) {
-    var validated = modelsInteractor.validate(model);
-    if (validated[0]) {
+    modelsInteractor.validate(model, function(err) {
+        if (err) {
+            res.status(400).json(RESP.invalidModel({
+                reason: err
+            }));
+            return;
+        }
+
         modelsInteractor.save(model, function(err, saved_model) {
             if (err) {
                 console.error("Error while saving model: ", err);
@@ -61,11 +67,7 @@ function saveModel(model, res) {
                 _id: saved_model._id
             }));
         });
-    } else {
-        res.status(400).json(RESP.invalidModel({
-            reason: validated[1]
-        }));
-    }
+    });
 }
 
 
