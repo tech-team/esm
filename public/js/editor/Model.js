@@ -18,7 +18,8 @@ define([], function() {
                 questions: [],
                 attributes: [],
                 objects: [],
-                derivation_rules: []
+                derivation_rules: [],
+                orderRules: []
             };
 
             //TODO: stub
@@ -46,6 +47,8 @@ define([], function() {
                 }
             ];
 
+            this.createQuestion();
+            this.createOrder();
             this.createAttribute();
             this.createObject();
         },
@@ -88,6 +91,21 @@ define([], function() {
 
             this._data.questions.push(question);
             return question;
+        },
+
+        /**
+         * Add new empty order rule to model
+         */
+        createOrder: function () {
+            var order = {
+                from: "",
+                op: "==",
+                value: "",
+                to: ""
+            };
+
+            this._data.orderRules.push(order);
+            return order;
         },
 
         /**
