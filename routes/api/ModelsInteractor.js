@@ -32,6 +32,10 @@ function validate_attr_or_param(obj) {
 }
 
 function validateModel(model, checkForId, noReconstruct) {
+
+    var validOperations = ['==', '<', '>', '<=', '>='];
+
+
     if (_.isEmpty(model)) {
         return [false, "Model is empty"];
     }
@@ -51,7 +55,7 @@ function validateModel(model, checkForId, noReconstruct) {
     if (!res[0]) return res;
 
     var attrs = model.attributes;
-    //var params = model.parameters;
+    var params = {};
     var questions = model.quetsions;
 
     if (attrs.length === 0) {
@@ -84,8 +88,7 @@ function validateModel(model, checkForId, noReconstruct) {
             var p = {};
             copyFields(q, p, ['param', 'type', 'values']);
             model.parameters.push(p);
-            //delete q.type;
-            //delete q.values;
+            params[p.param] = p;
         }
     });
 
@@ -101,8 +104,51 @@ function validateModel(model, checkForId, noReconstruct) {
     if (!res[0]) return res;
 
     if (_.isArray(model['objects']) && model['objects'].length > 0) {
-        res = _validateObjectsInModel(model);
+        return _validateObjectsInModel(model);
     }
+
+
+
+    if (!_.isArray(model['orderRules'])) {
+        return [false, "'orderRules' array is not in model"];
+    }
+
+    _.forEach(model['orderRules'], function(orderRule) {
+        if (!_.isString(orderRule.from) || !_.isString(orderRule.op) || !_.isString(orderRule.to)) {
+            res = [false, "orderRule has invalid structure"];
+            return false;
+        }
+
+        var paramNames = _.keys(params);
+
+        if (!_.includes(paramNames, orderRule.from)) {
+            res = [false, "from param is unknown"];
+            return false;
+        }
+
+        if (!_.includes(paramNames, orderRule.to)) {
+            res = [false, "to param is unknown"];
+            return false;
+        }
+
+        if (!_.include(validOperations, orderRule.op)) {
+            res = [false, "op is unknown"];
+            return false;
+        }
+
+        if (params[orderRule.from].type == 'choice' && !_.includes(params[orderRule.from].values, orderRule.value)) {
+            res = [false, "from param value is invalid. Possible values: " + JSON.stringify(params[orderRule.from].values)];
+            return false;
+        } else if (params[orderRule.from].type == 'choice' && !_.isNumber(orderRule.value)) {
+            res = [false, "from param value is invalid. Must be a number"];
+            return false;
+        }
+
+        if (params[orderRule.from].type == 'choice' && orderRule.op != '==') {
+            res = [false, "from param op is invalid. Possible operations: ['=='] "];
+            return false;
+        }
+    });
 
     if (!res[0]) return res;
 
@@ -328,7 +374,7 @@ function saveObjects(model, objects, cb) {
 
 module.exports = {
     validate: validateModel,
-    validateObjects: validateObjectsInModel,
+    validateModelObjects: validateObjectsInModel,
     save: saveModel,
     get: getModel,
     modelsList: getModelsList,
