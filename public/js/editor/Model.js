@@ -65,6 +65,10 @@ define([], function() {
             return this._data.questions;
         },
 
+        getOrders: function () {
+            return this._data.orderRules;
+        },
+
         getAttributes: function () {
             return this._data.attributes;
         },
