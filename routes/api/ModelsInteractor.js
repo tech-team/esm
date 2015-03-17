@@ -141,11 +141,13 @@ function validateModel(model, checkForId, noReconstruct) {
             res = [false, "from param value is invalid. Possible values: " + JSON.stringify(params[orderRule.from].values)];
             return false;
         } else if (params[orderRule.from].type == 'number') {
+            var valueInitial = orderRule.value;
+            var value = parseFloat(orderRule.value);
             if (!noReconstruct) {
-                orderRule.value = parseFloat(orderRule.value);
+                orderRule.value = value;
             }
-            if (_.isNaN(orderRule.value)) {
-                res = [false, "from param value is invalid. Must be a number. Got: " + orderRule.value];
+            if (_.isNaN(value)) {
+                res = [false, "from param value is invalid. Must be a number. Got: " + valueInitial];
                 return false;
             }
         }
