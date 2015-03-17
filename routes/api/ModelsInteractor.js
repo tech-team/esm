@@ -22,7 +22,7 @@ function validate_attr_or_param(obj) {
     }
     if (obj.type == 'choice') {
         if (!_.isArray(obj.values) || obj.values.length <= 1) {
-            return [false, "values should be a non-empty array"];
+            return [false, "values' size should be at least 2 elements"];
         }
     } else if (obj.type == 'number') {
 
@@ -191,28 +191,6 @@ function validateModel(model, checkForId, noReconstruct) {
         return [false, rulesErrors];
     }
     return [true, ""];
-}
-
-
-function validateDerivRules(rules, index, model, noReconstruct, cb) {
-    if (index >= rules.length) {
-        cb("");
-        return;
-    }
-
-    Compiler.validateString(rules[index], model.parameters, model.attributes, function(err, serializedFunc) {
-        if (err) {
-            cb("Rule '" + rules[index] + "' is not correct. Error: '" + err + "'");
-            return;
-        }
-
-        if (serializedFunc) {
-            if (!noReconstruct) {
-                model['compiled_rules'].push(serializedFunc);
-            }
-            return validateDerivRules(rules, index + 1, model, noReconstruct, cb);
-        }
-    });
 }
 
 function _validateObjectsInModel(model, objects) {
