@@ -111,14 +111,8 @@ router.post('/model/objects', function(req, res, next) {
 
 router.put('/model', function(req, res, next) {
     var model = req.body;
-    modelsInteractor.validate(model, true, false, function(err) {
-        if (err) {
-            res.status(400).json(RESP.invalidModel({
-                reason: err
-            }));
-            return;
-        }
-
+    var validated = modelsInteractor.validate(model, true, false);
+    if (validated[0]) {
         var id = model._id;
         modelsInteractor.removeModel(id, function(err, m) {
             if (err) {
@@ -134,7 +128,11 @@ router.put('/model', function(req, res, next) {
 
             saveModel(model, res);
         });
-    });
+    } else {
+        res.status(400).json(RESP.invalidModel({
+            reason: validated[1]
+        }));
+    }
 });
 
 router.get('/model', function(req, res, next) {
