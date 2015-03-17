@@ -11,15 +11,15 @@ var ModelSchema = new mongoose.Schema({
     questions: [{type: mongoose.Schema.Types.ObjectId, ref: 'question'}],
     orderRules: {
         type: Array,
-        required: true
+        required: false
     },
     derivation_rules: {
         type: Array,
-        required: true
+        required: false
     },
     compiled_rules: {
         type: Array,
-        required: true
+        required: false
     },
 
     objects: [{type: mongoose.Schema.Types.ObjectId, ref: 'sugobject'}],
