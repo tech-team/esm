@@ -11,16 +11,23 @@ class Bond {
 
 class Node {
     constructor(q) {
+        this.parents = [];
         this.q = q;
         this.children = {};
         this.asked = false;
     }
 
     addChild(node, op, value) {
-        this.children[node.q.param] = [{
+        if (!_.has(this.children, node.q.param)) {
+            this.children[node.q.param] = [];
+        }
+        this.children[node.q.param].push({
             bond: new Bond(op, value),
             node: node
-        }];
+        });
+        if (!_.includes(node.parents, this)) {
+            node.parents.push(this);
+        }
     }
 }
 
@@ -38,16 +45,33 @@ class OrderRulesGraph {
         });
     }
 
+    checkCyclic(fromNode, toNode) {
+        if (fromNode == toNode) {
+            return true;
+        }
+
+        var ans = false;
+        for (var i = 0; i < fromNode.parents; ++i) {
+            var p = fromNode.parents[i];
+            ans = checkCyclic(p, toNode);
+            if (ans) break;
+        }
+        return ans;
+    }
+
     addConnection(fromQ, toQ, op, value) {
         var fromNode = this.nodes[fromQ.param];
         var toNode = this.nodes[toQ.param];
 
         var addNode = function() {
-            fromNode.children[toNode.q.param].push({
-                bond: new Bond(op, value),
-                node: toNode
-            });
-            delete this.freeNodes[toNode.q.param];
+            if (!this.checkCyclic(fromNode, toNode)) {
+
+                fromNode.addChild(toNode, op, value);
+                if (_.has(this.freeNodes, toNode.q.param)) {
+                    delete this.freeNodes[toNode.q.param];
+                }
+
+            }
         }.bind(this);
 
         if (_.has(fromNode.children, toNode.q.param)) {
@@ -60,7 +84,6 @@ class OrderRulesGraph {
                 addNode();
             }
         } else {
-            fromNode.children[toNode.q.param] = [];
             addNode();
         }
     }
@@ -81,6 +104,33 @@ class OrderRulesGraph {
             }
         }
         return null;
+    }
+
+    nn(orderRules, currentQuestion, user_ans, questions) {
+        var orderRule = _.find(orderRules, function(orderRule) {
+            if (currentQuestion.type == 'choice' && orderRule.value == user_ans) {
+                return true;
+            } else if (currentQuestion.type == 'number') {
+                switch (orderRule.op) {
+                    case '==':
+                        return user_ans == orderRule.value;
+                    case '<':
+                        return user_ans < orderRule.value;
+                    case '>':
+                        return user_ans > orderRule.value;
+                    case '<=':
+                        return user_ans <= orderRule.value;
+                    case '>=':
+                        return user_ans >= orderRule.value;
+                }
+            }
+        });
+
+        var nextQuestion = _.find(questions, function(q) {
+            return q.param == orderRule.to;
+        });
+
+        return nextQuestion;
     }
 }
 

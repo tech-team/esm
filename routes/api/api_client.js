@@ -46,51 +46,6 @@ var RESP = configureResp({
 
 });
 
-function nn(orderRules, currentQuestion, user_ans, questions) {
-    var orderRule = _.find(orderRules, function(orderRule) {
-        if (currentQuestion.type == 'choice' && orderRule.value == user_ans) {
-            return true;
-        } else if (currentQuestion.type == 'number') {
-            switch (orderRule.op) {
-                case '==':
-                    return user_ans == orderRule.value;
-                case '<':
-                    return user_ans < orderRule.value;
-                case '>':
-                    return user_ans > orderRule.value;
-                case '<=':
-                    return user_ans <= orderRule.value;
-                case '>=':
-                    return user_ans >= orderRule.value;
-            }
-        }
-    });
-
-    var nextQuestion = _.find(questions, function(q) {
-        return q.param == orderRule.to;
-    });
-
-    return nextQuestion;
-}
-
-function buildOrderRulesTree(orderRules, questions) {
-    var qs = {};
-
-    _.forEach(questions, function(q) {
-        qs[q.param] = q;
-    });
-
-    var tree = new OrderRulesTree(questions);
-
-    _.forEach(orderRules, function(orderRule) {
-        tree.addConnection(qs[orderRule.from],
-                           qs[orderRule.to],
-                           orderRule.op,
-                           orderRule.value);
-    });
-    return tree;
-}
-
 function constructNextQuestion(req, user_ans) {
     var model = req.session.model;
 
@@ -193,6 +148,24 @@ function acceptAnswer(req, answer, successCb, errorCb) {
     }
 }
 
+function buildOrderRulesTree(orderRules, questions) {
+    var qs = {};
+
+    _.forEach(questions, function(q) {
+        qs[q.param] = q;
+    });
+
+    var tree = new OrderRulesTree(questions);
+
+    _.forEach(orderRules, function(orderRule) {
+        tree.addConnection(qs[orderRule.from],
+            qs[orderRule.to],
+            orderRule.op,
+            orderRule.value);
+    });
+    return tree;
+}
+
 
 router.post('/init', function(req, res, next) {
     var model_id = req.body.id;
@@ -244,7 +217,7 @@ router.post('/init', function(req, res, next) {
                 req.session.parameters[p.param] = null;
             });
 
-            //req.session.orderTree = buildOrderRulesTree(req.session.model.orderRules, req.session.model.questions);
+            req.session.orderTree = buildOrderRulesTree(req.session.model.orderRules, req.session.model.questions);
 
             res.json(RESP.ok({
                 question: constructNextQuestion(req)
