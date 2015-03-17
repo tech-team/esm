@@ -184,7 +184,9 @@ class Compiler {
             var astParamValue = astParam.op2.token.value;
             if (setParamType == 'choice') {
                 // astParamValue should be in setParamValues
-                var setParamValue = _.contains(setParam.values, astParamValue);
+                var setParamValue = _.find(setParam.values, function (setParamValue) {
+                    return astParamValue == setParamValue;
+                });
                 if (!setParamValue) {
                     errorsList.push(
                         "Unknown value: " + astParamValue
