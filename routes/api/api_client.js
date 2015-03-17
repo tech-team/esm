@@ -5,7 +5,7 @@ var router = express.Router();
 var configureResp = require('./configure_resp');
 var modelsInteractor = require('./ModelsInteractor');
 var Compiler = require('../rules_compiler/Compiler');
-var OrderRulesTree = require('./tree/OrderRulesTree');
+var OrderRulesGraph = require('./tree/OrderRulesTree');
 
 var RESP = configureResp({
     ok: {
@@ -49,13 +49,14 @@ var RESP = configureResp({
 function constructNextQuestion(req, user_ans) {
     var model = req.session.model;
 
-    var q = null;
-    if (!req.session.currentQuestion) {
-        q = model.questions[0];
+    var tree = null;
+    if (_.isPlainObject(req.session.orderTree)) {
+        tree = new OrderRulesGraph([]);
+        _.extend(tree, req.session.orderTree)
     } else {
-        console.log(model.orderRules);
-        q = model.questions[0]; // TODO: pick a question according to some logic
+        tree = req.session.orderTree;
     }
+    var q = tree.next();
 
     var qParam = req.session.model_parameters[q.param_id];
     q = {
@@ -155,7 +156,7 @@ function buildOrderRulesTree(orderRules, questions) {
         qs[q.param] = q;
     });
 
-    var tree = new OrderRulesTree(questions);
+    var tree = new OrderRulesGraph(questions);
 
     _.forEach(orderRules, function(orderRule) {
         tree.addConnection(qs[orderRule.from],

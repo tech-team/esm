@@ -48,6 +48,7 @@ var RESP = configureResp({
 
 
 function saveModel(model, res) {
+    console.log(model);
     var validated = modelsInteractor.validate(model);
     if (validated[0]) {
         modelsInteractor.save(model, function(err, saved_model) {
@@ -111,7 +112,7 @@ router.post('/model/objects', function(req, res, next) {
 
 router.put('/model', function(req, res, next) {
     var model = req.body;
-    var validated = modelsInteractor.validate(model, true, false);
+    var validated = modelsInteractor.validate(model, true, true);
     if (validated[0]) {
         var id = model._id;
         modelsInteractor.removeModel(id, function(err, m) {

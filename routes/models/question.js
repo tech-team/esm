@@ -20,7 +20,7 @@ var Question = new mongoose.Schema({
     },
     values: {
         type: Array,
-        required: true
+        required: false
     }
 });
 Question.plugin(deepPopulate);

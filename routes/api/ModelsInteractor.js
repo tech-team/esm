@@ -56,7 +56,7 @@ function validateModel(model, checkForId, noReconstruct) {
 
     var attrs = model.attributes;
     var params = {};
-    var questions = model.quetsions;
+    var questions = model.questions;
 
     if (attrs.length === 0) {
         return [false, "Attributes length should not be zero"];
@@ -84,12 +84,13 @@ function validateModel(model, checkForId, noReconstruct) {
         res = validate_attr_or_param(q);
         if (!res[0]) return false;
 
+        var p = {};
+        copyFields(q, p, ['param', 'type', 'values']);
         if (!noReconstruct) {
-            var p = {};
-            copyFields(q, p, ['param', 'type', 'values']);
             model.parameters.push(p);
-            params[p.param] = p;
+            delete q.param_id;
         }
+        params[p.param] = p;
     });
 
     if (!res[0]) return res;
@@ -171,7 +172,7 @@ function validateModel(model, checkForId, noReconstruct) {
             return true;
         }
 
-        Compiler.validateAST(ast,  model.parameters, model.attributes, errorsList);
+        Compiler.validateAST(ast, _.values(params), model.attributes, errorsList);
         if (errorsList.length > 0) {
             errorReporter(rule, errorsList);
             return true;

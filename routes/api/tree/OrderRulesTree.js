@@ -89,7 +89,13 @@ class OrderRulesGraph {
     }
 
     next() {
-        return null;
+        if (this.currentNode == null) {
+            this.currentNode = this.freeNodes[_.keys(this.freeNodes)[0]];
+        } else {
+
+        }
+
+        return this.currentNode.q;
     }
 
     dfs(node, pred) {
