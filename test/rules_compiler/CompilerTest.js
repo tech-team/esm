@@ -82,18 +82,18 @@ class CompilerTest {
         console.assert(attributes.c == 'd');
     }
 
-    testValidate() {
+    testValidateOk() {
         var paramsSet = [{
             param: 'a',
             type: 'choice',
             values: ['a', 'b', 'e']
+        }, {
+            param: 'e',
+            type: 'number',
+            values: []
         }];
 
         var attrsSet = [{
-            name: 'e',
-            type: 'number',
-            values: []
-        }, {
             name: 'c',
             type: 'choice',
             values: ['d', 'e']
@@ -104,6 +104,30 @@ class CompilerTest {
         var valid = Compiler.validateAST(ast, paramsSet, attrsSet, this.errorsList);
         console.assert(valid);
     }
+
+
+    testValidateFail() {
+        var paramsSet = [{
+            param: 'a',
+            type: 'choice',
+            values: ['this', 'is', 'wrong']
+        }, {
+            param: 'e',
+            type: 'choice',  // this should be be number
+            values: []
+        }];
+
+        var attrsSet = [{
+            name: 'c',
+            type: 'choice',
+            values: ['d', 'e']
+        }];
+
+        var ast = this.ast;
+
+        var valid = Compiler.validateAST(ast, paramsSet, attrsSet, this.errorsList);
+        console.assert(!valid);
+    }
 }
 
-TestRunner.run(CompilerTest, CompilerTest.prototype.testValidate);
+TestRunner.run(CompilerTest);

@@ -6,7 +6,7 @@ class MagicArray extends Array {
     }
 
     push() {
-        this.cb(arguments);
+        this.cb.apply(this, arguments);
     }
 }
 

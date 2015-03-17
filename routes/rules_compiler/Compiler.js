@@ -155,16 +155,58 @@ class Compiler {
      * @returns {Boolean}
      */
     static validateAST(ast, paramsSet, attrsSet, errorsList) {
-        var params = ast.op1.op1.params;
-        var attributes = ast.op2.op1.attributes;
+        var astParams = ast.op1.op1.params;
+        var astAttributes = ast.op2.op1.attributes;
 
-        //TODO
+        var valid = true;
 
-        _.each(params, function (param) {
+        // STEP 1: validate params
+        // astParams should be subset of paramsSet
+        _.each(astParams, function (astParam) {
+            var astParamName = astParam.op1.token.value;
 
+            var setParam = _.find(paramsSet, {
+                param: astParamName
+            });
+
+            if (!setParam) {
+                errorsList.push("Unknown param: " + astParamName);
+                valid = false;
+                return true;  // continue
+            }
+
+            // astParamType should match setParamType
+            var astParamType = astParam.op2.token.type == Lexer.TYPE.IDENTIFIER
+                ? 'choice' : 'number';
+
+            var setParamType = setParam.type;
+            var astParamValue = astParam.op2.token.value;
+
+            if (astParamType != setParamType) {
+                errorsList.push(
+                    "Param value should match it's type:"
+                    + " expected type: " + setParamType
+                    + ", value: " + astParamValue);
+                valid = false;
+                return true;  // continue
+            }
+
+            if (setParamType == 'choice') {
+                // astParamValue should be in setParamValues
+                var setParamValue = _.contains(setParam.values, astParamValue);
+                if (!setParamValue) {
+                    errorsList.push(
+                        "Unknown value: " + astParamValue
+                        + ", for param: " + astParamName);
+                    valid = false;
+                }
+            }
         });
 
-        return true;
+        // STEP 2: validate attrs
+        //TODO
+
+        return valid;
     }
 
     /**
