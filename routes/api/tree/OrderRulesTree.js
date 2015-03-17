@@ -13,6 +13,7 @@ class Node {
     constructor(q) {
         this.q = q;
         this.children = {};
+        this.asked = false;
     }
 
     addChild(node, op, value) {
@@ -28,6 +29,7 @@ class OrderRulesGraph {
         var self = this;
         this.nodes = {};
         this.freeNodes = {};
+        this.currentNode = null;
 
         _.forEach(questions, function(q) {
             var node = new Node(q);
@@ -40,6 +42,14 @@ class OrderRulesGraph {
         var fromNode = this.nodes[fromQ.param];
         var toNode = this.nodes[toQ.param];
 
+        var addNode = function() {
+            fromNode.children[toNode.q.param].push({
+                bond: new Bond(op, value),
+                node: toNode
+            });
+            delete this.freeNodes[toNode.q.param];
+        }.bind(this);
+
         if (_.has(fromNode.children, toNode.q.param)) {
             var childsForToNode = fromNode.children[toNode.q.param];
             var foundChild = _.find(childsForToNode, function(child) {
@@ -47,12 +57,16 @@ class OrderRulesGraph {
             });
 
             if (!foundChild) {
-                childsForToNode.push({
-                    bond: new Bond(op, value),
-                    node: toNode
-                });
+                addNode();
             }
+        } else {
+            fromNode.children[toNode.q.param] = [];
+            addNode();
         }
+    }
+
+    next() {
+        return null;
     }
 
     dfs(node, pred) {

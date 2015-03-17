@@ -244,7 +244,7 @@ router.post('/init', function(req, res, next) {
                 req.session.parameters[p.param] = null;
             });
 
-            req.session.orderTree = buildOrderRulesTree(req.session.model.orderRules, req.session.model.questions);
+            //req.session.orderTree = buildOrderRulesTree(req.session.model.orderRules, req.session.model.questions);
 
             res.json(RESP.ok({
                 question: constructNextQuestion(req)
