@@ -37,6 +37,8 @@ class OrderRulesGraph {
         this.nodes = {};
         this.freeNodes = {};
         this.currentNode = null;
+        this.currentFreeNode = 0;
+        this.freeNodesKeys = null;
 
         _.forEach(questions, function(q) {
             var node = new Node(q);
@@ -88,14 +90,54 @@ class OrderRulesGraph {
         }
     }
 
-    next() {
-        if (this.currentNode == null) {
-            this.currentNode = this.freeNodes[_.keys(this.freeNodes)[0]];
-        } else {
+    getNextFreeNode() {
+        if (!this.freeNodesKeys) {
+            this.freeNodesKeys = _.keys(this.freeNodes);
+        }
+        if (this.currentFreeNode < this.freeNodesKeys.length) {
+            return this.freeNodes[this.freeNodesKeys[this.currentFreeNode++]];
+        }
+        return null;
+    }
 
+    next(userAns) {
+        if (this.currentNode == null) {
+            this.currentNode = this.getNextFreeNode();
+        } else {
+            var suitableChild = null;
+            _.forEach(this.currentNode.children, function(child, param) {
+                var isSuitable = false;
+                switch (child.bond.op) {
+                    case '==':
+                        isSuitable = userAns == child.bond.value; break;
+                    case '<':
+                        isSuitable = userAns < child.bond.value;  break;
+                    case '>':
+                        isSuitable = userAns > child.bond.value;  break;
+                    case '<=':
+                        isSuitable = userAns <= child.bond.value; break;
+                    case '>=':
+                        isSuitable = userAns >= child.bond.value; break;
+                }
+
+                if (isSuitable) {
+                    suitableChild = child;
+                    return false;
+                }
+            });
+
+            if (suitableChild) {
+                this.currentNode = suitableChild;
+            } else {
+                this.currentNode = this.getNextFreeNode();
+            }
         }
 
-        return this.currentNode.q;
+        if (this.currentNode) {
+            return this.currentNode.q;
+        } else {
+            return null;
+        }
     }
 
     dfs(node, pred) {

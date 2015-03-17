@@ -46,7 +46,7 @@ var RESP = configureResp({
 
 });
 
-function constructNextQuestion(req, user_ans) {
+function constructNextQuestion(req, userAns) {
     var model = req.session.model;
 
     var tree = null;
@@ -58,13 +58,15 @@ function constructNextQuestion(req, user_ans) {
     }
     var q = tree.next();
 
-    var qParam = req.session.model_parameters[q.param_id];
-    q = {
-        text: q.text,
-        param: qParam.param,
-        type: qParam.type,
-        values: qParam.values
-    };
+    if (q) {
+        var qParam = req.session.model_parameters[q.param_id];
+        q = {
+            text: q.text,
+            param: qParam.param,
+            type: qParam.type,
+            values: qParam.values
+        };
+    }
 
     req.session.currentQuestion = q;
     return q;
