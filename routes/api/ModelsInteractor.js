@@ -139,7 +139,7 @@ function validateModel(model, checkForId, noReconstruct) {
         if (params[orderRule.from].type == 'choice' && !_.includes(params[orderRule.from].values, orderRule.value)) {
             res = [false, "from param value is invalid. Possible values: " + JSON.stringify(params[orderRule.from].values)];
             return false;
-        } else if (params[orderRule.from].type == 'choice' && !_.isNumber(orderRule.value)) {
+        } else if (params[orderRule.from].type == 'number' && !_.isNumber(orderRule.value)) {
             res = [false, "from param value is invalid. Must be a number"];
             return false;
         }
