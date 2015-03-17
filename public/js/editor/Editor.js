@@ -161,7 +161,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             addQuestionRow: function (questions, question) {
                 var context = _.extend(this._prepareContext(question));
-                context.type.entries = this._prepareSelect(this._questionTypes, question.type);
+                context.type = this._prepareSelect(this._questionTypes, question.type, "type");
 
                 this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
             },
@@ -169,10 +169,10 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             //TODO
             addOrderRow: function (orders, order) {
                 var context = {
-                    from: this._prepareSelect(this._prepareQuestionList(), order.from),
-                    op: this._prepareSelect(this._orderOps, order.op),
-                    value: this._prepareSelect(this._prepareValues(order.from), order.value),
-                    to: this._prepareSelect(this._prepareQuestionList(), order.to)
+                    from: this._prepareSelect(this._prepareQuestionList(), order.from, "from"),
+                    op: this._prepareSelect(this._orderOps, order.op, "op"),
+                    value: this._prepareSelect(this._prepareValues(order.from), order.value, "value"),
+                    to: this._prepareSelect(this._prepareQuestionList(), order.to, "to")
                 };
 
                 this.addRow(this.$ordersTable, this._templates.orderChoiceRow, context, orders, order);
@@ -217,6 +217,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     if (key == "values")
                         value = value.split(',');
 
+                    console.log("Field changed: ", key, value);
                     row[key] = value;
                 });
 
@@ -238,13 +239,18 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 });
             },
 
-            _prepareSelect: function (entries, selectedValue) {
-                return _.map(_.cloneDeep(entries), function (entry) {
+            _prepareSelect: function (entries, selectedValue, fieldName) {
+                entries = _.map(_.cloneDeep(entries), function (entry) {
                     if (entry.value == selectedValue)
                         entry.selected = "selected";
 
                     return entry;
                 });
+
+                return {
+                    field: fieldName,
+                    entries: entries
+                };
             },
 
             _prepareQuestionList: function () {
