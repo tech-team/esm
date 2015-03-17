@@ -179,13 +179,24 @@ class Compiler {
                 return true;  // continue
             }
 
-            if (setParam.type == 'choice') {
+
+            var setParamType = setParam.type;
+            var astParamValue = astParam.op2.token.value;
+            if (setParamType == 'choice') {
                 // astParamValue should be in setParamValues
                 var setParamValue = _.contains(setParam.values, astParamValue);
                 if (!setParamValue) {
                     errorsList.push(
                         "Unknown value: " + astParamValue
                         + ", for param: " + astParamName);
+                    valid = false;
+                }
+            } else {
+                if (!_.isNumber(astParamValue)) {
+                    errorsList.push(
+                        "Param: " + astParamName
+                        + " value: " + astParamValue
+                        + " is not a Number");
                     valid = false;
                 }
             }
