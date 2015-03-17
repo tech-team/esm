@@ -159,6 +159,10 @@ define([], function() {
             return this._data._id;
         },
 
+        setId: function (id) {
+            this._data._id = id;
+        },
+
         getData: function () {
             return this._data;
         }

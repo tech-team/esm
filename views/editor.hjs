@@ -25,7 +25,7 @@
 </script>
 
 <script id="select-template" language="text/html">
-    <select class="form-control">
+    <select class="form-control" data-field="{field}">
         {#entries}
         <option value="{value}" {selected}>{text}</option>
         {/entries}
@@ -97,19 +97,28 @@
         <table id="orders-table" class="table table-striped">
             <thead>
             <tr>
-                <th>Если задан</th>
-                <th>и</th>
-                <th>отвечено</th>
-                <th>то задать</th>
+                <th>Если задан вопрос</th>
+                <th>и на него получен</th>
+                <th>ответ</th>
+                <th>то задать вопрос</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <script id="order-row-template" language="text/html">
+            <script id="order-choice-row-template" language="text/html">
                 <tr data-entry-id="{id}">
                     <td>{> select from}</td>
                     <td>{> select op}</td>
-                    <td>{> combobox value}</td>
+                    <td>{> select value}</td>
+                    <td>{> select to}</td>
+                    <td>{> operate}</td>
+                </tr>
+            </script>
+            <script id="order-input-row-template" language="text/html">
+                <tr data-entry-id="{id}">
+                    <td>{> select from}</td>
+                    <td>{> select op}</td>
+                    <td>{> input value}</td>
                     <td>{> select to}</td>
                     <td>{> operate}</td>
                 </tr>

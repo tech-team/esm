@@ -115,9 +115,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             _onManageObjectsClick: function () {
+                console.log("Model: ", this._model.getData());
+
                 var method = this.api.createModel.bind(this.api);
                 if (this._model.getId() != null)
-                    method = this.api.saveModel.bind(this.api);;
+                    method = this.api.saveModel.bind(this.api);
 
                 method(this._model.getData(), {
                     onComplete: function (msg) {
@@ -134,15 +136,21 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             _onSaveModelClick: function () {
-                var method = this.api.createModel.bind(this.api);;
+                var self = this;
+
+                console.log("Model: ", this._model.getData());
+
+                var method = this.api.createModel.bind(this.api);
                 if (this._model.getId() != null)
-                    method = this.api.saveModel.bind(this.api);;
+                    method = this.api.saveModel.bind(this.api);
 
                 method(this._model.getData(), {
                     onComplete: function (msg) {
-                        var modelId = msg.modelId;
+                        var modelId = msg._id;
 
                         history.replaceState(null, "", "/editor?modelId=" + modelId);
+                        self._model.setId(modelId);
+
                         alert("Model saved successfully: " + modelId);
                     },
                     onError: function (msg) {
@@ -152,23 +160,22 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             addQuestionRow: function (questions, question) {
-                var context = _.extend(this._prepareContext(question), {
-                    type: this._prepareSelect(this._questionTypes, question.type)
-                });
+                var context = _.extend(this._prepareContext(question));
+                context.type.entries = this._prepareSelect(this._questionTypes, question.type);
 
                 this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
             },
 
             //TODO
             addOrderRow: function (orders, order) {
-                var context = _.extend(this._prepareContext(order), {
-                    from: this._prepareSelect(this._orderOps, order.from),
+                var context = {
+                    from: this._prepareSelect(this._prepareQuestionList(), order.from),
                     op: this._prepareSelect(this._orderOps, order.op),
-                    value: this._prepareSelect(this._orderOps, order.value),
-                    to: this._prepareSelect(this._orderOps, order.to)
-                });
+                    value: this._prepareSelect(this._prepareValues(order.from), order.value),
+                    to: this._prepareSelect(this._prepareQuestionList(), order.to)
+                };
 
-                this.addRow(this.$ordersTable, this._templates.orderRow, context, orders, order);
+                this.addRow(this.$ordersTable, this._templates.orderChoiceRow, context, orders, order);
             },
 
             addAttributeRow: function (attributes, attribute) {
@@ -240,6 +247,30 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 });
             },
 
+            _prepareQuestionList: function () {
+                var questions = this._model.getQuestions();
+                return _.map(questions, function (question) {
+                    return {
+                        value: question.param,
+                        text: question.text
+                    }
+                });
+            },
+
+            _prepareValues: function (param) {
+                var question = _.find(this._model.getQuestions(), function (question) {
+                    return question.param == param;
+                });
+                var values = question.values;
+
+                return _.map(values, function (value) {
+                    return {
+                        value: value,
+                        text: value
+                    }
+                });
+            },
+
             _loadTemplates: function () {
                 this._partials = {
                     input: Templater.load('#input-template'),
@@ -254,7 +285,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     questionRow: Templater.load('#question-row-template'),
                     attributeRow: Templater.load('#attribute-row-template'),
                     ruleRow: Templater.load('#rule-row-template'),
-                    orderRow: Templater.load('#order-row-template')
+                    orderChoiceRow: Templater.load('#order-choice-row-template'),
+                    orderInputRow: Templater.load('#order-input-row-template')
                 };
             }
         });
