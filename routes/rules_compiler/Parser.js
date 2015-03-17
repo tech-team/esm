@@ -126,7 +126,7 @@ class Parser {
         }
 
         var assign = this.nextToken();
-        if (attr.type == Lexer.TYPE.ASSIGN) {
+        if (assign.type != Lexer.TYPE.ASSIGN) {
             this.errorsList.push("ASSIGN expected, got " + assign.type.toString());
             return null;
         }

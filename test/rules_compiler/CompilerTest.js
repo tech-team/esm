@@ -10,7 +10,8 @@ class CompilerTest {
         this.errorsList = new MagicArray(console.error.bind(console));
 
         this.sourceCode = "if a==b and e<10 then c=d";
-        this.js = Compiler.compileString(this.sourceCode, this.errorsList);
+        this.ast = Compiler.parse(this.sourceCode, this.errorsList);
+        this.js = Compiler.compileAST(this.ast, this.errorsList);
     }
 
     testOk() {
@@ -80,6 +81,29 @@ class CompilerTest {
 
         console.assert(attributes.c == 'd');
     }
+
+    testValidate() {
+        var paramsSet = [{
+            param: 'a',
+            type: 'choice',
+            values: ['a', 'b', 'e']
+        }];
+
+        var attrsSet = [{
+            name: 'e',
+            type: 'number',
+            values: []
+        }, {
+            name: 'c',
+            type: 'choice',
+            values: ['d', 'e']
+        }];
+
+        var ast = this.ast;
+
+        var valid = Compiler.validateAST(ast, paramsSet, attrsSet, this.errorsList);
+        console.assert(valid);
+    }
 }
 
-TestRunner.run(CompilerTest);
+TestRunner.run(CompilerTest, CompilerTest.prototype.testValidate);

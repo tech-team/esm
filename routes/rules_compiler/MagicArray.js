@@ -1,7 +1,7 @@
 "use strict";
 
 class MagicArray extends Array {
-    MagicArray(cb) {
+    constructor(cb) {
         this.cb = cb || console.log.bind(console);
     }
 
