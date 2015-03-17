@@ -179,23 +179,7 @@ class Compiler {
                 return true;  // continue
             }
 
-            // astParamType should match setParamType
-            var astParamType = astParam.op2.token.type == Lexer.TYPE.IDENTIFIER
-                ? 'choice' : 'number';
-
-            var setParamType = setParam.type;
-            var astParamValue = astParam.op2.token.value;
-
-            if (astParamType != setParamType) {
-                errorsList.push(
-                    "Param value should match it's type:"
-                    + " expected type: " + setParamType
-                    + ", value: " + astParamValue);
-                valid = false;
-                return true;  // continue
-            }
-
-            if (setParamType == 'choice') {
+            if (setParam.type == 'choice') {
                 // astParamValue should be in setParamValues
                 var setParamValue = _.contains(setParam.values, astParamValue);
                 if (!setParamValue) {
