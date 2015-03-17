@@ -5,11 +5,11 @@ class Lexer {
     /**
      * Lexical analyzer / tokenizer
      * @param stringStream {StringStream} data source
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      */
-    constructor(stringStream, onError) {
+    constructor(stringStream, errorsList) {
         this.stringStream = stringStream;
-        this.onError = onError;
+        this.errorsList = errorsList;
     }
 
     getNextToken() {
@@ -26,7 +26,7 @@ class Lexer {
 
             let charClass = this.getCharClass(ch);
             if (!charClass) {
-                this.onError("Unknown character: " + ch);
+                this.errorsList.push("Unknown character: " + ch);
                 return null;
             }
 
@@ -39,7 +39,7 @@ class Lexer {
             //console.log();
 
             if (nextState == Lexer.STATE.ERROR) {
-                this.onError("Unrecognized token:" + token.value);
+                this.errorsList.push("Unrecognized token:" + token.value);
                 return null;
             }
 

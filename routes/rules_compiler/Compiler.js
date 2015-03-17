@@ -9,22 +9,18 @@ var StringStream = require('./StringStream');
 class Compiler {
     /**
      * @param sourceCode {String}
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      * @returns {node|null} AST
      */
-    static parse(sourceCode, onError) {
+    static parse(sourceCode, errorsList) {
         var lexer = new Lexer(
             new StringStream(sourceCode),
-            function (e) {
-                onError("[Lexer] " + e);
-            }
+            errorsList
         );
 
         var parser = new Parser(
             lexer,
-            function (e) {
-                onError("[Parser] " + e);
-            }
+            errorsList
         );
 
         return parser.parse();
@@ -33,27 +29,27 @@ class Compiler {
     /**
      * Compiles ast to JS Function
      * @param ast {Object} result from parse()
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      * @returns {Function|null}
      */
-    static compileAST(ast, onError) {
-        var functionBody = Compiler.compileASTSerialized(ast, onError);
+    static compileAST(ast, errorsList) {
+        var functionBody = Compiler.compileASTSerialized(ast, errorsList);
 
-        return Compiler.createFunction(functionBody, onError);
+        return Compiler.createFunction(functionBody, errorsList);
     }
 
     /**
      * Creates new Function
      * @param functionBody {String} javascript code
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      * @returns {Function|null}
      */
-    static createFunction(functionBody, onError) {
+    static createFunction(functionBody, errorsList) {
         try {
             var js = new Function('params', 'attributes', functionBody);
             return js;
         } catch (e) {
-            onError("[Compiler] " + e.message);
+            errorsList.push("[Compiler] " + e.message);
             return null;
         }
     }
@@ -61,20 +57,20 @@ class Compiler {
     /**
      * Compiles AST to string
      * @param ast {Object} result from parse()
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      * @returns {String} body of function
      */
-    static compileASTSerialized(ast, onError) {
+    static compileASTSerialized(ast, errorsList) {
         var params = ast.op1.op1.params;
         var attributes = ast.op2.op1.attributes;
 
         if (_.isEmpty(params)) {
-            onError("[Compiler] Invalid AST: params: " + JSON.stringify(params));
+            errorsList.push("[Compiler] Invalid AST: params: " + JSON.stringify(params));
             return null;
         }
 
         if (_.isEmpty(attributes)) {
-            onError("[Compiler] Invalid AST: attributes: " + JSON.stringify(attributes));
+            errorsList.push("[Compiler] Invalid AST: attributes: " + JSON.stringify(attributes));
             return null;
         }
 
@@ -132,33 +128,33 @@ class Compiler {
     /**
      * Compiles AST to string
      * @param sourceCode {String}
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      * @returns {String} body of function
      */
-    static compileStringSerialized(sourceCode, onError) {
-        var ast = Compiler.parse(sourceCode, onError);
-        return Compiler.compileASTSerialized(ast, onError);
+    static compileStringSerialized(sourceCode, errorsList) {
+        var ast = Compiler.parse(sourceCode, errorsList);
+        return Compiler.compileASTSerialized(ast, errorsList);
     }
 
     /**
      * Parse + compileAST
      * @param sourceCode {String}
-     * @param onError {Function} callback
+     * @param errorsList {Array}
      * @returns {Function}
      */
-    static compileString(sourceCode, onError) {
-        var ast = Compiler.parse(sourceCode, onError);
-        return Compiler.compileAST(ast, onError);
+    static compileString(sourceCode, errorsList) {
+        var ast = Compiler.parse(sourceCode, errorsList);
+        return Compiler.compileAST(ast, errorsList);
     }
 
     /**
      * @param ast {JSON} AST
      * @param paramsSet {Array} set of parameters
      * @param attrsSet {Array} set of attributes
-     * @param onError {Function}
+     * @param errorsList {Function}
      * @returns {Boolean}
      */
-    static validateAST(ast, paramsSet, attrsSet, onError) {
+    static validateAST(ast, paramsSet, attrsSet, errorsList) {
         var params = ast.op1.op1.params;
         var attributes = ast.op2.op1.attributes;
 
@@ -171,31 +167,16 @@ class Compiler {
         return true;
     }
 
-    static validateString(sourceCode, paramsSet, attrsSet, cb) {
-        cb("", sourceCode); // TEMPORARY
-        return; // TEMPORARY
-
-        var ast = Compiler.parse(sourceCode, function(err) {
-            if (err) {
-                cb(err);
-                return;
-            }
-
-            validateAST(ast, paramsSet, attrsSet, function(err) {
-                if (err) {
-                    cb(err);
-                    return;
-                }
-
-                // TODO: THIS IS UNACCEPTABLE
-                var serialized = compileASTSerialized(ast, function(err /*,TODO: PARAM_HAS_TO_BE_RIGHT_HERE*/) {
-                    if (err) {
-                        cb(err);
-                        return;
-                    }
-                });
-            });
-        });
+    /**
+     * @param sourceCode {String}
+     * @param paramsSet {Array}
+     * @param attrsSet {Array}
+     * @param errorsList {Array}
+     * @returns {Boolean}
+     */
+    static validateString(sourceCode, paramsSet, attrsSet, errorsList) {
+        var ast = Compiler.parse(sourceCode, errorsList);
+        return Compiler.validateAST(ast, paramsSet, attrsSet, errorsList);
     }
 }
 

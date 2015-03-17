@@ -4,6 +4,8 @@ var _ = require('lodash');
 var StringStream = require("../../routes/rules_compiler/StringStream");
 var Lexer = require("../../routes/rules_compiler/Lexer");
 var TestRunner = require('../TestRunner');
+var MagicArray = require('../../routes/rules_compiler/MagicArray');
+
 
 class LexerTest {
     testSimpleMath() {
@@ -110,9 +112,11 @@ class LexerTest {
     }
 
     static _test(sourceCode) {
+        var errorsList = new MagicArray(console.error.bind(console));
+
         var lexer = new Lexer(
             new StringStream(sourceCode),
-            console.log.bind(console));
+            errorsList);
 
         var tokens = [];
 

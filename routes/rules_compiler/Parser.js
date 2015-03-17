@@ -6,18 +6,18 @@ class Parser {
     /**
      * Parser
      * @param lexer {Lexer} data source
-     * @param onError {Function} callback
+     * @param errorsList {Function} callback
      */
-    constructor(lexer, onError) {
+    constructor(lexer, errorsList) {
         this.lexer = lexer;
-        this.onError = onError;
+        this.errorsList = errorsList;
     }
 
     condition() {
         var token = this.nextToken();
 
         if (token.type != Lexer.TYPE.IF) {
-            this.onError("IF expected, got " + token.type.toString());
+            this.errorsList.push("IF expected, got " + token.type.toString());
             return null;
         }
 
@@ -32,7 +32,7 @@ class Parser {
         var token = this.getToken();
 
         if (token.type != Lexer.TYPE.THEN) {
-            this.onError("THEN expected, got " + token.type.toString());
+            this.errorsList.push("THEN expected, got " + token.type.toString());
             return null;
         }
 
@@ -49,7 +49,7 @@ class Parser {
         while(true) {
             var andToken = this.nextToken();
             if (andToken.type != Lexer.TYPE.AND && andToken.type != Lexer.TYPE.THEN) {
-                this.onError("AND or THEN expected, got " + andToken.type.toString());
+                this.errorsList.push("AND or THEN expected, got " + andToken.type.toString());
                 return null;
             }
 
@@ -70,7 +70,7 @@ class Parser {
         while(true) {
             var andToken = this.nextToken();
             if (andToken.type != Lexer.TYPE.AND && andToken.type != Lexer.TYPE.EOF) {
-                this.onError("AND or EOF expected, got " + andToken.type.toString());
+                this.errorsList.push("AND or EOF expected, got " + andToken.type.toString());
                 return null;
             }
 
@@ -88,19 +88,19 @@ class Parser {
     param() {
         var param = this.nextToken();
         if (param.type != Lexer.TYPE.IDENTIFIER) {
-            this.onError("PARAM_NAME expected, got " + param.type.toString());
+            this.errorsList.push("PARAM_NAME expected, got " + param.type.toString());
             return null;
         }
 
         var operation = this.nextToken();
         if (this.lexer.isOperation(param.type)) {
-            this.onError("OPERATION expected, got " + operation.type.toString());
+            this.errorsList.push("OPERATION expected, got " + operation.type.toString());
             return null;
         }
 
         var value = this.nextToken();
         if (value.type != Lexer.TYPE.IDENTIFIER && value.type != Lexer.TYPE.NUMBER) {
-            this.onError("PARAM_VALUE expected, got " + value.type.toString());
+            this.errorsList.push("PARAM_VALUE expected, got " + value.type.toString());
             return null;
         }
 
@@ -121,19 +121,19 @@ class Parser {
     attribute() {
         var attr = this.nextToken();
         if (attr.type != Lexer.TYPE.IDENTIFIER) {
-            this.onError("ATTR_NAME expected, got " + attr.type.toString());
+            this.errorsList.push("ATTR_NAME expected, got " + attr.type.toString());
             return null;
         }
 
         var assign = this.nextToken();
         if (attr.type == Lexer.TYPE.ASSIGN) {
-            this.onError("ASSIGN expected, got " + assign.type.toString());
+            this.errorsList.push("ASSIGN expected, got " + assign.type.toString());
             return null;
         }
 
         var value = this.nextToken();
         if (value.type != Lexer.TYPE.IDENTIFIER && value.type != Lexer.TYPE.NUMBER) {
-            this.onError("ATTR_VALUE expected, got " + value.type.toString());
+            this.errorsList.push("ATTR_VALUE expected, got " + value.type.toString());
             return null;
         }
 

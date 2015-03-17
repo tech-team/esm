@@ -6,31 +6,34 @@ var StringStream = require("../../routes/rules_compiler/StringStream");
 var Lexer = require("../../routes/rules_compiler/Lexer");
 var Parser = require("../../routes/rules_compiler/Parser");
 var TestRunner = require('../TestRunner');
+var MagicArray = require('../../routes/rules_compiler/MagicArray');
 
 class ParserTest {
-    static testSimple() {
+    testSimple() {
         var sourceCode = "if a==b then c=d";
-        var tokens = ParserTest._test(sourceCode);
+        var tokens = this._test(sourceCode);
     }
 
-    static testTime() {
+    testTime() {
         var sourceCode = "if a==b and e>20 and a==3 then c=d";
 
         console.time("testMultipleAnd");
 
         for (let i = 0; i < 100; ++i) {
-            var tokens = ParserTest._test(sourceCode);
+            var tokens = this._test(sourceCode);
         }
 
         console.timeEnd("testMultipleAnd");
     }
 
-    static _test(sourceCode) {
+    _test(sourceCode) {
+        var errorsList = new MagicArray(console.error.bind(console));
+
         var lexer = new Lexer(
             new StringStream(sourceCode),
-            console.error.bind(console));
+            errorsList);
 
-        var parser = new Parser(lexer, console.error.bind(console));
+        var parser = new Parser(lexer, errorsList);
 
         var rootNode = parser.parse();
 
