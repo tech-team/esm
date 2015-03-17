@@ -151,7 +151,7 @@ class Compiler {
      * @param ast {JSON} AST
      * @param paramsSet {Array} set of parameters
      * @param attrsSet {Array} set of attributes
-     * @param errorsList {Function}
+     * @param errorsList {Array}
      * @returns {Boolean}
      */
     static validateAST(ast, paramsSet, attrsSet, errorsList) {

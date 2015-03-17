@@ -5,6 +5,7 @@ var router = express.Router();
 var configureResp = require('./configure_resp');
 var modelsInteractor = require('./ModelsInteractor');
 var Compiler = require('../rules_compiler/Compiler');
+var OrderRulesTree = require('./tree/OrderRulesTree');
 
 var RESP = configureResp({
     ok: {
@@ -73,7 +74,21 @@ function nn(orderRules, currentQuestion, user_ans, questions) {
 }
 
 function buildOrderRulesTree(orderRules, questions) {
+    var qs = {};
 
+    _.forEach(questions, function(q) {
+        qs[q.param] = q;
+    });
+
+    var tree = new OrderRulesTree(questions);
+
+    _.forEach(orderRules, function(orderRule) {
+        tree.addConnection(qs[orderRule.from],
+                           qs[orderRule.to],
+                           orderRule.op,
+                           orderRule.value);
+    });
+    return tree;
 }
 
 function constructNextQuestion(req, user_ans) {
@@ -209,13 +224,13 @@ router.post('/init', function(req, res, next) {
             });
             req.session.model_parameters = params;
 
-            _.forEach(model.questions, function(q) {
-                var param_id = q.param_id;
-                delete q.param_id;
-
-                var param = model.parameters[param_id];
-                q.param = param;
-            });
+            //_.forEach(model.questions, function(q) {
+            //    var param_id = q.param_id;
+            //    delete q.param_id;
+            //
+            //    var param = req.session.model_parameters[param_id];
+            //    q.param = param;
+            //});
 
             req.session.attributes = {};
             req.session.parameters = {};
@@ -228,6 +243,8 @@ router.post('/init', function(req, res, next) {
             _.forEach(model.parameters, function(p) {
                 req.session.parameters[p.param] = null;
             });
+
+            req.session.orderTree = buildOrderRulesTree(req.session.model.orderRules, req.session.model.questions);
 
             res.json(RESP.ok({
                 question: constructNextQuestion(req)
