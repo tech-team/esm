@@ -213,8 +213,8 @@ class Lexer {
     }
 
     isOperation(tokenType) {
-        return _.contains(Lexer.OPERATIONS, {type: tokenType}) &&
-            tokenType != Lexer.OPERATIONS.ASSIGN;
+        return _.find(Lexer.OPERATIONS, {type: tokenType}) != null &&
+            tokenType != Lexer.TYPE.ASSIGN;
     }
 }
 

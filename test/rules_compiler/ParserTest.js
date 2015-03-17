@@ -9,9 +9,25 @@ var TestRunner = require('../TestRunner');
 var MagicArray = require('../../routes/rules_compiler/MagicArray');
 
 class ParserTest {
-    testSimple() {
+    testSimpleOk() {
         var sourceCode = "if a==b then c=d";
-        var tokens = this._test(sourceCode);
+        var result = this._test(sourceCode);
+
+        console.assert(result.errorsList.length == 0);
+    }
+
+    testSimpleFail() {
+        var sourceCode = "if a=b then c=d";
+        var result = this._test(sourceCode);
+
+        console.assert(result.errorsList.length != 0);
+    }
+
+    testAttrFail() {
+        var sourceCode = "if a==b then c=d";
+        var result = this._test(sourceCode);
+
+        console.assert(result.errorsList.length != 0);
     }
 
     testTime() {
@@ -20,14 +36,14 @@ class ParserTest {
         console.time("testMultipleAnd");
 
         for (let i = 0; i < 100; ++i) {
-            var tokens = this._test(sourceCode);
+            var result = this._test(sourceCode);
         }
 
         console.timeEnd("testMultipleAnd");
     }
 
     _test(sourceCode) {
-        var errorsList = new MagicArray(console.error.bind(console));
+        var errorsList = [];
 
         var lexer = new Lexer(
             new StringStream(sourceCode),
@@ -37,10 +53,18 @@ class ParserTest {
 
         var rootNode = parser.parse();
 
-        console.log();
-        console.log(util.inspect(rootNode, true, 10));
+        if (!errorsList.length) {
+            //console.log();
+            //console.log(rootNode);
+        } else {
+            console.error();
+            console.error(errorsList);
+        }
 
-        return rootNode;
+        return {
+            ast: rootNode,
+            errorsList: errorsList
+        };
     }
 }
 

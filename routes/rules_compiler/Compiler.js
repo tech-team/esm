@@ -99,6 +99,10 @@ class Compiler {
                 case Lexer.TYPE.NOT_EQUAL:
                     op = "!=";
                     break;
+                default:
+                    errorsList.push("Unsupported operation: " + op.toString());
+                    op = "=";
+                    break;
             }
 
             var value = param.op2.token.value;

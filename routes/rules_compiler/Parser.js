@@ -93,7 +93,7 @@ class Parser {
         }
 
         var operation = this.nextToken();
-        if (this.lexer.isOperation(param.type)) {
+        if (!this.lexer.isOperation(operation.type)) {
             this.errorsList.push("OPERATION expected, got " + operation.type.toString());
             return null;
         }

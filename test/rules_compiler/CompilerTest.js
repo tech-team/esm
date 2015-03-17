@@ -9,7 +9,7 @@ class CompilerTest {
     setUp() {
         this.errorsList = new MagicArray(console.error.bind(console));
 
-        this.sourceCode = "if a==b and e<10 then c=d";
+        this.sourceCode = "if a=b and e<10 then c=d";
         this.ast = Compiler.parse(this.sourceCode, this.errorsList);
         this.js = Compiler.compileAST(this.ast, this.errorsList);
     }

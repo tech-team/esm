@@ -115,7 +115,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             _onManageObjectsClick: function () {
-                this.api.saveModel(this._model.getData(), {
+                var method = this.api.createModel.bind(this.api);
+                if (this._model.getId() != null)
+                    method = this.api.saveModel.bind(this.api);;
+
+                method(this._model.getData(), {
                     onComplete: function (msg) {
                         var modelId = msg._id;
 
@@ -130,9 +134,9 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             _onSaveModelClick: function () {
-                var method = this.api.createModel;
+                var method = this.api.createModel.bind(this.api);;
                 if (this._model.getId() != null)
-                    method = this.api.saveModel;
+                    method = this.api.saveModel.bind(this.api);;
 
                 method(this._model.getData(), {
                     onComplete: function (msg) {
