@@ -59,12 +59,12 @@ function constructNextQuestion(req, userAns) {
     var q = tree.next();
 
     if (q) {
-        var qParam = req.session.model_parameters[q.param_id];
+        //var qParam = req.session.model_parameters[q.param_id].toObject();
         q = {
             text: q.text,
-            param: qParam.param,
-            type: qParam.type,
-            values: qParam.values
+            param: q.param,
+            type: q.type,
+            values: q.values
         };
     }
 
@@ -155,7 +155,7 @@ function buildOrderRulesTree(orderRules, questions) {
     var qs = {};
 
     _.forEach(questions, function(q) {
-        qs[q.param] = q;
+        qs[q.param] = q.toObject();
     });
 
     var tree = new OrderRulesGraph(questions);

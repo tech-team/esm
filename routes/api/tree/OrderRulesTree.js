@@ -11,7 +11,7 @@ class Bond {
 
 class Node {
     constructor(q) {
-        this.parents = [];
+        //this.parents = [];
         this.q = q;
         this.children = {};
         this.asked = false;
@@ -48,17 +48,10 @@ class OrderRulesGraph {
     }
 
     checkCyclic(fromNode, toNode) {
-        if (fromNode == toNode) {
-            return true;
-        }
-
-        var ans = false;
-        for (var i = 0; i < fromNode.parents; ++i) {
-            var p = fromNode.parents[i];
-            ans = checkCyclic(p, toNode);
-            if (ans) break;
-        }
-        return ans;
+        var n = this.dfs(toNode, function(n) {
+            return n == fromNode;
+        });
+        return n != null;
     }
 
     addConnection(fromQ, toQ, op, value) {
@@ -134,6 +127,7 @@ class OrderRulesGraph {
         }
 
         if (this.currentNode) {
+            this.currentNode.asked = true;
             return this.currentNode.q;
         } else {
             return null;
