@@ -65,7 +65,7 @@
                 <form class="form ajax">
                     <div class="form-group">
                         <label for="answer">Введите число:</label><br>
-                        <input id="answer" type="number" required="true" />
+                        <input id="answer" name="answer" type="number" required="true" />
                     </div>
 
                     <div class="form-group">
