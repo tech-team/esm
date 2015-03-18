@@ -20,10 +20,6 @@
 {{> pageTitle}}
 
 <!-- mustache partials -->
-<script id="input-template" language="text/html">
-    <input class="form-control" type="text" value="{value}" data-field="{field}" />
-</script>
-
 <script id="number-template" language="text/html">
     <input class="form-control" type="number" value="{value}" data-field="{field}" />
 </script>
@@ -36,15 +32,6 @@
     </select>
 </script>
 
-<script id="combobox-template" language="text/html">
-    <input class="form-control" type="text" id="{table_name}-{field}-{entry_id}" list="{list_id}" data-entry-id="{entry_id}" />
-    <datalist id="{list_id}">
-        {#entries}
-        <option value="{value}">{text}</option>
-        {/entries}
-    </datalist>
-</script>
-
 <script id="operate-template" language="text/html">
     <button class="ui-button form-control remove" title="Remove">
         <span class="glyphicon glyphicon-remove" aria-hidden="true">
@@ -55,29 +42,37 @@
 
 <div class="container">
     <section id="objects">
-        <h3>Список объектов</h3>
-        <table id="objects-table" class="table table-striped">
-            <thead>
-                <script id="header-row-template" language="text/html">
-                    <tr>
-                        {#headers}
-                        <th>{.}</th>
-                        {/headers}
-                        <th></th>
-                    </tr>
-                </script>
-            </thead>
-            <tbody>
-            <script id="object-row-template" language="text/html">
-                <tr data-entry-id="{id}">
-                    {#columns}
-                    <td>{[.]}</td>
-                    {/columns}
-                    <td>{> operate}</td>
-                </tr>
-            </script>
-            </tbody>
-        </table>
+        <h3>Рекомендуемые объекты</h3>
+        <div class="container-fluid">
+        <script id="card-template" language="text/html">
+
+        </script>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+            <div class="thumbnail">
+                with some text
+            </div>
+        </div>
+
         <div class="add-button-wrapper">
             <button id="add-object" class="btn text-right add-button pull-right">
                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>

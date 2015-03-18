@@ -28,3 +28,11 @@ footer {
 .add-button-wrapper {
     height: 20px;
 }
+
+.thumbnail {
+    position: relative;
+    float: left;
+
+    padding: 20px;
+    margin: 20px;
+}
