@@ -45,7 +45,7 @@ function validateModel(model, checkForId, noReconstruct) {
     //    return [false, "_id is not valid"];
     //}
 
-    var v = _.isString(model['name'])
+    var v = _.isString(model['name']) && model.name.length > 0
             && _.isArray(model['attributes'])
                 //&& _.isArray(model['parameters'])
             && _.isArray(model['questions'])
@@ -92,16 +92,6 @@ function validateModel(model, checkForId, noReconstruct) {
             delete q.param_id;
         }
         params[p.param] = p;
-    });
-
-    if (!res[0]) return res;
-
-    _.forEach(model['derivation_rules'], function(rule) {
-        delete rule._id;
-        if (!_.isString(rule)) {
-            res = [false, "Derivation rule must be a string"];
-            return false;
-        }
     });
 
     if (!res[0]) return res;
@@ -174,8 +164,16 @@ function validateModel(model, checkForId, noReconstruct) {
         rulesErrors.push("{Error in '" + rule + "'}: " + JSON.stringify(errors));
     };
 
-    _.forEach(model['derivation_rules'], function(rule) {
+    _.forEach(model['derivation_rules'], function(deriv_rule) {
         var errorsList = [];
+
+        if (!_.isObject(deriv_rule) || !_.isString(deriv_rule.rule)) {
+            res = [false, "Derivation rule has invalid format"];
+            return false;
+        }
+
+        var rule = deriv_rule.rule;
+        delete rule._id;
 
         var ast = Compiler.parse(rule, errorsList);
         if (errorsList.length > 0) {
@@ -202,6 +200,8 @@ function validateModel(model, checkForId, noReconstruct) {
     if (rulesErrors.length > 0) {
         return [false, rulesErrors];
     }
+
+    if (!res[0]) return res;
     return [true, ""];
 }
 
@@ -307,7 +307,7 @@ function saveModel(model, cb) {
     var params = model.parameters;
     var attrs = model.attributes;
     var questions = model.questions;
-    var derivRules = model.derivation_rules;
+    model.derivation_rules = _.map(model.derivation_rules, function(r) { return r.rule });
     var sugObjects = model.objects;
     model.stats = {};
 
@@ -410,7 +410,14 @@ function getModel(model_id, cb) {
                 cb(err, model);
                 return;
             }
-            Model.deepPopulate(model, 'questions.param_id', cb);
+            Model.deepPopulate(model, 'questions.param_id', function(err, model) {
+                if (!err && model) {
+                    model.derivation_rules = _.map(model.derivation_rules, function (r) {
+                        return {rule: r};
+                    });
+                }
+                cb(err, model);
+            });
     });
 
     //Model.findOne({_id: model_id}).deepPopulate('attributes parameters questions objects ').exec(cb);
