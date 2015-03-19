@@ -146,7 +146,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 console.log("Model: ", this._model.getData());
 
                 var method = this.api.createModel.bind(this.api);
-                if (this._model.getId() != null)
+                if (this._model.getId() != -1)
                     method = this.api.saveModel.bind(this.api);
 
                 method(this._model.getData(), {
@@ -169,7 +169,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 console.log("Model: ", this._model.getData());
 
                 var method = this.api.createModel.bind(this.api);
-                if (this._model.getId() != null)
+                if (this._model.getId() != -1)
                     method = this.api.saveModel.bind(this.api);
 
                 method(this._model.getData(), {
