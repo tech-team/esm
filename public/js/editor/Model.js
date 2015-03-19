@@ -166,6 +166,12 @@ define([], function() {
 
         getData: function () {
             return this._data;
+        },
+
+        removeOrdersByQuestion: function (question) {
+            this._data.orderRules = _.filter(this._data.orderRules, function (order) {
+                return order.from != question.param && order.to != question.param;
+            });
         }
     });
 
