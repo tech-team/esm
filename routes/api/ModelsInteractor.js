@@ -17,6 +17,7 @@ function copyFields(fromObj, toObj, fields) {
 }
 
 function validate_attr_or_param(obj) {
+    delete obj._id;
     if (!_.isObject(obj) || !(_.isString(obj.param) || _.isString(obj.name)) || !_.isString(obj.type)) {
         return [false, "Attribute or parameter has invalid structure"];
     }
@@ -96,6 +97,7 @@ function validateModel(model, checkForId, noReconstruct) {
     if (!res[0]) return res;
 
     _.forEach(model['derivation_rules'], function(rule) {
+        delete rule._id;
         if (!_.isString(rule)) {
             res = [false, "Derivation rule must be a string"];
             return false;
@@ -105,7 +107,8 @@ function validateModel(model, checkForId, noReconstruct) {
     if (!res[0]) return res;
 
     if (_.isArray(model['objects']) && model['objects'].length > 0) {
-        return _validateObjectsInModel(model);
+        res = _validateObjectsInModel(model, model['objects']);
+        if (!res[0]) return res;
     }
 
 
@@ -115,6 +118,7 @@ function validateModel(model, checkForId, noReconstruct) {
     }
 
     _.forEach(model['orderRules'], function(orderRule) {
+        delete orderRule._id;
         if (!_.isString(orderRule.from) || !_.isString(orderRule.op) || !_.isString(orderRule.to)) {
             res = [false, "orderRule has invalid structure"];
             return false;
@@ -214,6 +218,7 @@ function _validateObjectsInModel(model, objects) {
     };
 
     _.forEach(objects, function (obj) {
+        delete obj._id;
         if (!_.isObject(obj) || !_.isString(obj.name) || !_.isObject(obj.attributes) || Object.keys(obj.attributes).length != model.attributes.length) {
             res = [false, "Object has invalid structure"];
             return false;
@@ -308,6 +313,12 @@ function saveModel(model, cb) {
 
     delete model._id;
 
+    var modelSaving = function() {
+        Model.create(model, function (err, saved_model) {
+            cb(err, saved_model);
+        });
+    }
+
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
         model.attributes = attrs_ids;
         saveObj(params, 0, Parameter, cb, function(params_ids) {
@@ -320,9 +331,14 @@ function saveModel(model, cb) {
             saveObj(questions, 0, Question, cb, function(question_ids) {
                 model.questions = question_ids;
 
-                Model.create(model, function(err, saved_model) {
-                    cb(err, saved_model);
-                });
+                if (model.objects && _.isArray(model.objects) && model.objects.length > 0) {
+                    saveObj(sugObjects, 0, SugObject, cb, function (object_ids) {
+                        model.objects = object_ids;
+                        modelSaving();
+                    });
+                } else {
+                    modelSaving();
+                }
             });
         });
     });
