@@ -25,7 +25,6 @@ define([], function() {
             this.createQuestion();
             this.createOrder();
             this.createAttribute();
-            this.createObject();
             this.createRule();
         },
 

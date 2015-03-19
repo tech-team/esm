@@ -92,6 +92,14 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 // manage objects
                 var $manageObjects = $('#manage-objects');
                 $manageObjects.click(this._onManageObjectsClick.bind(this));
+
+                // copy json to clipboard
+                var $jsonButton = $('#copy-json');
+                $jsonButton.click(function () {
+                    var modelText = JSON.stringify(self._model.getData());
+                    console.log("Model: ", self._model.getData());
+                    window.prompt("Copy to clipboard: Ctrl+C, Enter", modelText);
+                });
             },
 
             _renderQuestions: function () {
@@ -266,7 +274,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 var $row = $(row);
 
                 var $fields = $row.find('input, select');
-                $fields.on('input', function () {
+
+                var handler = function (noHooks) {
                     var $field = $(this);
                     var key = $field.data('field');
                     var value = $field.val();
@@ -278,10 +287,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     var oldValue = object[key];
                     object[key] = value;
 
-                    if (hooks && hooks.input) {
+                    if (noHooks !== true && hooks && hooks.input) {
                         hooks.input($field, key, oldValue, value);
                     }
-                });
+                };
+                $fields.on('input', handler);
 
                 var $removeButton = $row.find('.remove');
                 $removeButton.click(function () {
@@ -294,6 +304,10 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 });
 
                 $table.append($row);
+
+                $fields.each(function () {
+                    handler.call(this, true);
+                });
 
                 return $row;
             },
