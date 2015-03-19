@@ -41,9 +41,9 @@ function validateModel(model, checkForId, noReconstruct) {
         return [false, "Model is empty"];
     }
 
-    if (checkForId && !_.isString(model['_id'])) {
-        return [false, "_id is not valid"];
-    }
+    //if (checkForId && !_.isString(model['_id'])) {
+    //    return [false, "_id is not valid"];
+    //}
 
     var v = _.isString(model['name'])
             && _.isArray(model['attributes'])
@@ -317,7 +317,7 @@ function saveModel(model, cb) {
         Model.create(model, function (err, saved_model) {
             cb(err, saved_model);
         });
-    }
+    };
 
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
         model.attributes = attrs_ids;
