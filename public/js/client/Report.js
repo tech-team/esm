@@ -32,11 +32,11 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
 
             addObject: function (attrs, object) {
                 var renderedAttrs = _.map(attrs, function (attrValue, attrName) {
-                    var name = attrName.replace("_", " ");
+                    var name = attrName;
                     var value = object.o.attributes[name];
 
                     return {
-                        attrName: name,
+                        attrName: name.replace("_", " "),
                         attrValue: value
                     };
                 }, this);
