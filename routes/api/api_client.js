@@ -56,7 +56,8 @@ function constructNextQuestion(req, userAns) {
     } else {
         tree = req.session.orderTree;
     }
-    var q = tree.next();
+    console.log(userAns);
+    var q = tree.next(userAns);
 
     if (q) {
         //var qParam = req.session.model_parameters[q.param_id].toObject();

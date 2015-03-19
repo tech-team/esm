@@ -25,9 +25,6 @@ class Node {
             bond: new Bond(op, value),
             node: node
         });
-        if (!_.includes(node.parents, this)) {
-            node.parents.push(this);
-        }
     }
 }
 
@@ -98,25 +95,28 @@ class OrderRulesGraph {
             this.currentNode = this.getNextFreeNode();
         } else {
             var suitableChild = null;
-            _.forEach(this.currentNode.children, function(child, param) {
-                var isSuitable = false;
-                switch (child.bond.op) {
-                    case '==':
-                        isSuitable = userAns == child.bond.value; break;
-                    case '<':
-                        isSuitable = userAns < child.bond.value;  break;
-                    case '>':
-                        isSuitable = userAns > child.bond.value;  break;
-                    case '<=':
-                        isSuitable = userAns <= child.bond.value; break;
-                    case '>=':
-                        isSuitable = userAns >= child.bond.value; break;
-                }
+            _.forEach(this.currentNode.children, function(childArr, param) {
+                _.forEach(childArr, function(child) {
+                    var isSuitable = false;
+                    switch (child.bond.op) {
+                        case '==':
+                            isSuitable = userAns == child.bond.value; break;
+                        case '<':
+                            isSuitable = userAns < child.bond.value;  break;
+                        case '>':
+                            isSuitable = userAns > child.bond.value;  break;
+                        case '<=':
+                            isSuitable = userAns <= child.bond.value; break;
+                        case '>=':
+                            isSuitable = userAns >= child.bond.value; break;
+                    }
 
-                if (isSuitable) {
-                    suitableChild = child;
-                    return false;
-                }
+                    if (isSuitable) {
+                        suitableChild = child.node;
+                        return false;
+                    }
+                });
+
             });
 
             if (suitableChild) {
@@ -146,33 +146,6 @@ class OrderRulesGraph {
             }
         }
         return null;
-    }
-
-    nn(orderRules, currentQuestion, user_ans, questions) {
-        var orderRule = _.find(orderRules, function(orderRule) {
-            if (currentQuestion.type == 'choice' && orderRule.value == user_ans) {
-                return true;
-            } else if (currentQuestion.type == 'number') {
-                switch (orderRule.op) {
-                    case '==':
-                        return user_ans == orderRule.value;
-                    case '<':
-                        return user_ans < orderRule.value;
-                    case '>':
-                        return user_ans > orderRule.value;
-                    case '<=':
-                        return user_ans <= orderRule.value;
-                    case '>=':
-                        return user_ans >= orderRule.value;
-                }
-            }
-        });
-
-        var nextQuestion = _.find(questions, function(q) {
-            return q.param == orderRule.to;
-        });
-
-        return nextQuestion;
     }
 }
 
