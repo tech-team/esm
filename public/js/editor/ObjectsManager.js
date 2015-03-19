@@ -90,7 +90,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
                 // attrs
                 var $fields = $card.find('input, select');
-                $fields.on('input', function () {
+                var handler = function () {
                     var $field = $(this);
                     var key = $field.data('field');
                     var value = $field.val();
@@ -107,7 +107,9 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         value = parseFloat(value);
 
                     object.attributes[key] = value;
-                });
+                };
+
+                $fields.on('input', handler);
 
                 var $removeButton = $card.find('.remove');
                 $removeButton.click(function (e) {
@@ -117,6 +119,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 });
 
                 $card.appendTo(this.$objectsContainer);
+
+                $fields.each(handler);
             },
 
             _prepareSelect: function (entries, selectedValue) {
