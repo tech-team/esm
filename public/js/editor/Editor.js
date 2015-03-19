@@ -166,7 +166,6 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
             },
 
-            //TODO
             addOrderRow: function (orders, order) {
                 var context = {
                     from: this._prepareSelect(this._prepareQuestionList(), order.from, "from"),
@@ -175,7 +174,20 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     to: this._prepareSelect(this._prepareQuestionList(), order.to, "to")
                 };
 
-                this.addRow(this.$ordersTable, this._templates.orderChoiceRow, context, orders, order);
+                var $row = this.addRow(this.$ordersTable, this._templates.orderChoiceRow, context, orders, order);
+                var $from = $row.find("select[data-field='from']");
+                var $value = $row.find("select[data-field='value']");
+
+                var self = this;
+                $from.on('input', function () {
+                    var from = $from.val();
+                    var values = self._prepareValues(from);
+
+                    $value.empty();
+                    _.each(values, function (value) {
+                        $value.append(new Option(value.value, value.text));
+                    });
+                });
             },
 
             addAttributeRow: function (attributes, attribute) {
@@ -199,16 +211,16 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
              * @param $table {jQuery}
              * @param template {Function}
              * @param context {Object} template parameters
-             * @param rows {Array} collection, which contains row
-             * @param row {Object}
+             * @param objects {Array} collection, which contains row
+             * @param object {Object}
              */
-            addRow: function ($table, template, context, rows, row) {
+            addRow: function ($table, template, context, objects, object) {
                 var self = this;
 
-                var questionRow = template(context);
-                var $questionRow = $(questionRow);
+                var row = template(context);
+                var $row = $(row);
 
-                var $fields = $questionRow.find('input, select');
+                var $fields = $row.find('input, select');
                 $fields.on('input', function () {
                     var $field = $(this);
                     var key = $field.data('field');
@@ -218,16 +230,18 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         value = value.split(',');
 
                     console.log("Field changed: ", key, value);
-                    row[key] = value;
+                    object[key] = value;
                 });
 
-                var $removeButton = $questionRow.find('.remove');
+                var $removeButton = $row.find('.remove');
                 $removeButton.click(function () {
-                    rows.remove(row);
-                    $questionRow.fadeOut($questionRow.remove.bind($questionRow));
+                    objects.remove(object);
+                    $row.fadeOut($row.remove.bind($row));
                 });
 
-                $table.append($questionRow);
+                $table.append($row);
+
+                return $row;
             },
 
             _prepareContext: function (context) {
