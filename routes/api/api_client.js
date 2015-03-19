@@ -52,7 +52,8 @@ function constructNextQuestion(req, userAns) {
     var tree = null;
     if (_.isPlainObject(req.session.orderTree)) {
         tree = new OrderRulesGraph([]);
-        _.extend(tree, req.session.orderTree)
+        _.extend(tree, req.session.orderTree);
+        req.session.orderTree = tree;
     } else {
         tree = req.session.orderTree;
     }
@@ -135,7 +136,7 @@ function calculateObjects(req) {
             rank: sim
         });
     });
-    req.session.objects = _.sortBy(userObjects, 'rank', function(n) { return -n; });
+    req.session.objects = _.sortBy(userObjects, function(o) { return -o.rank; });
 }
 
 function acceptAnswer(req, answer, successCb, errorCb) {

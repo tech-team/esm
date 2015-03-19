@@ -34,7 +34,7 @@ class OrderRulesGraph {
         this.nodes = {};
         this.freeNodes = {};
         this.currentNode = null;
-        this.currentFreeNode = 0;
+        this.currentFreeNode = -1;
         this.freeNodesKeys = null;
 
         _.forEach(questions, function(q) {
@@ -85,7 +85,8 @@ class OrderRulesGraph {
             this.freeNodesKeys = _.keys(this.freeNodes);
         }
         if (this.currentFreeNode < this.freeNodesKeys.length) {
-            return this.freeNodes[this.freeNodesKeys[this.currentFreeNode++]];
+            console.log(this.currentFreeNode);
+            return this.freeNodes[this.freeNodesKeys[++this.currentFreeNode]];
         }
         return null;
     }
