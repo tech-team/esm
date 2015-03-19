@@ -61,7 +61,8 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 var $addOrderButton = $('#add-order');
                 $addOrderButton.click(function () {
                     var order = self._model.createOrder();
-                    self.addOrderRow(self._model.getOrders(), order);
+                    if (order)
+                        self.addOrderRow(self._model.getOrders(), order);
                 });
                 
                 // render attributes
@@ -216,16 +217,16 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             addOrderRow: function (orders, order) {
                 var self = this;
 
+                var question = _.find(this._model.getQuestions(), function (question) {
+                    return question.param == order.from;
+                });
+
                 var context = {
                     from: this._prepareSelect(this._prepareQuestionList(), order.from, "from"),
                     op: this._prepareSelect(this._orderOps, order.op, "op"),
                     value: this._prepareSelect(this._prepareValues(order.from), order.value, "value"),
                     to: this._prepareSelect(this._prepareQuestionList(), order.to, "to")
                 };
-
-                var question = _.find(this._model.getQuestions(), function (question) {
-                    return question.param == order.from;
-                });
 
                 var template = question.type == 'choice'
                     ? this._templates.orderChoiceRow

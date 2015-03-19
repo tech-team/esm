@@ -76,11 +76,14 @@ define([], function() {
          * Add new empty order rule to model
          */
         createOrder: function () {
+            if (this._data.questions.length == 0)
+                return null;
+
             var order = {
-                from: "",
+                from: this._data.questions[0].param,
                 op: "==",
                 value: "",
-                to: ""
+                to: this._data.questions[0].param
             };
 
             this._data.orderRules.push(order);
