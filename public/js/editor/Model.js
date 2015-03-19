@@ -22,35 +22,11 @@ define([], function() {
                 orderRules: []
             };
 
-            //TODO: stub
-            this._data.questions = [
-                {
-                    id: 1,
-                    text: "Быть или не быть?",
-                    parameter: "бытие",
-                    type: "choice",
-                    values: ["быть", "или", "не быть"]
-                },
-                {
-                    id: 2,
-                    text: "вопрос 1",
-                    parameter: "параметр1",
-                    type: "choice",
-                    values: ["a", "b", "c"]
-                },
-                {
-                    id: 3,
-                    text: "вопрос 2",
-                    parameter: "параметр1",
-                    type: "number",
-                    values: null
-                }
-            ];
-
             this.createQuestion();
             this.createOrder();
             this.createAttribute();
             this.createObject();
+            this.createRule();
         },
 
         getName: function () {
@@ -132,11 +108,7 @@ define([], function() {
          */
         createRule: function () {
             var rule = {
-                id: -1,
-                text: "",
-                parameter: "",
-                type: "choice",
-                values: []
+                rule: ""
             };
 
             this._data.derivation_rules.push(rule);
@@ -171,6 +143,16 @@ define([], function() {
         removeOrdersByQuestion: function (question) {
             this._data.orderRules = _.filter(this._data.orderRules, function (order) {
                 return order.from != question.param && order.to != question.param;
+            });
+        },
+
+        updateOrders: function (oldParamName, newParamName) {
+            _.each(this._data.orderRules, function (order) {
+                if (order.from == oldParamName)
+                    order.from = newParamName;
+
+                if (order.to == oldParamName)
+                    order.to = newParamName;
             });
         }
     });

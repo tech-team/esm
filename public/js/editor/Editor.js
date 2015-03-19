@@ -189,7 +189,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     this._templates.questionRow,
                     context, questions, question,
                     {
-                        input: function ($field, key, value) {
+                        input: function ($field, key, oldValue, value) {
+                            if (key == 'param') {
+                                self._model.updateOrders(oldValue, value);
+                            }
+
                             self._renderOrders();
                         },
                         remove: function (question) {
@@ -223,7 +227,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     template,
                     context, orders, order,
                     {
-                        input: function ($field, key, value) {
+                        input: function ($field, key, oldValue, value) {
                             if (key == 'from')
                                 self._renderOrders();
                         }
@@ -232,7 +236,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             addAttributeRow: function (attributes, attribute) {
                 var context = _.extend(this._prepareContext(attribute), {
-                    type: this._prepareSelect(this._questionTypes, attribute.type)
+                    type: this._prepareSelect(this._questionTypes, attribute.type, "type")
                 });
 
                 this.addRow(this.$attrbutesTable, this._templates.attributeRow, context, attributes, attribute);
@@ -240,7 +244,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             addRuleRow: function (rules, rule) {
                 var context = this._prepareContext({
-                    rule: rule
+                    rule: rule.rule
                 });
 
                 this.addRow(this.$rulesTable, this._templates.ruleRow, context, rules, rule);
@@ -271,10 +275,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         value = value.split(',');
 
                     console.log("Field changed: ", key, value);
+                    var oldValue = object[key];
                     object[key] = value;
 
                     if (hooks && hooks.input) {
-                        hooks.input($field, key, value);
+                        hooks.input($field, key, oldValue, value);
                     }
                 });
 
