@@ -41,9 +41,9 @@ function validateModel(model, checkForId, noReconstruct) {
         return [false, "Model is empty"];
     }
 
-    //if (checkForId && !_.isString(model['_id'])) {
-    //    return [false, "_id is not valid"];
-    //}
+    if (checkForId && !_.isString(model['_id'])) {
+        return [false, "_id is not valid"];
+    }
 
     var v = _.isString(model['name']) && model.name.length > 0
             && _.isArray(model['attributes'])
