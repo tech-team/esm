@@ -5,3 +5,17 @@ body {
 .btn {
     font-size: large;
 }
+
+.card {
+    position: relative;
+    float: left;
+
+    padding: 20px;
+    margin: 20px;
+
+    width: 45%;
+}
+
+.attr-name {
+    padding-top: 0 !important;
+}

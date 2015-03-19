@@ -22,10 +22,36 @@
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3>Most suitable options:</h3>
+            <h3>Рекомендуемые объекты</h3>
         </div>
-        <div>
-            <table id="results-table"></table>
+        <div id="results-container" class="container-fluid">
+            <script id="card-template" language="text/html">
+                <div class="thumbnail card" data-entry-id="{id}">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label attr-name">Название</label>
+                            <div class="col-sm-8 attr-value">
+                                {name}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label attr-name">Рейтинг</label>
+                            <div class="col-sm-8 attr-value">
+                                {rating}
+                            </div>
+                        </div>
+                        <hr>
+                        {#attrs}
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label attr-name">{attrName}</label>
+                            <div class="col-sm-8 attr-value">
+                                {attrValue}
+                            </div>
+                        </div>
+                        {/attrs}
+                    </form>
+                </div>
+            </script>
         </div>
     </div>
 </div>

@@ -224,7 +224,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 var $removeButton = $questionRow.find('.remove');
                 $removeButton.click(function () {
                     rows.remove(row);
-                    $questionRow.remove();
+                    $questionRow.fadeOut($questionRow.remove.bind($questionRow));
                 });
 
                 $table.append($questionRow);

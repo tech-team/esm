@@ -29,10 +29,12 @@ footer {
     height: 20px;
 }
 
-.thumbnail {
+.card {
     position: relative;
     float: left;
 
     padding: 20px;
     margin: 20px;
+
+    width: 45%;
 }

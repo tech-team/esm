@@ -1,7 +1,7 @@
 define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
     function($, _, Templater, Exceptions, Model) {
         var ObjectsManager = Class.create({
-            initialize: function (api) {
+            initialize: function (api, modelId) {
                 var self = this;
 
                 this.api = api;
@@ -9,61 +9,114 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 this._model = new Model();
                 this._loadTemplates();
 
-                this.$objectsTable = $("#objects-table");
+                this.$objectsContainer = $("#objects-container");
+
+                if (!modelId) {
+                    this._initialize();
+                } else {
+                    this.api.loadModel(modelId, {
+                        onComplete: function (msg) {
+                            self._initialize(msg.model)
+                        },
+                        onError: function (msg) {
+                            alert(JSON.stringify(msg));
+                        }
+                    })
+                }
 
                 var $saveButton = $(".save-model");
-                $saveButton.click(function () {
-                    alert("TODO");
-                });
+                $saveButton.click(this._onSaveModelClick.bind(this));
+            },
 
-                // render header
-                var attributes = _.map(this._model.getAttributes(), function (attr) {
-                    return attr.name;
-                });
-                this.createHeader(attributes);
+            _initialize: function (modelData) {
+                var self = this;
+                this._model = new Model(modelData);
 
                 // render objects
                 var objects = this._model.getObjects();
                 _.each(objects, function (object) {
-                    this.addObjectRow(object);
+                    self.addObject(objects, object);
                 }, this);
 
                 var $addObjectButton = $('#add-object');
                 $addObjectButton.click(function () {
                     var object = self._model.createObject();
-                    self.addObjectRow(object);
+                    self.addObject(objects, object);
                 });
             },
 
-            createHeader: function (headers) {
-                var header = this._templates.headerRow({
-                    headers: headers
-                });
-                this.$objectsTable.find("thead").html(header);
-            },
+            addObject: function (objects, object) {
+                var attrs = this._model.getAttributes();
 
-            addObjectRow: function (object) {
-                var attributes = this._model.getAttributes();
-
-                var cells = _.map(attributes, function (attr) {
+                var renderedAttrs = _.map(attrs, function (attr) {
                     var name = attr.name;
-                    var value = object[name];
+                    var value = object.attributes[name];
                     var type = attr.type;
-                    var entries = attr.values;
 
-                    return this._partials[type]({
+                    var entries = _.map(attr.values, function (value) {
+                        return {
+                            value: value,
+                            text: value
+                        }
+                    });
+
+                    var control = this._partials[type]({
                         field: name,
                         value: value,
                         entries: this._prepareSelect(entries, value)
                     });
+
+                    return {
+                        attrName: name,
+                        control: control
+                    };
                 }, this);
 
-                var row = this._templates.objectRow({
-                    columns: cells
+                var card = this._templates.card({
+                    name: object.name,
+                    attrs: renderedAttrs
                 });
 
-                var $row = $(row);
-                $row.appendTo(this.$objectsTable);
+                var $card = $(card);
+
+                // handle input events and .remove
+                // name
+                var $name = $card.find(".name");
+                $name.on('input', function () {
+                    var value = $name.val();
+
+                    object.name = value;
+                });
+
+                // attrs
+                var $fields = $card.find('input, select');
+                $fields.on('input', function () {
+                    var $field = $(this);
+                    var key = $field.data('field');
+                    var value = $field.val();
+
+                    // ignore data-field-less fields
+                    if (!key)
+                        return;
+
+                    if (key == "values")
+                        value = value.split(',');
+
+                    console.log("Field changed: ", key, value);
+                    if ($field.attr('type') == 'number')
+                        value = parseFloat(value);
+
+                    object.attributes[key] = value;
+                });
+
+                var $removeButton = $card.find('.remove');
+                $removeButton.click(function (e) {
+                    e.preventDefault();
+                    objects.remove(object);
+                    $card.hide($card.remove.bind($card));
+                });
+
+                $card.appendTo(this.$objectsContainer);
             },
 
             _prepareSelect: function (entries, selectedValue) {
@@ -77,19 +130,34 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             _loadTemplates: function () {
                 this._partials = {
-                    input: Templater.load('#input-template'),
                     number: Templater.load('#number-template'),
                     choice: Templater.load('#select-template'),
-                    combobox: Templater.load('#combobox-template'),
                     operate: Templater.load('#operate-template'),
                 };
 
                 Templater.registerPartials(this._partials);
 
                 this._templates =  {
-                    headerRow: Templater.load('#header-row-template'),
-                    objectRow: Templater.load('#object-row-template')
+                    card: Templater.load('#card-template')
                 };
+            },
+
+            _onSaveModelClick: function () {
+                var self = this;
+                console.log("Model: ", this._model.getData());
+
+                this.api.saveObjects({
+                    modelId: this._model.getId(),
+                    objects: this._model.getObjects()
+                }, {
+                    onComplete: function (msg) {
+                        alert("Model saved successfully");
+                        history.back();
+                    },
+                    onError: function (msg) {
+                        alert(JSON.stringify(msg));
+                    }
+                });
             }
         });
     

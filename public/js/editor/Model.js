@@ -148,7 +148,8 @@ define([], function() {
          */
         createObject: function () {
             var object = {
-
+                name: "",
+                attributes: []
             };
 
             this._data.objects.push(object);
