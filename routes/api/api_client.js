@@ -79,7 +79,7 @@ function executeDerivRules(req) {
     var attrs = req.session.attributes;
 
     _.forEach(req.session.model.compiled_rules, function(stmt) {
-        var stmtJs = Compiler.createFunction(stmt, console.error.bind(console));
+        var stmtJs = Compiler.createFunction(stmt, []);
         if (stmtJs != null) {
             stmtJs(params, attrs);
         } else {
