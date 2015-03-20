@@ -36,13 +36,15 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                     return false;
 
                 var $answer = null;
+                var answer = null;
 
-                if (this.currentQuestion.type == 'choice')
+                if (this.currentQuestion.type == 'choice') {
                     $answer = this.$questionContainer.find("input[name=answer]:checked");
-                else
+                    answer = $answer.val();
+                } else {
                     $answer = this.$questionContainer.find("input[name=answer]");
-
-                var answer = $answer.val();
+                    answer = parseFloat($answer.val());
+                }
 
                 this.api.answer(answer, {
                     onComplete: function (msg) {
