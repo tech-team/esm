@@ -160,7 +160,7 @@ class Compiler {
      */
     static validateAST(ast, paramsSet, attrsSet, errorsList) {
         var astParams = ast.op1.op1.params;
-        var astAttributes = ast.op2.op1.attributes;
+        var astAttrs = ast.op2.op1.attributes;
 
         var valid = true;
 
@@ -190,7 +190,8 @@ class Compiler {
                 if (!setParamValue) {
                     errorsList.push(
                         "Unknown value: " + astParamValue
-                        + ", for param: " + astParamName);
+                        + ", for param: " + astParamName
+                        + ", allowed values: " + setParam.values);
                     valid = false;
                 }
             } else {
@@ -205,7 +206,45 @@ class Compiler {
         });
 
         // STEP 2: validate attrs
-        //TODO
+        // astAttrs should be subset of attrsSet
+        _.each(astAttrs, function (astAttr) {
+            var astAttrName = astAttr.op1.token.value;
+
+            var setAttr = _.find(attrsSet, {
+                name: astAttrName
+            });
+
+            if (!setAttr) {
+                errorsList.push("Unknown attr: " + astAttrName);
+                valid = false;
+                return true;  // continue
+            }
+
+
+            var setAttrType = setAttr.type;
+            var astAttrValue = astAttr.op2.token.value;
+            if (setAttrType == 'choice') {
+                // astAttrValue should be in setAttrValues
+                var setAttrValue = _.find(setAttr.values, function (setAttrValue) {
+                    return astAttrValue == setAttrValue;
+                });
+                if (!setAttrValue) {
+                    errorsList.push(
+                        "Unknown value: " + astAttrValue
+                        + ", for attr: " + astAttrName
+                        + ", allowed values: " + setAttr.values);
+                    valid = false;
+                }
+            } else {
+                if (!_.isNumber(astAttrValue)) {
+                    errorsList.push(
+                        "Attr: " + astAttrName
+                        + " value: " + astAttrValue
+                        + " is not a Number");
+                    valid = false;
+                }
+            }
+        });
 
         return valid;
     }
