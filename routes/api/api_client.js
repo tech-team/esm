@@ -54,6 +54,7 @@ function constructNextQuestion(req, userAns) {
         tree = new OrderRulesGraph([]);
         _.extend(tree, req.session.orderTree);
         req.session.orderTree = tree;
+        console.log(tree);
     } else {
         tree = req.session.orderTree;
     }
@@ -260,7 +261,7 @@ router.post('/answer', function(req, res, next) {
             }));
         },
         function() {
-            res.json(RESP.answerIsNotValid());
+            res.status(400).json(RESP.answerIsNotValid());
         }
     );
 });
