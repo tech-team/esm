@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>ES: {{title}}</title>
+    <title>ESM: {{title}}</title>
 
     <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
@@ -77,10 +77,12 @@
         </div>
     </section>
 
-    <footer id="buttons" class="pull-right">
+    <footer id="buttons" class="buttons">
         <button class="btn btn-primary save-model">Сохранить модель</button>
     </footer>
 </div>
+
+{{> pageFooter}}
 
 </body>
 </html>

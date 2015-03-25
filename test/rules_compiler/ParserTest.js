@@ -23,11 +23,13 @@ class ParserTest {
         console.assert(result.errorsList.length != 0);
     }
 
-    testAttrFail() {
-        var sourceCode = "if a==b then c=d";
+    testAnd() {
+        var sourceCode = "if p1>10 and p2<10 then a3=yes";
         var result = this._test(sourceCode);
 
-        console.assert(result.errorsList.length != 0);
+        console.log(JSON.stringify(result.ast, null, 2));
+
+        console.assert(result.errorsList.length == 0);
     }
 
     testTime() {

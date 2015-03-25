@@ -4,7 +4,8 @@ var router = express.Router();
 var modelsInteractor = require('./api/ModelsInteractor');
 
 var partials = {
-    pageTitle: 'pageTitle'
+    pageTitle: 'pageTitle',
+    pageFooter: 'pageFooter'
 };
 
 router.get('/', function(req, res, next) {

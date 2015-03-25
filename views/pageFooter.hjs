@@ -1,0 +1,8 @@
+<footer class="footer">
+    <div class="container">
+        <p class="text-muted pull-right">
+            МГТУ им. Н. Э. Баумана<br>
+            Алексей Леонтьев, Игорь Латкин
+        </p>
+    </div>
+</footer>

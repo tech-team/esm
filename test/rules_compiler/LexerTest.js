@@ -30,7 +30,7 @@ class LexerTest {
     }
 
     testAnd() {
-        var sourceCode = "ежели Вася является алкоголиком и Маша не_является акоголиком то беда будет точно";
+        var sourceCode = "if p1>10 and p2<10 then a3=yes";
         var tokens = LexerTest._test(sourceCode);
 
         console.assert(tokens.length == 12);
