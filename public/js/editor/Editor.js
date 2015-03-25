@@ -211,7 +211,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                             self._renderOrders();
                         }
                     }
-);
+                );
             },
 
             addOrderRow: function (orders, order) {
@@ -227,6 +227,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     value: this._prepareSelect(this._prepareValues(order.from), order.value, "value"),
                     to: this._prepareSelect(this._prepareQuestionList(), order.to, "to")
                 };
+                context.value.value = order.value;
 
                 var template = question.type == 'choice'
                     ? this._templates.orderChoiceRow

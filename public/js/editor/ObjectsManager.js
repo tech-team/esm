@@ -67,7 +67,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     });
 
                     return {
-                        attrName: name,
+                        attrName: name.replace('_', ' '),
                         control: control
                     };
                 }, this);
