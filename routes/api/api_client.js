@@ -122,9 +122,9 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
     });
 
     if (nonNumericAttrsCount !== 0) {
-        nonNumericSim /= nonNumericAttrsCount;
+        nonNumericDist /= nonNumericAttrsCount;
     }
-    var sim = (numericSim + nonNumericSim) / attrsCount;
+    var sim = (numericDist + nonNumericDist) / attrsCount;
     return sim;
 }
 
