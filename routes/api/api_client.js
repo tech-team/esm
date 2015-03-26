@@ -189,7 +189,7 @@ router.post('/init', function(req, res, next) {
             }
 
             req.session.model = model;
-		console.log("Stats: ", model.stats);
+		    console.log("Stats: ", model.stats);
 
 
             var attrs = {};

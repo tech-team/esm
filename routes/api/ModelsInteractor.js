@@ -318,7 +318,7 @@ function saveModel(model, cb) {
 
     var modelSaving = function() {
         Model.create(model, function (err, saved_model) {
-	    console.log("Saved model. _id = ", saved_model._id);
+	        console.log("Saved model. _id = ", saved_model._id);
             cb(err, saved_model);
         });
     };
@@ -342,6 +342,9 @@ function saveModel(model, cb) {
                         modelSaving();
                     });
                 } else {
+                    model.attributes = attrs_ids;
+                    model.parameters = params_ids;
+                    model.questions = question_ids;
                     modelSaving();
 
                 }
