@@ -446,6 +446,7 @@ function saveObjects(model, objects, cb) {
             cb(err);
         } else {
             saveObj(objects, 0, SugObject, cb, function(sugObjectsIds) {
+                model.objects = objects;
                 countObjectsStats(model);
                 model.objects = sugObjectsIds;
                 model.save(cb);
