@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var util = require("util");
 
 var mongoose = require('mongoose');
 var Attribute = mongoose.model('attribute');
@@ -312,7 +313,7 @@ function saveModel(model, cb) {
     model.stats = {};
 
     console.log("Saving Model");
-    console.log(model);
+    console.log(util.inspect(model, {depth: null}));
 
     delete model._id;
 
@@ -440,7 +441,7 @@ function getModelsList(cb) {
 
 function saveObjects(model, objects, cb) {
     console.log("Saving objects. ModelId = ", model._id);
-    console.log(objects);
+    console.log(util.inspect(objects, {depth: null}));
     deleteArrOfObjs(model.objects, SugObject, function(err) {
         if (err) {
             cb(err);

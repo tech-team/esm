@@ -1,5 +1,6 @@
 var express = require('express');
 var _ = require('lodash');
+var util = require("util");
 var router = express.Router();
 
 var configureResp = require('./configure_resp');
@@ -95,8 +96,8 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
     var attrsCount = Object.keys(description).length;
     var nonNumericAttrsCount = 0;
 
-    var numericSim = 0.0;
-    var nonNumericSim = 0.0;
+    var numericDist = 0.0;
+    var nonNumericDist = 0.0;
     console.log(userAttrs);
     _.forOwn(userAttrs, function(attr, attrName) {
         var objValue = objAttrs[attrName];
@@ -106,13 +107,15 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
             var type = description[attrName].type;
             switch (type) {
                 case 'choice':
-                    nonNumericSim += (userValue == objValue);
+                    nonNumericDist += (userValue != objValue);
                     ++nonNumericAttrsCount;
                     break;
 
                 case 'number':
-                    var norm = req.session.model.stats[attrName].max - req.session.model.stats[attrName].min;
-                    numericSim += objValue * userValue / (norm * norm);
+                    var _min = req.session.model.stats[attrName].min;
+                    var _max = req.session.model.stats[attrName].max;
+                    var norm = _max - _min;
+                    numericDist += (objValue - _min) * userValue / (norm * norm);
                     break;
             }
         }
