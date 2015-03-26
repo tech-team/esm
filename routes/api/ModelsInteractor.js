@@ -324,21 +324,21 @@ function saveModel(model, cb) {
     };
 
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
-        model.attributes = attrs_ids;
         saveObj(params, 0, Parameter, cb, function(params_ids) {
-            model.parameters = params_ids;
             var mapped_params = _.zipObject(_.map(params, function(p){return p.param}), params_ids);
             _.forEach(questions, function(q) {
                 q.param_id = mapped_params[q.param];
                 //delete q.param;
             });
             saveObj(questions, 0, Question, cb, function(question_ids) {
-                model.questions = question_ids;
 
                 if (model.objects && _.isArray(model.objects) && model.objects.length > 0) {
                     saveObj(sugObjects, 0, SugObject, cb, function (object_ids) {
+                        countObjectsStats(model);
+                        model.attributes = attrs_ids;
                         model.objects = object_ids;
-			countObjectsStats(model);
+                        model.parameters = params_ids;
+                        model.questions = question_ids;
                         modelSaving();
                     });
                 } else {
@@ -443,8 +443,8 @@ function saveObjects(model, objects, cb) {
             cb(err);
         } else {
             saveObj(objects, 0, SugObject, cb, function(sugObjectsIds) {
-                model.objects = sugObjectsIds;
                 countObjectsStats(model);
+                model.objects = sugObjectsIds;
                 model.save(cb);
             });
         }
