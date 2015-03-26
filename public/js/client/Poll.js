@@ -50,7 +50,6 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                             self.renderQuestion(
                                 self.prepareQuestion(msg.question));
                         } else {
-                            alert("No more answers!\nU R DONE!\nCongrats!");
                             window.location.href = "/report";
                         }
                     },
