@@ -251,7 +251,7 @@ function validateObjectsInModel(modelId, objects, cb) {
 
         var res = _validateObjectsInModel(model, objects);
         cb(err, model, res);
-    });
+    }, true);
 }
 
 function countObjectsStats(model) {
@@ -311,10 +311,14 @@ function saveModel(model, cb) {
     var sugObjects = model.objects;
     model.stats = {};
 
+    console.log("Saving Model");
+    console.log(model);
+
     delete model._id;
 
     var modelSaving = function() {
         Model.create(model, function (err, saved_model) {
+	    console.log("Saved model. _id = ", saved_model._id);
             cb(err, saved_model);
         });
     };
@@ -334,10 +338,12 @@ function saveModel(model, cb) {
                 if (model.objects && _.isArray(model.objects) && model.objects.length > 0) {
                     saveObj(sugObjects, 0, SugObject, cb, function (object_ids) {
                         model.objects = object_ids;
+			countObjectsStats(model);
                         modelSaving();
                     });
                 } else {
                     modelSaving();
+
                 }
             });
         });
@@ -396,7 +402,7 @@ function removeModel(modelId, cb) {
     });
 }
 
-function getModel(model_id, cb) {
+function getModel(model_id, cb, noDerivRulesExpansion) {
     Model.findOne({_id: model_id}).populate('attributes')
                                 .populate('parameters')
                                 .populate('questions')
@@ -412,9 +418,11 @@ function getModel(model_id, cb) {
             }
             Model.deepPopulate(model, 'questions.param_id', function(err, model) {
                 if (!err && model) {
-                    model.derivation_rules = _.map(model.derivation_rules, function (r) {
-                        return {rule: r};
-                    });
+		    if (!noDerivRulesExpansion) {
+	                    model.derivation_rules = _.map(model.derivation_rules, function (r) {
+        	                return {rule: r};
+                	    });
+		    }
                 }
                 cb(err, model);
             });
@@ -428,6 +436,8 @@ function getModelsList(cb) {
 }
 
 function saveObjects(model, objects, cb) {
+    console.log("Saving objects. ModelId = ", model._id);
+    console.log(objects);
     deleteArrOfObjs(model.objects, SugObject, function(err) {
         if (err) {
             cb(err);

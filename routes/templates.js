@@ -9,6 +9,7 @@ var partials = {
 };
 
 router.get('/', function(req, res, next) {
+	console.log("HIT SLASH");
     res.render('modelList', {
         partials: partials,
         title: 'model list'

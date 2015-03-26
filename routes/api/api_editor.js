@@ -71,11 +71,13 @@ function saveModel(model, res) {
 
 
 router.post('/model', function(req, res, next) {
+	console.log('/model POST');
     var model = req.body;
     saveModel(model, res);
 });
 
 router.post('/model/objects', function(req, res, next) {
+	console.log('/model/objects');
     var data = req.body;
     modelsInteractor.validateModelObjects(data.modelId, data.objects, function(err, model, validated) {
         if (err) {
@@ -111,6 +113,7 @@ router.post('/model/objects', function(req, res, next) {
 });
 
 router.put('/model', function(req, res, next) {
+	console.log('/model PUT');
     var model = req.body;
     var validated = modelsInteractor.validate(model, true, true);
     if (validated[0]) {
