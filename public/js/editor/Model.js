@@ -22,35 +22,10 @@ define([], function() {
                 orderRules: []
             };
 
-            //TODO: stub
-            this._data.questions = [
-                {
-                    id: 1,
-                    text: "Быть или не быть?",
-                    parameter: "бытие",
-                    type: "choice",
-                    values: ["быть", "или", "не быть"]
-                },
-                {
-                    id: 2,
-                    text: "вопрос 1",
-                    parameter: "параметр1",
-                    type: "choice",
-                    values: ["a", "b", "c"]
-                },
-                {
-                    id: 3,
-                    text: "вопрос 2",
-                    parameter: "параметр1",
-                    type: "number",
-                    values: null
-                }
-            ];
-
             this.createQuestion();
             this.createOrder();
             this.createAttribute();
-            this.createObject();
+            this.createRule();
         },
 
         getName: function () {
@@ -101,11 +76,14 @@ define([], function() {
          * Add new empty order rule to model
          */
         createOrder: function () {
+            if (this._data.questions.length == 0)
+                return null;
+
             var order = {
-                from: "",
+                from: this._data.questions[0].param,
                 op: "==",
                 value: "",
-                to: ""
+                to: this._data.questions[0].param
             };
 
             this._data.orderRules.push(order);
@@ -132,11 +110,7 @@ define([], function() {
          */
         createRule: function () {
             var rule = {
-                id: -1,
-                text: "",
-                parameter: "",
-                type: "choice",
-                values: []
+                rule: ""
             };
 
             this._data.derivation_rules.push(rule);
@@ -148,7 +122,8 @@ define([], function() {
          */
         createObject: function () {
             var object = {
-
+                name: "",
+                attributes: {}
             };
 
             this._data.objects.push(object);
@@ -165,6 +140,22 @@ define([], function() {
 
         getData: function () {
             return this._data;
+        },
+
+        removeOrdersByQuestion: function (question) {
+            this._data.orderRules = _.filter(this._data.orderRules, function (order) {
+                return order.from != question.param && order.to != question.param;
+            });
+        },
+
+        updateOrders: function (oldParamName, newParamName) {
+            _.each(this._data.orderRules, function (order) {
+                if (order.from == oldParamName)
+                    order.from = newParamName;
+
+                if (order.to == oldParamName)
+                    order.to = newParamName;
+            });
         }
     });
 

@@ -1,7 +1,7 @@
 <header class="navbar navbar-default">
     <div class="container">
         <h1>
-            <a href="/" class="logo-link">ES</a>
+            <a href="/" class="logo-link">ESM</a>
             <small>{{title}}</small>
         </h1>
     </div>

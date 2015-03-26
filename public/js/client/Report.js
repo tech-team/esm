@@ -5,7 +5,9 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                 var self = this;
                 this.api  = api;
 
-                this.$resultsTable = $("#results-table");
+                this._loadTemplates();
+
+                this.$resultsContainer = $("#results-container");
 
                 this.api.getReport({
                     onComplete: function (msg) {
@@ -22,20 +24,37 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                 });
             },
 
-            renderReport: function (attrs, results) {
-                var columns = _.map(attrs, function (attrValue, attrName) {
+            renderReport: function (attrs, objects) {
+                _.each(objects, function (object) {
+                    this.addObject(attrs, object);
+                }, this);
+            },
+
+            addObject: function (attrs, object) {
+                var renderedAttrs = _.map(attrs, function (attrValue, attrName) {
+                    var name = attrName;
+                    var value = object.o.attributes[name];
+
                     return {
-                        field: attrName,
-                        title: attrName.replace("_", " ")
-                    }
+                        attrName: name.replace("_", " "),
+                        attrValue: value
+                    };
+                }, this);
+
+                var card = this._templates.card({
+                    name: object.o.name,
+                    rating: object.rank,
+                    attrs: renderedAttrs
                 });
 
-                this.$resultsTable.bootstrapTable({
-                    columns: columns,
-                    striped: true,
-                    data: results
-                });
-                this.$resultsTable.bootstrapTable('hideLoading');
+                var $card = $(card);
+                $card.appendTo(this.$resultsContainer);
+            },
+
+            _loadTemplates: function () {
+                this._templates =  {
+                    card: Templater.load('#card-template')
+                };
             }
         });
 

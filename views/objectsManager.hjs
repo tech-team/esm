@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>ES: {{title}}</title>
+    <title>ESM: {{title}}</title>
 
     <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
@@ -25,7 +25,7 @@
 </script>
 
 <script id="select-template" language="text/html">
-    <select class="form-control">
+    <select class="form-control" data-field="{field}">
         {#entries}
         <option value="{value}" {selected}>{text}</option>
         {/entries}
@@ -33,9 +33,10 @@
 </script>
 
 <script id="operate-template" language="text/html">
-    <button class="ui-button form-control remove" title="Remove">
+    <button class="btn pull-right remove">
         <span class="glyphicon glyphicon-remove" aria-hidden="true">
         </span>
+        Удалить
     </button>
 </script>
 <!-- /mustache partials -->
@@ -43,34 +44,29 @@
 <div class="container">
     <section id="objects">
         <h3>Рекомендуемые объекты</h3>
-        <div class="container-fluid">
+        <div id="objects-container" class="container-fluid">
         <script id="card-template" language="text/html">
-
+            <div class="thumbnail card" data-entry-id="{id}">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Название</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control name" value="{name}">
+                        </div>
+                    </div>
+                    <hr>
+                    {#attrs}
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{attrName}</label>
+                        <div class="col-sm-8">
+                            {[ control ]}
+                        </div>
+                    </div>
+                    {/attrs}
+                    {> operate}
+                </form>
+            </div>
         </script>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
-            <div class="thumbnail">
-                with some text
-            </div>
         </div>
 
         <div class="add-button-wrapper">
@@ -81,10 +77,12 @@
         </div>
     </section>
 
-    <footer id="buttons" class="pull-right">
+    <footer id="buttons" class="buttons">
         <button class="btn btn-primary save-model">Сохранить модель</button>
     </footer>
 </div>
+
+{{> pageFooter}}
 
 </body>
 </html>

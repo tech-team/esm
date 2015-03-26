@@ -9,9 +9,18 @@ class CompilerTest {
     setUp() {
         this.errorsList = new MagicArray(console.error.bind(console));
 
-        this.sourceCode = "if a=b and e<10 then c=d";
+        this.sourceCode = "if a==b and e<10 then c=d";
         this.ast = Compiler.parse(this.sourceCode, this.errorsList);
         this.js = Compiler.compileAST(this.ast, this.errorsList);
+    }
+
+    testAnd() {
+        var sourceCode = "if p1>10 and p2<10 then a3=yes";
+        var result = Compiler.compileStringSerialized(sourceCode, this.errorsList);
+
+        console.log(result);
+
+        console.assert(result.match(/&&/) != null);
     }
 
     testOk() {

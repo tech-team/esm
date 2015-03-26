@@ -52,11 +52,14 @@ function constructNextQuestion(req, userAns) {
     var tree = null;
     if (_.isPlainObject(req.session.orderTree)) {
         tree = new OrderRulesGraph([]);
-        _.extend(tree, req.session.orderTree)
+        _.extend(tree, req.session.orderTree);
+        req.session.orderTree = tree;
+        console.log(tree);
     } else {
         tree = req.session.orderTree;
     }
-    var q = tree.next();
+    console.log(userAns);
+    var q = tree.next(userAns);
 
     if (q) {
         //var qParam = req.session.model_parameters[q.param_id].toObject();
@@ -78,7 +81,7 @@ function executeDerivRules(req) {
     var attrs = req.session.attributes;
 
     _.forEach(req.session.model.compiled_rules, function(stmt) {
-        var stmtJs = Compiler.createFunction(stmt, console.error.bind(console));
+        var stmtJs = Compiler.createFunction(stmt, []);
         if (stmtJs != null) {
             stmtJs(params, attrs);
         } else {
@@ -134,7 +137,7 @@ function calculateObjects(req) {
             rank: sim
         });
     });
-    req.session.objects = _.sortBy(userObjects, 'rank');
+    req.session.objects = _.sortBy(userObjects, function(o) { return -o.rank; });
 }
 
 function acceptAnswer(req, answer, successCb, errorCb) {
@@ -258,7 +261,7 @@ router.post('/answer', function(req, res, next) {
             }));
         },
         function() {
-            res.json(RESP.answerIsNotValid());
+            res.status(400).json(RESP.answerIsNotValid());
         }
     );
 });

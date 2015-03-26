@@ -48,6 +48,10 @@ define(['jquery', 'api/Exceptions'], function($, Exceptions) {
             this._put("/api/editor/model", model, callbacks);
         },
 
+        saveObjects: function (model, callbacks) {
+            this._post("/api/editor/model/objects", model, callbacks);
+        },
+
         _get: function (url, data, callbacks) {
             $.ajax({
                 type: "GET",

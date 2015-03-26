@@ -49,55 +49,36 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 $saveButton.click(this._onSaveModelClick.bind(this));
 
                 // render questions
-                this.$questionsTable = $('#questions-table');
-                var questions = this._model.getQuestions();
-                _.each(questions, function (question) {
-                    this.addQuestionRow(questions, question);
-                }, this);
-
+                this._renderQuestions();
                 var $addQuestionButton = $('#add-question');
                 $addQuestionButton.click(function () {
                     var question = self._model.createQuestion();
-                    self.addQuestionRow(questions, question);
+                    self.addQuestionRow(self._model.getQuestions(), question);
                 });
 
                 // render orders
-                this.$ordersTable = $('#orders-table');
-                var orders = this._model.getOrders();
-                _.each(orders, function (order) {
-                    this.addOrderRow(orders, order);
-                }, this);
-
+                this._renderOrders();
                 var $addOrderButton = $('#add-order');
                 $addOrderButton.click(function () {
                     var order = self._model.createOrder();
-                    self.addOrderRow(orders, order);
+                    if (order)
+                        self.addOrderRow(self._model.getOrders(), order);
                 });
                 
                 // render attributes
-                this.$attrbutesTable = $('#attributes-table');
-                var attributes = this._model.getAttributes();
-                _.each(attributes, function (question) {
-                    this.addAttributeRow(attributes, question);
-                }, this);
-
+                this._renderAttributes();
                 var $addAttributeButton = $('#add-attribute');
                 $addAttributeButton.click(function () {
                     var attribute = self._model.createAttribute();
-                    self.addAttributeRow(attributes, attribute);
+                    self.addAttributeRow(self._model.getAttributes(), attribute);
                 });
 
                 // render derivation rules
-                this.$rulesTable = $('#rules-table');
-                var rules = this._model.getRules();
-                _.each(rules, function (rule) {
-                    this.addRuleRow(rules, rule);
-                }, this);
-
+                this._renderRules();
                 var $addRuleButton = $('#add-rule');
                 $addRuleButton.click(function () {
                     var rule = self._model.createRule();
-                    self.addRuleRow(rules, rule);
+                    self.addRuleRow(self._model.getRules(), rule);
                 });
 
                 // model name
@@ -112,13 +93,61 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 // manage objects
                 var $manageObjects = $('#manage-objects');
                 $manageObjects.click(this._onManageObjectsClick.bind(this));
+
+                // copy json to clipboard
+                var $jsonButton = $('#copy-json');
+                $jsonButton.click(function () {
+                    var modelText = JSON.stringify(self._model.getData());
+                    console.log("Model: ", self._model.getData());
+                    window.prompt("Copy to clipboard: Ctrl+C, Enter", modelText);
+                });
+            },
+
+            _renderQuestions: function () {
+                this.$questionsTable = $('#questions-table');
+                this.$questionsTable.find('tbody').empty();
+
+                var questions = this._model.getQuestions();
+                _.each(questions, function (question) {
+                    this.addQuestionRow(questions, question);
+                }, this);
+            },
+
+            _renderOrders: function () {
+                this.$ordersTable = $('#orders-table');
+                this.$ordersTable.find('tbody').empty();
+
+                var orders = this._model.getOrders();
+                _.each(orders, function (order) {
+                    this.addOrderRow(orders, order);
+                }, this);
+            },
+
+            _renderAttributes: function () {
+                this.$attrbutesTable = $('#attributes-table');
+                this.$attrbutesTable.find('tbody').empty();
+
+                var attributes = this._model.getAttributes();
+                _.each(attributes, function (question) {
+                    this.addAttributeRow(attributes, question);
+                }, this);
+            },
+
+            _renderRules: function () {
+                this.$rulesTable = $('#rules-table');
+                this.$rulesTable.find('tbody').empty();
+
+                var rules = this._model.getRules();
+                _.each(rules, function (rule) {
+                    this.addRuleRow(rules, rule);
+                }, this);
             },
 
             _onManageObjectsClick: function () {
                 console.log("Model: ", this._model.getData());
 
                 var method = this.api.createModel.bind(this.api);
-                if (this._model.getId() != null)
+                if (this._model.getId() != -1)
                     method = this.api.saveModel.bind(this.api);
 
                 method(this._model.getData(), {
@@ -141,7 +170,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                 console.log("Model: ", this._model.getData());
 
                 var method = this.api.createModel.bind(this.api);
-                if (this._model.getId() != null)
+                if (this._model.getId() != -1)
                     method = this.api.saveModel.bind(this.api);
 
                 method(this._model.getData(), {
@@ -160,27 +189,64 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
             },
 
             addQuestionRow: function (questions, question) {
+                var self = this;
                 var context = _.extend(this._prepareContext(question));
                 context.type = this._prepareSelect(this._questionTypes, question.type, "type");
 
-                this.addRow(this.$questionsTable, this._templates.questionRow, context, questions, question);
+                this.addRow(
+                    this.$questionsTable,
+                    this._templates.questionRow,
+                    context, questions, question,
+                    {
+                        input: function ($field, key, oldValue, value) {
+                            if (key == 'param') {
+                                self._model.updateOrders(oldValue, value);
+                            }
+
+                            self._renderOrders();
+                        },
+                        remove: function (question) {
+                            // remove orders associated with removed question
+                            self._model.removeOrdersByQuestion(question);
+                            self._renderOrders();
+                        }
+                    }
+                );
             },
 
-            //TODO
             addOrderRow: function (orders, order) {
+                var self = this;
+
+                var question = _.find(this._model.getQuestions(), function (question) {
+                    return question.param == order.from;
+                });
+
                 var context = {
                     from: this._prepareSelect(this._prepareQuestionList(), order.from, "from"),
                     op: this._prepareSelect(this._orderOps, order.op, "op"),
                     value: this._prepareSelect(this._prepareValues(order.from), order.value, "value"),
                     to: this._prepareSelect(this._prepareQuestionList(), order.to, "to")
                 };
+                context.value.value = order.value;
 
-                this.addRow(this.$ordersTable, this._templates.orderChoiceRow, context, orders, order);
+                var template = question.type == 'choice'
+                    ? this._templates.orderChoiceRow
+                    : this._templates.orderInputRow;
+
+                this.addRow(this.$ordersTable,
+                    template,
+                    context, orders, order,
+                    {
+                        input: function ($field, key, oldValue, value) {
+                            if (key == 'from')
+                                self._renderOrders();
+                        }
+                    });
             },
 
             addAttributeRow: function (attributes, attribute) {
                 var context = _.extend(this._prepareContext(attribute), {
-                    type: this._prepareSelect(this._questionTypes, attribute.type)
+                    type: this._prepareSelect(this._questionTypes, attribute.type, "type")
                 });
 
                 this.addRow(this.$attrbutesTable, this._templates.attributeRow, context, attributes, attribute);
@@ -188,7 +254,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             addRuleRow: function (rules, rule) {
                 var context = this._prepareContext({
-                    rule: rule
+                    rule: rule.rule
                 });
 
                 this.addRow(this.$rulesTable, this._templates.ruleRow, context, rules, rule);
@@ -199,17 +265,19 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
              * @param $table {jQuery}
              * @param template {Function}
              * @param context {Object} template parameters
-             * @param rows {Array} collection, which contains row
-             * @param row {Object}
+             * @param objects {Array} collection, which contains row
+             * @param object {Object}
+             * @param hooks [{input: Function, remove: function}] cbs called on input and remove
              */
-            addRow: function ($table, template, context, rows, row) {
+            addRow: function ($table, template, context, objects, object, hooks) {
                 var self = this;
 
-                var questionRow = template(context);
-                var $questionRow = $(questionRow);
+                var row = template(context);
+                var $row = $(row);
 
-                var $fields = $questionRow.find('input, select');
-                $fields.on('input', function () {
+                var $fields = $row.find('input, select');
+
+                var handler = function (noHooks) {
                     var $field = $(this);
                     var key = $field.data('field');
                     var value = $field.val();
@@ -218,16 +286,32 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         value = value.split(',');
 
                     console.log("Field changed: ", key, value);
-                    row[key] = value;
-                });
+                    var oldValue = object[key];
+                    object[key] = value;
 
-                var $removeButton = $questionRow.find('.remove');
+                    if (noHooks !== true && hooks && hooks.input) {
+                        hooks.input($field, key, oldValue, value);
+                    }
+                };
+                $fields.on('input', handler);
+
+                var $removeButton = $row.find('.remove');
                 $removeButton.click(function () {
-                    rows.remove(row);
-                    $questionRow.remove();
+                    objects.remove(object);
+                    $row.fadeOut($row.remove.bind($row));
+
+                    if (hooks && hooks.remove) {
+                        hooks.remove(object);
+                    }
                 });
 
-                $table.append($questionRow);
+                $table.append($row);
+
+                $fields.each(function () {
+                    handler.call(this, true);
+                });
+
+                return $row;
             },
 
             _prepareContext: function (context) {

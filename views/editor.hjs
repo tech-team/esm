@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>ES: {{title}}</title>
+    <title>ESM: {{title}}</title>
 
     <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
@@ -51,7 +51,10 @@
 
 <div class="container">
     <section id="model">
-        <h3>Модель</h3>
+        <h3>
+            Модель
+            <button class="ui-button pull-right" id="copy-json"><smaLL>JSON</smaLL></button>
+        </h3>
         <label for="model-name">Название:</label>
         <input
                 type="text"
@@ -197,10 +200,12 @@
         </button>
     </section>
 
-    <footer id="buttons" class="pull-right">
+    <footer id="buttons" class="buttons">
         <button class="btn btn-primary save-model">Сохранить модель</button>
     </footer>
 </div>
+
+{{> pageFooter}}
 
 <!-- jQ-ui dialogs -->
 <div class="ui-dialogs">

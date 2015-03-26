@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>ES: {{title}}</title>
+    <title>ESM: {{title}}</title>
 
     <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
@@ -18,7 +18,6 @@
 <body>
 
 {{> pageTitle}}
-
 
 <!-- mustache partials -->
 <script id="link-template" language="text/html">
@@ -49,7 +48,10 @@
                 </button>
             </div>
         </div>
+    </div>
 </div>
+
+{{> pageFooter}}
 
 </body>
 </html>

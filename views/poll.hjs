@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>ES: {{title}}</title>
+    <title>ESM: {{title}}</title>
 
     <link rel="stylesheet" href="/static/css/lib/bootstrap.css" />
     <link rel="stylesheet" href="/static/css/lib/jquery-ui.css">
@@ -79,6 +79,8 @@
         </div>
     </script>
 </div>
+
+{{> pageFooter}}
 
 </body>
 </html>

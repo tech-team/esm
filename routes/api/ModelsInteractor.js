@@ -17,6 +17,7 @@ function copyFields(fromObj, toObj, fields) {
 }
 
 function validate_attr_or_param(obj) {
+    delete obj._id;
     if (!_.isObject(obj) || !(_.isString(obj.param) || _.isString(obj.name)) || !_.isString(obj.type)) {
         return [false, "Attribute or parameter has invalid structure"];
     }
@@ -44,7 +45,7 @@ function validateModel(model, checkForId, noReconstruct) {
         return [false, "_id is not valid"];
     }
 
-    var v = _.isString(model['name'])
+    var v = _.isString(model['name']) && model.name.length > 0
             && _.isArray(model['attributes'])
                 //&& _.isArray(model['parameters'])
             && _.isArray(model['questions'])
@@ -95,17 +96,9 @@ function validateModel(model, checkForId, noReconstruct) {
 
     if (!res[0]) return res;
 
-    _.forEach(model['derivation_rules'], function(rule) {
-        if (!_.isString(rule)) {
-            res = [false, "Derivation rule must be a string"];
-            return false;
-        }
-    });
-
-    if (!res[0]) return res;
-
     if (_.isArray(model['objects']) && model['objects'].length > 0) {
-        return _validateObjectsInModel(model);
+        res = _validateObjectsInModel(model, model['objects']);
+        if (!res[0]) return res;
     }
 
 
@@ -115,6 +108,7 @@ function validateModel(model, checkForId, noReconstruct) {
     }
 
     _.forEach(model['orderRules'], function(orderRule) {
+        delete orderRule._id;
         if (!_.isString(orderRule.from) || !_.isString(orderRule.op) || !_.isString(orderRule.to)) {
             res = [false, "orderRule has invalid structure"];
             return false;
@@ -170,8 +164,16 @@ function validateModel(model, checkForId, noReconstruct) {
         rulesErrors.push("{Error in '" + rule + "'}: " + JSON.stringify(errors));
     };
 
-    _.forEach(model['derivation_rules'], function(rule) {
+    _.forEach(model['derivation_rules'], function(deriv_rule) {
         var errorsList = [];
+
+        if (!_.isObject(deriv_rule) || !_.isString(deriv_rule.rule)) {
+            res = [false, "Derivation rule has invalid format"];
+            return false;
+        }
+
+        var rule = deriv_rule.rule;
+        delete rule._id;
 
         var ast = Compiler.parse(rule, errorsList);
         if (errorsList.length > 0) {
@@ -198,6 +200,8 @@ function validateModel(model, checkForId, noReconstruct) {
     if (rulesErrors.length > 0) {
         return [false, rulesErrors];
     }
+
+    if (!res[0]) return res;
     return [true, ""];
 }
 
@@ -214,6 +218,7 @@ function _validateObjectsInModel(model, objects) {
     };
 
     _.forEach(objects, function (obj) {
+        delete obj._id;
         if (!_.isObject(obj) || !_.isString(obj.name) || !_.isObject(obj.attributes) || Object.keys(obj.attributes).length != model.attributes.length) {
             res = [false, "Object has invalid structure"];
             return false;
@@ -302,11 +307,17 @@ function saveModel(model, cb) {
     var params = model.parameters;
     var attrs = model.attributes;
     var questions = model.questions;
-    var derivRules = model.derivation_rules;
+    model.derivation_rules = _.map(model.derivation_rules, function(r) { return r.rule });
     var sugObjects = model.objects;
     model.stats = {};
 
     delete model._id;
+
+    var modelSaving = function() {
+        Model.create(model, function (err, saved_model) {
+            cb(err, saved_model);
+        });
+    };
 
     saveObj(attrs, 0, Attribute, cb, function(attrs_ids) {
         model.attributes = attrs_ids;
@@ -320,9 +331,14 @@ function saveModel(model, cb) {
             saveObj(questions, 0, Question, cb, function(question_ids) {
                 model.questions = question_ids;
 
-                Model.create(model, function(err, saved_model) {
-                    cb(err, saved_model);
-                });
+                if (model.objects && _.isArray(model.objects) && model.objects.length > 0) {
+                    saveObj(sugObjects, 0, SugObject, cb, function (object_ids) {
+                        model.objects = object_ids;
+                        modelSaving();
+                    });
+                } else {
+                    modelSaving();
+                }
             });
         });
     });
@@ -394,7 +410,14 @@ function getModel(model_id, cb) {
                 cb(err, model);
                 return;
             }
-            Model.deepPopulate(model, 'questions.param_id', cb);
+            Model.deepPopulate(model, 'questions.param_id', function(err, model) {
+                if (!err && model) {
+                    model.derivation_rules = _.map(model.derivation_rules, function (r) {
+                        return {rule: r};
+                    });
+                }
+                cb(err, model);
+            });
     });
 
     //Model.findOne({_id: model_id}).deepPopulate('attributes parameters questions objects ').exec(cb);
