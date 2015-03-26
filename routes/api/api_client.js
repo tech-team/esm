@@ -115,7 +115,8 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
                     var _min = req.session.model.stats[attrName].min;
                     var _max = req.session.model.stats[attrName].max;
                     var norm = _max - _min;
-                    numericDist += (objValue - _min) * userValue / (norm * norm);
+                    var d = ((objValue - _min) / norm) - ((userValue - _min) / norm);
+                    numericDist += d * d;
                     break;
             }
         }
@@ -124,8 +125,9 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
     if (nonNumericAttrsCount !== 0) {
         nonNumericDist /= nonNumericAttrsCount;
     }
-    var sim = (numericDist + nonNumericDist) / attrsCount;
-    return sim;
+    var dist = Math.sqrt((numericDist + nonNumericDist) / attrsCount);
+    console.log("Distance = ", dist);
+    return 1.0 - dist;
 }
 
 function calculateObjects(req) {
