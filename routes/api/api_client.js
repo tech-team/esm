@@ -135,12 +135,20 @@ function calculateObjects(req) {
     var userAttrs = req.session.attributes;
     var userObjects = [];
 
+    var maxSim = 0.0;
     _.forEach(modelObjects, function(obj) {
         var sim = attrsSimilarity(req, userAttrs, obj.attributes);
         userObjects.push({
             o: obj,
             rank: sim
         });
+        if (sim > maxSim) {
+            maxSim = sim;
+        }
+    });
+
+    _.forEach(userObjects, function(obj) {
+        userObjects.rank /= maxSim;
     });
     req.session.objects = _.sortBy(userObjects, function(o) { return -o.rank; });
 }
