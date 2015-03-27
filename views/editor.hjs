@@ -178,7 +178,7 @@
             <tbody>
             <script id="rule-row-template" language="text/html">
                 <tr data-entry-id="{id}">
-                    <td>{> input rule ph='если параметр=10 и другой_параметр>30 то атрибут=20'}</td>
+                    <td>{> input rule ph='если параметр==10 и другой_параметр>30 то атрибут=20'}</td>
                     <td>{> operate}</td>
                 </tr>
             </script>
