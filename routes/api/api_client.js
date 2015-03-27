@@ -148,7 +148,7 @@ function calculateObjects(req) {
     });
 
     _.forEach(userObjects, function(obj) {
-        userObjects.rank /= maxSim;
+        obj.rank /= maxSim;
     });
     req.session.objects = _.sortBy(userObjects, function(o) { return -o.rank; });
 }
