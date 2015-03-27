@@ -55,11 +55,11 @@ function constructNextQuestion(req, userAns) {
         tree = new OrderRulesGraph([]);
         _.extend(tree, req.session.orderTree);
         req.session.orderTree = tree;
-        console.log(tree);
+        //console.log(tree);
     } else {
         tree = req.session.orderTree;
     }
-    console.log(userAns);
+    console.log("userAns = ", userAns);
     var q = tree.next(userAns);
 
     if (q) {
@@ -98,7 +98,7 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
 
     var numericDist = 0.0;
     var nonNumericDist = 0.0;
-    console.log(userAttrs);
+    console.log("userAttrs: ", userAttrs);
     _.forOwn(userAttrs, function(attr, attrName) {
         var objValue = objAttrs[attrName];
         var userValue = attr;
@@ -127,7 +127,7 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
     }
     var dist = Math.sqrt((numericDist + nonNumericDist) / attrsCount);
     console.log("Distance = ", dist);
-    return 1.0 - dist;
+    return 1.0 / dist;
 }
 
 function calculateObjects(req) {
