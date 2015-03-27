@@ -127,7 +127,7 @@ function attrsSimilarity(req, userAttrs, objAttrs) {
     }
     var dist = Math.sqrt((numericDist + nonNumericDist) / attrsCount);
     console.log("Distance = ", dist);
-    return 1.0 / dist;
+    return 1.0 / (dist + 0.5);
 }
 
 function calculateObjects(req) {
