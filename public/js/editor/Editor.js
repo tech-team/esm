@@ -282,8 +282,14 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     var key = $field.data('field');
                     var value = $field.val();
 
-                    if (key == "values")
+                    // split by commas
+                    // and then trim spaces
+                    if (key == "values") {
                         value = value.split(',');
+                        value = _.map(value, function (val) {
+                            return val.trim();
+                        });
+                    }
 
                     console.log("Field changed: ", key, value);
                     var oldValue = object[key];
@@ -316,6 +322,9 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
 
             _prepareContext: function (context) {
                 return _.mapValues(context, function (value, key) {
+                    if (_.isArray(value))
+                        value = value.join(', ');
+
                     return {
                         value: value,
                         field: key
