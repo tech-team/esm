@@ -1,5 +1,5 @@
-define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
-    function($, _, Templater, Exceptions, Model) {
+define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model', 'util/Alert'],
+    function($, _, Templater, Exceptions, Model, Alert) {
         var ObjectsManager = Class.create({
             initialize: function (api, modelId) {
                 var self = this;
@@ -19,7 +19,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                             self._initialize(msg.model)
                         },
                         onError: function (msg) {
-                            alert(JSON.stringify(msg));
+                            Alert.showError(msg);
                         }
                     })
                 }
@@ -155,11 +155,11 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                     objects: this._model.getObjects()
                 }, {
                     onComplete: function (msg) {
-                        alert("Model saved successfully");
-                        history.back();
+                        Alert.showSuccess("Model saved successfully",
+                            history.back.bind(history));
                     },
                     onError: function (msg) {
-                        alert(JSON.stringify(msg));
+                        Alert.showError(msg);
                     }
                 });
             }

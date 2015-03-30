@@ -5,7 +5,8 @@ var modelsInteractor = require('./api/ModelsInteractor');
 
 var partials = {
     pageTitle: 'pageTitle',
-    pageFooter: 'pageFooter'
+    pageFooter: 'pageFooter',
+    alerts: 'alerts'
 };
 
 router.get('/', function(req, res, next) {

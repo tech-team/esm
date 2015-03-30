@@ -230,6 +230,8 @@
             All unsaved data will be lost.
         </p>
     </div>
+
+    {{> alerts}}
 </div>
 <!-- /jQ-ui dialogs -->
 

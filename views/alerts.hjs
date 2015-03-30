@@ -1,0 +1,14 @@
+<div id="message-error" title="ESM: error">
+    <div class="message-icon glyphicon glyphicon-remove"></div>
+    <div class="message-text"></div>
+</div>
+
+<div id="message-info">
+    <div class="message-icon glyphicon glyphicon-info-sign"></div>
+    <div class="message-text"></div>
+</div>
+
+<div id="message-success">
+    <div class="message-icon glyphicon glyphicon-ok"></div>
+    <div class="message-text"></div>
+</div>

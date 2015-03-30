@@ -1,5 +1,5 @@
-define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
-    function($, _, Templater, Exceptions, Model) {
+define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model', 'util/Alert'],
+    function($, _, Templater, Exceptions, Model, Alert) {
         var Editor = Class.create({
             initialize: function (api, modelId) {
                 var self = this;
@@ -35,7 +35,7 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                             self._initialize(msg.model)
                         },
                         onError: function (msg) {
-                            alert(JSON.stringify(msg));
+                            Alert.showError(msg);
                         }
                     })
                 }
@@ -155,11 +155,12 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         var modelId = msg._id;
 
                         history.replaceState(null, "", "/editor?modelId=" + modelId);
-                        alert("Model saved successfully: " + modelId);
-                        document.location.href = "/objectsManager?modelId=" + modelId;
+                        Alert.showSuccess("Model saved successfully: " + modelId, function () {
+                            document.location.href = "/objectsManager?modelId=" + modelId;
+                        });
                     },
                     onError: function (msg) {
-                        alert(JSON.stringify(msg));
+                        Alert.showError(msg);
                     }
                 });
             },
@@ -180,10 +181,10 @@ define(['jquery', 'lodash', 'util/Templater', 'api/Exceptions', 'editor/Model'],
                         history.replaceState(null, "", "/editor?modelId=" + modelId);
                         self._model.setId(modelId);
 
-                        alert("Model saved successfully: " + modelId);
+                        Alert.showSuccess("Model saved successfully: " + modelId);
                     },
                     onError: function (msg) {
-                        alert(JSON.stringify(msg));
+                        Alert.showError(msg);
                     }
                 });
             },

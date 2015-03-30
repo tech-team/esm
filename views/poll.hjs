@@ -82,5 +82,9 @@
 
 {{> pageFooter}}
 
+<div class="ui-dialogs">
+    {{> alerts}}
+</div>
+
 </body>
 </html>
