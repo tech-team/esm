@@ -34,7 +34,7 @@ function validate_attr_or_param(obj) {
     return [true, ""];
 }
 
-function validateModel(model, checkForId, noReconstruct) {
+function validateModel(model, checkForId, noReconstruct, noObjectsValidate) {
     var validOperations = ['==', '<', '>', '<=', '>='];
 
 
@@ -97,7 +97,7 @@ function validateModel(model, checkForId, noReconstruct) {
 
     if (!res[0]) return res;
 
-    if (_.isArray(model['objects']) && model['objects'].length > 0) {
+    if (!noObjectsValidate && _.isArray(model['objects']) && model['objects'].length > 0) {
         res = _validateObjectsInModel(model, model['objects']);
         if (!res[0]) return res;
     }
