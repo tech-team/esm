@@ -25,16 +25,20 @@ define(['jquery', 'jquery-ui', 'lodash'], function($, jqUI, _) {
 
     return {
         showError: function (message, cb) {
-            if (_.isEmpty(message))
+            if (_.isEmpty(message)) {
                 message = "Unknown error. Check your internet connection or blame developers";
-            else if (!_.isEmpty(message.msg))
-                message = message.msg + '<br>' + _.reduce(message.reason, function(value, result) {
+            } else if (!_.isEmpty(message.msg)) {
+                if (!_.isArray(message.reason))
+                    message.reason = [message.reason];
+
+                message = message.msg + '<br>' + _.reduce(message.reason, function (value, result) {
                     return result + value + '<br>';
                 });
-            else if (!_.isEmpty(message.responseText))
+            } else if (!_.isEmpty(message.responseText)) {
                 message = message.responseText;
-            else
+            } else {
                 message = JSON.stringify(message, null, 2);
+            }
 
             showMessage('#message-error', message);
         },
