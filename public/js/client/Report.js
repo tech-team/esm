@@ -36,7 +36,7 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
                     var value = object.o.attributes[name];
 
                     return {
-                        attrName: name.replace("_", " "),
+                        attrName: name.replace(/_/g, ' ').trim(),
                         attrValue: value
                     };
                 }, this);

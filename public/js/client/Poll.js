@@ -104,7 +104,7 @@ define(['jquery', 'lodash', 'util/Url', 'util/Templater'],
 					var v = String(value);
                     question.values[id] = {
                         identifier: v,
-                        spaced: v.replace('_', ' ')
+                        spaced: v.replace(/_/g, ' ').trim()
                     };
                 });
 				return question;
