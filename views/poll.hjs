@@ -38,8 +38,8 @@
                                         id="{identifier}"
                                         value="{identifier}"
                                         required="true">
+                                {spaced}
                             </label>
-                            {spaced}
                         </div>
                         {/values}
                     </div>
